@@ -2,9 +2,8 @@
 
 This project provides the 
 [FreeBSD documentation repository](https://cgit.freebsd.org/doc) 
-as native objects (such as Book, Chapter, and Section) that are
-visible to the Ruby runtime, as a SQLite3 database, and as a headless
-web interface that can query the database with FTS. 
+as a SQLite3 database that can be queried with FTS through a headless
+web interface that scripts can easily interact with. 
 
 ## Usage
 
