@@ -31,17 +31,11 @@ class Router < Roda
   def sql
     <<~SQL
       SELECT
-        sections.id,
-        sections.title,
-        sections.anchor,
-        sections.level,
-        sections.position,
-        sections.source_line,
+        sections.id, sections.title, sections.anchor,
+        sections.level, sections.position, sections.source_line,
         sections.text,
         chapters.name AS chapter,
-        chapters.path AS chapter_path,
         books.name AS book,
-        books.path AS book_path,
         bm25(sections_fts) AS rank
       FROM sections_fts
       JOIN sections ON sections.id = sections_fts.section_id
