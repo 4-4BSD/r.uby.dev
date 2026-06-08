@@ -18,6 +18,7 @@ load_rc_config "$name"
 : ${handbook_port:="9292"}
 : ${handbook_env:="production"}
 : ${handbook_bundle:="%%PREFIX%%/bin/bundle"}
+: ${handbook_path:="%%PREFIX%%/bin:/sbin:/bin:/usr/sbin:/usr/bin"}
 
 pidfile="/var/run/${name}.pid"
 start_cmd="${name}_start"
@@ -40,6 +41,7 @@ handbook_start()
 	cd "$handbook_dir" || return 1
 	export BUNDLE_GEMFILE="${handbook_dir}/Gemfile"
 	export RACK_ENV="$handbook_env"
+	export PATH="$handbook_path"
 	/usr/sbin/daemon -f -p "$pidfile" -t "$name" -u "$handbook_user" \
 		"$handbook_bundle" exec rackup \
 		-o "$handbook_bind" \
