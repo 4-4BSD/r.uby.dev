@@ -46,10 +46,12 @@
 
     <style>
       :root {
-        --bg: #f7f7f4;
-        --fg: #111;
-        --muted: #555;
-        --line: #ccc;
+        --bg: #0f1419;
+        --fg: #e1e4e8;
+        --muted: #8b949e;
+        --accent: #3fb950;
+        --line: #30363d;
+        --surface: #161b22;
       }
 
       * {
@@ -61,125 +63,41 @@
         background: var(--bg);
         color: var(--fg);
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        line-height: 1.55;
+        line-height: 1.6;
       }
 
       main {
-        width: min(880px, calc(100% - 32px));
+        width: min(760px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 48px 0;
+        padding: 48px 0 72px;
       }
 
       header {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 160px;
-        gap: 32px;
+        grid-template-columns: minmax(0, 1fr) 120px;
+        gap: 24px;
         align-items: start;
         border-bottom: 1px solid var(--line);
-        padding-bottom: 28px;
+        padding-bottom: 24px;
       }
 
       h1 {
-        margin: 0 0 10px;
-        font-size: 42px;
-        line-height: 1;
-        letter-spacing: 0;
+        margin: 0 0 8px;
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
       }
 
       .summary {
-        max-width: 680px;
+        max-width: 600px;
         margin: 0;
         color: var(--muted);
-        font-size: 18px;
+        font-size: 16px;
       }
 
       .hero-image {
-        width: 160px;
+        width: 120px;
         height: auto;
-      }
-
-      .terminal-shot {
-        display: block;
-        width: min(100%, 760px);
-        height: auto;
-        margin: 0 auto 24px;
-        border: 1px solid var(--line);
-      }
-
-      .asciinema-player {
-        --term-color-foreground: #e5e5e5;
-        --term-color-background: #0d0d0d;
-        --term-color-0: #1a1a1a;
-        --term-color-1: #22c55e;
-        --term-color-2: #22c55e;
-        --term-color-3: #e5e5e5;
-        --term-color-4: #4ade80;
-        --term-color-5: #888888;
-        --term-color-6: #2a2a2a;
-        --term-color-7: #e5e5e5;
-        --term-color-8: #555555;
-        --term-color-9: #4ade80;
-        --term-color-10: #22c55e;
-        --term-color-11: #cccccc;
-        --term-color-12: #6ee7b7;
-        --term-color-13: #aaaaaa;
-        --term-color-14: #3a3a3a;
-        --term-color-15: #ffffff;
-      }
-
-      .asciinema-player .asciinema-terminal {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        line-height: 1.3;
-      }
-
-      .asciicast-wrap {
-        width: 100%;
-        margin: 14px auto 0;
-        background: #1a1a1a;
-        border: 1px solid var(--line);
-      }
-
-      .asciicast-header {
-        padding: 9px 12px;
-        border-bottom: 1px solid #333;
-        color: #aaa;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 12px;
-      }
-
-      .asciicast-header span {
-        color: #4ade80;
-      }
-
-      .asciicast {
-        overflow: hidden;
-        background: #000;
-        padding: 6px;
-      }
-
-      .asciicast-wrap.is-loading .asciicast {
-        height: 260px;
-        padding: 0;
-        position: relative;
-      }
-
-      .asciicast-wrap.is-loading .asciicast::before {
-        content: "Loading recording...";
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        color: #aaa;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 12px;
-      }
-
-      .asciicast-wrap.is-loading .asciicast > * {
-        visibility: hidden;
-      }
-
-      .asciicast .asciinema-player {
-        max-width: 100%;
       }
 
       section {
@@ -189,16 +107,25 @@
 
       h2 {
         margin: 0 0 12px;
-        font-size: 20px;
+        font-size: 18px;
+        font-weight: 600;
       }
 
       p {
         margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 15px;
       }
 
       ul {
         margin: 0;
-        padding-left: 22px;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      ul li {
+        margin-bottom: 6px;
       }
 
       code,
@@ -209,65 +136,137 @@
       pre {
         margin: 14px 0 0;
         overflow-x: auto;
-        color: var(--fg);
         font-size: 14px;
+        line-height: 1.5;
       }
 
       pre code {
         display: block;
-        padding: 10px 0 10px 14px;
+        padding: 12px 0 12px 14px;
         border-left: 3px solid var(--line);
-        line-height: 1.55;
+        background: var(--surface);
+        border-radius: 0 6px 6px 0;
+        color: var(--fg);
       }
 
       pre code.sh {
-        border-left-color: #b21b1b;
+        border-left-color: var(--accent);
+      }
+
+      .terminal {
+        margin: 14px 0 0;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #000;
+        border: 1px solid var(--line);
+      }
+
+      .terminal-bar {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 14px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .terminal-bar .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .terminal-bar .dot:nth-child(1) { background: #ff5f56; }
+      .terminal-bar .dot:nth-child(2) { background: #ffbd2e; }
+      .terminal-bar .dot:nth-child(3) { background: #27c93f; }
+
+      .terminal pre {
+        margin: 0;
+        padding: 14px;
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: clamp(16px, 3vw, 22px);
+        line-height: 1.5;
+        color: var(--accent);
+        background: #000;
+      }
+
+      .terminal pre code {
+        background: none;
+        padding: 0;
+        border: none;
+        color: var(--accent);
       }
 
       .try-options {
         display: grid;
-        gap: 26px;
-      }
-
-      .try-method h3 {
-        margin: 0 0 8px;
-        font-size: 16px;
-        line-height: 1.2;
-      }
-
-      .try-method p {
-        max-width: 680px;
+        gap: 28px;
       }
 
       .try-method-label {
         display: inline-block;
         margin: 0 0 8px;
         color: var(--muted);
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 700;
         text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
 
-      .ssh-command {
-        display: flex;
-        align-items: center;
-        min-width: 0;
-        margin: 12px 0 0;
-        padding: 0;
-        overflow-x: auto;
-        background: #fff;
+      .try-method p {
+        max-width: 600px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
         border-top: 1px solid var(--line);
-        border-bottom: 1px solid var(--line);
-        border-left: 3px solid #b21b1b;
-        color: var(--fg);
-        font-size: clamp(20px, 4vw, 30px);
-        line-height: 1.25;
+        padding: 9px 0;
+        text-align: left;
+        vertical-align: top;
       }
 
-      .ssh-command code {
-        display: block;
-        padding: 10px 0 10px 14px;
-        white-space: nowrap;
+      th {
+        font-weight: 600;
+        color: var(--fg);
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      td code {
+        font-size: 13px;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      footer {
+        padding-top: 22px;
+        color: var(--muted);
+        font-size: 13px;
+        display: flex;
+        gap: 12px;
+      }
+
+      footer a {
+        color: var(--muted);
+      }
+
+      footer a:hover {
+        color: var(--accent);
       }
 
       .screenshots {
@@ -285,50 +284,35 @@
         width: 100%;
         height: auto;
         border: 1px solid var(--line);
+        border-radius: 4px;
       }
 
       figcaption {
         margin-top: 6px;
         color: var(--muted);
-        font-size: 14px;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 15px;
-      }
-
-      th,
-      td {
-        border-top: 1px solid var(--line);
-        padding: 9px 0;
-        text-align: left;
-        vertical-align: top;
-      }
-
-      th {
-        font-weight: 700;
-      }
-
-      a {
-        color: inherit;
-      }
-
-      footer {
-        padding-top: 22px;
-        color: var(--muted);
-        font-size: 14px;
+        font-size: 13px;
       }
 
       @media (max-width: 720px) {
-        header,
-        .screenshots {
-          grid-template-columns: 1fr;
+        main {
+          padding: 32px 0 56px;
+        }
+
+        header {
+          grid-template-columns: minmax(0, 1fr) 90px;
+          gap: 16px;
         }
 
         .hero-image {
-          width: 120px;
+          width: 90px;
+        }
+
+        h1 {
+          font-size: 26px;
+        }
+
+        .screenshots {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -353,7 +337,14 @@
           <div class="try-method">
             <span class="try-method-label">SSH</span>
             <p>The quick way is SSH. No install required. It is free to use within reason and I cover the costs. If you're not sure what Robert is, this is a great way to find out without installing anything. The sshd build has been customized for security considerations. The localized Robert is more feature rich.</p>
-            <pre class="ssh-command"><code>ssh robert@4.4bsd.dev</code></pre>
+            <div class="terminal">
+              <div class="terminal-bar">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <pre><code>ssh robert@4.4bsd.dev</code></pre>
+            </div>
           </div>
 
           <div class="try-method">
@@ -374,6 +365,7 @@ $ ./robert</code></pre>
           </div>
         </div>
       </section>
+
       <section>
         <h2>What makes Robert different?</h2>
         <ul>
@@ -385,7 +377,6 @@ $ ./robert</code></pre>
           <li><strong>Small deployment model.</strong> <br> Release builds are distributed as a statically linked binary around 3MB.</li>
         </ul>
       </section>
-
 
       <section>
         <h2>Abilities</h2>
@@ -453,8 +444,9 @@ $ ./robert</code></pre>
         </table>
       </section>
       <footer>
-        <a href="/">4.4BSD</a> &middot;
-        0BSD licensed.
+        <a href="/">4.4BSD</a>
+        <span>&middot;</span>
+        <span>0BSD licensed</span>
       </footer>
     </main>
   </body>
