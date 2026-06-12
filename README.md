@@ -1,56 +1,34 @@
 ## About
 
-The source code for [4.4bsd.dev](https://4.4bsd.dev).
-
-This project provides the 
-[FreeBSD documentation repository](https://cgit.freebsd.org/doc) 
-as a SQLite3 database that can be queried with FTS through a headless
-web interface that scripts can easily interact with. This project
-began as a way to provide [robert](https://github.com/llmrb/robert)
-with access to the FreeBSD handbook and has since evolved to cover
-**multiple books**: the user's handbook, the developer's handbook, and
-the porter's handbook. More might follow.
+The source code for [r.uby.dev](https://r.uby.dev). This project
+provides Ruby documentation as a SQLite3 database that can be
+queried with FTS through a headless web interface that scripts
+can easily interact with.
 
 ## Usage
-
-### Requirements
-
-#### Repository
-
-A copy of the [FreeBSD documentation repository](https://cgit.freebsd.org/doc) is required. <br>
-By default it is expected to be found at `../doc` although you can 
-customize the location by setting the environment variable `${DOC_REPO}`.
 
 ### CLI
 
 #### create-database
 
-Creates a new database in `share/handbook/database.sqlite3`
+Creates a new database in `share/rubydoc/database.sqlite3`
 
-    $ handbook create-database
+    $ rubydoc create-database
 
 #### web
 
-Serves a HTTP API that can query the handbook with FTS
+Serves a HTTP API that can query the documentation with FTS
 
-    $ handbook web
-    $ fetch 'http://localhost:9292?q=ports'
+    $ rubydoc web
+    $ fetch 'http://localhost:9292/ri/search?q=Enumerable'
 
-### Library
+### API Endpoints
 
-#### Repository
-
-The Repository, Book, Chapter, and Section classes 
-provide the handbook to a Ruby runtime:
-
-```ruby
-r = Repository.new(locale: "en")
-r.books.each do |book|
-  print "The book ", book.name, " has #{book.chapters.size} chapters"
-end
-```
+| Endpoint | Description |
+|---|---|
+| `GET /ri/search?q=QUERY` | Search Ruby documentation |
+| `GET /rdoc/search?q=QUERY` | Search rdoc documentation |
 
 ## License
 
-0BSD.
-See [LICENSE](./LICENSE)
+0BSD. See [LICENSE](./LICENSE).

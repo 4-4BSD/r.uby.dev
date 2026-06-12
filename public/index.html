@@ -3,74 +3,39 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>4.4BSD - FreeBSD Services, Robert SSH, and Handbook Search</title>
-    <link rel="canonical" href="https://4.4bsd.dev/">
+    <title>Ruby.dev</title>
+    <link rel="canonical" href="https://r.uby.dev/">
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="FreeBSD services for the BSD community: try Robert over public SSH with no install, or query full-text search across the FreeBSD user, developer, and porter handbooks.">
+    <meta name="description" content="Ruby documentation services — full-text search across Ruby's documentation, ri, and rdoc. Publicly accessible, no signup required.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="4.4BSD">
-    <meta property="og:title" content="4.4BSD - FreeBSD Services">
-    <meta property="og:description" content="Try Robert over public SSH with no install, or query full-text search across the FreeBSD user, developer, and porter handbooks.">
-    <meta property="og:url" content="https://4.4bsd.dev/">
-    <meta property="og:image" content="https://4.4bsd.dev/images/beastie.png">
+    <meta property="og:site_name" content="Ruby.dev">
+    <meta property="og:title" content="Ruby.dev">
+    <meta property="og:description" content="Ruby documentation services — full-text search across Ruby's documentation, ri, and rdoc.">
+    <meta property="og:url" content="https://r.uby.dev/">
+    <meta property="og:image" content="https://r.uby.dev/images/ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="4.4BSD - FreeBSD Services">
-    <meta name="twitter:description" content="Try Robert over public SSH with no install, or query full-text search across the FreeBSD user, developer, and porter handbooks.">
-    <meta name="twitter:image" content="https://4.4bsd.dev/images/beastie.png">
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "4.4BSD",
-        "url": "https://4.4bsd.dev/",
-        "description": "FreeBSD services for the BSD community: Robert over public SSH and full-text search across the FreeBSD handbooks.",
-        "inLanguage": "en",
-        "publisher": {
-          "@type": "Organization",
-          "name": "4.4bsd.dev"
-        },
-        "hasPart": [
-          {
-            "@type": "SoftwareApplication",
-            "name": "Robert",
-            "url": "https://4.4bsd.dev/robert/",
-            "applicationCategory": "DeveloperApplication",
-            "operatingSystem": "FreeBSD",
-            "description": "A FreeBSD expert available through a public SSH instance and as a statically linked binary.",
-            "isAccessibleForFree": true
-          },
-          {
-            "@type": "WebAPI",
-            "name": "FreeBSD Handbook Search",
-            "url": "https://4.4bsd.dev/handbook/u/search",
-            "description": "HTTP JSON full-text search across the FreeBSD user, developer, and porter handbooks.",
-            "isAccessibleForFree": true
-          }
-        ]
-      }
-    </script>
+    <meta name="twitter:title" content="Ruby.dev">
+    <meta name="twitter:description" content="Ruby documentation services — full-text search across Ruby's documentation, ri, and rdoc.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/ruby.png">
 
     <style>
       :root {
         --bg: #0f1419;
         --fg: #e1e4e8;
         --muted: #8b949e;
-        --accent: #3fb950;
+        --accent: #cc342d;
         --line: #30363d;
         --surface: #161b22;
       }
 
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
       body {
         margin: 0;
@@ -89,13 +54,10 @@
       .hero {
         text-align: center;
         padding: 32px 0 40px;
+        border-bottom: 1px solid var(--line);
       }
 
-      .hero img {
-        width: 120px;
-        height: auto;
-        margin-bottom: 20px;
-      }
+      .hero img { width: 120px; height: auto; margin-bottom: 20px; }
 
       .hero h1 {
         margin: 0 0 8px;
@@ -105,41 +67,27 @@
       }
 
       .hero p {
-        margin: 0;
+        margin: 0 auto;
         color: var(--muted);
         font-size: 16px;
         max-width: 520px;
-        margin-left: auto;
-        margin-right: auto;
       }
 
       .service {
         padding: 32px 0;
+        border-bottom: 1px solid var(--line);
       }
 
-      .service,
-      .footer {
-        border-top: 1px solid var(--line);
-      }
+      .service:last-of-type { border-bottom: none; }
 
-      .service h2 {
-        margin: 0 0 12px;
-        font-size: 18px;
-        font-weight: 600;
-      }
+      .service h2 { margin: 0 0 12px; font-size: 18px; font-weight: 600; }
 
-      .service p {
-        margin: 0 0 14px;
-        color: var(--muted);
-        font-size: 15px;
-      }
-
-      .service p:last-child {
-        margin-bottom: 0;
-      }
+      .service p { margin: 0 0 14px; color: var(--muted); font-size: 15px; }
+      .service p:last-child { margin-bottom: 0; }
 
       .terminal {
         margin: 14px 0 0;
+        border-radius: 8px;
         overflow: hidden;
         background: #000;
         border: 1px solid var(--line);
@@ -148,21 +96,20 @@
       .terminal-bar {
         display: flex;
         align-items: center;
-        padding: 6px 10px;
-        background: #0b0f14;
-        color: var(--muted);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 12px;
-        border-bottom: 1px solid #20262d;
+        gap: 7px;
+        padding: 10px 14px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
       }
 
-      .terminal-bar::before {
-        content: "ssh";
-      }
+      .terminal-bar .dot { width: 10px; height: 10px; border-radius: 50%; }
+      .terminal-bar .dot:nth-child(1) { background: #ff5f56; }
+      .terminal-bar .dot:nth-child(2) { background: #ffbd2e; }
+      .terminal-bar .dot:nth-child(3) { background: #27c93f; }
 
       .terminal pre {
         margin: 0;
-        padding: 14px 16px 16px;
+        padding: 16px;
         overflow-x: auto;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         font-size: clamp(16px, 3vw, 22px);
@@ -171,15 +118,9 @@
         background: #000;
       }
 
-      .terminal pre code {
-        background: none;
-        padding: 0;
-        border: none;
-      }
+      .terminal pre code { background: none; padding: 0; border: none; }
 
-      code, pre {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      }
+      code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 
       pre {
         margin: 14px 0 0;
@@ -197,18 +138,10 @@
         color: var(--fg);
       }
 
-      pre code.sh {
-        border-left-color: var(--accent);
-      }
+      pre code.sh { border-left-color: var(--accent); }
 
-      a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      a:hover {
-        text-decoration: underline;
-      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
 
       ul {
         margin: 0;
@@ -216,14 +149,12 @@
         color: var(--muted);
         font-size: 15px;
       }
-
-      ul li {
-        margin-bottom: 4px;
-      }
+      ul li { margin-bottom: 4px; }
 
       .footer {
         margin-top: 32px;
         padding-top: 24px;
+        border-top: 1px solid var(--line);
         color: var(--muted);
         font-size: 13px;
         display: flex;
@@ -232,86 +163,78 @@
       }
 
       @media (max-width: 600px) {
-        main {
-          padding: 32px 0 56px;
-        }
-
-        .hero img {
-          width: 90px;
-        }
-
-        .hero h1 {
-          font-size: 28px;
-        }
+        main { padding: 32px 0 56px; }
+        .hero img { width: 90px; }
+        .hero h1 { font-size: 28px; }
       }
     </style>
   </head>
   <body>
     <main>
       <div class="hero">
-        <img src="/images/beastie.png" alt="Beastie">
-        <h1>4.4BSD</h1>
-        <p>FreeBSD services for the BSD community. <br> Free to use. No account required.</p>
+        <img src="/images/ruby.png" alt="Ruby">
+        <h1>Ruby.dev</h1>
+        <p>Ruby documentation services for the Ruby community. Publicly accessible, no signup required.</p>
       </div>
 
       <div class="service">
-        <h2>Robert</h2>
+        <h2>Matz</h2>
         <p>
-          <a href="/robert/">Robert</a> is a statically linked,
-          3MB binary that is designed to teach and troubleshoot
-          FreeBSD. He searches man pages, the FreeBSD handbooks,
-          the ports tree, and the package database, and grounds
-          every answer in official FreeBSD documentation.
+          Matz is a statically linked, 3MB binary that teaches you Ruby
+          by answering questions from official documentation, ri, rdoc,
+          and the mruby source code. He grounds every answer in primary
+          sources.
         </p>
         <p>
-          Robert is also available through a publically accessible sshd 🙂 <br>
-          So you can try Robert without installing anything, and it is
-          free to use within reason.
+          Matz is also available through a publicly accessible SSH endpoint 🙂
+          You can try Matz without installing anything, and it is free to
+          use within reason.
         </p>
         <div class="terminal">
-          <div class="terminal-bar"></div>
-          <pre><code>ssh robert@4.4bsd.dev</code></pre>
+          <div class="terminal-bar">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <pre><code>ssh matz@r.uby.dev</code></pre>
         </div>
+        <p style="margin-top:10px;color:var(--muted);font-size:14px;">
+          No signup. No account. Just SSH.
+        </p>
       </div>
 
       <div class="service">
-        <h2>Handbook</h2>
+        <h2>Documentation Search</h2>
         <p>
-          Full-text search across the FreeBSD handbooks via an HTTP+JSON
+          Full-text search across Ruby's documentation via an HTTP+JSON
           interface, intended for scripts, terminals, AI agents, and any
           other software that speaks HTTP.
         </p>
         <pre><code class="sh">##
-# Search the user's handbook
-fetch -qo - 'https://4.4bsd.dev/handbook/u/search?q=pkg'
+# Search Ruby documentation
+fetch -qo - 'https://r.uby.dev/ri/search?q=Enumerable'
 
 ##
-# Search the developer's handbook
-fetch -qo - 'https://4.4bsd.dev/handbook/d/search?q=compiler'
-
-##
-# Search the porter's handbook
-fetch -qo - 'https://4.4bsd.dev/handbook/p/search?q=Makefile'</code></pre>
-        <p style="margin-top:14px;">Indexed books:</p>
-        <ul>
-          <li>FreeBSD User's Handbook</li>
-          <li>FreeBSD Developer's Handbook</li>
-          <li>FreeBSD Porter's Handbook</li>
-        </ul>
+# Search rdoc
+fetch -qo - 'https://r.uby.dev/rdoc/search?q=Array#map'</code></pre>
       </div>
 
       <div class="service">
         <h2>Open Source</h2>
         <p>
-          All 4.4BSD services are 100% open source.
-        </p>
-        <p>
-          The handbook search can be
-          <a href="https://github.com/0x1eef/4.4bsd.dev#readme">self-hosted</a>
-          and includes a <code>make install</code> target alongside an
-          <code>rc.d</code> script. Robert is also
-          <a href="https://github.com/llmrb/robert#readme">open source</a>
+          Both services are 100% open source. The search engine can be
+          <a href="https://github.com/0x1eef/ruby.dev#readme">self-hosted</a>.
+          Matz is also <a href="https://github.com/0x1eef/matz#readme">open source</a>
           and can be built from source.
+        </p>
+      </div>
+
+      <div class="service">
+        <h2>Ruby.dev</h2>
+        <p>
+          A domain for Ruby documentation and learning tools. Inspired
+          by the language's philosophy of developer happiness and
+          readable code.
         </p>
       </div>
 

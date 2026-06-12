@@ -4,7 +4,7 @@ class Repository
   ##
   # @return [String]
   def self.path
-    File.realpath(ENV["DOC_REPO"] || "../freebsd-doc")
+    File.realpath(ENV["DOC_REPO"] || "../ruby-doc")
   end
 
   ##

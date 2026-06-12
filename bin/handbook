@@ -4,7 +4,7 @@
 def usage
   warn <<~USAGE
     #{$0} command [OPTIONS]
-    
+
     commands:
       create-database   new SQLite3 database
       web               serve a HTTP search API
@@ -17,10 +17,10 @@ def main(argv)
   case argv[0]
   when nil then usage
   when "web"
-    Process.spawn File.join("libexec", "handbook", argv[0]), *argv[1..]
+    Process.spawn File.join("libexec", "rubydoc", argv[0]), *argv[1..]
     Process.wait
   when "create-database"
-    Process.spawn File.join("libexec", "handbook", argv[0]), *argv[1..]
+    Process.spawn File.join("libexec", "rubydoc", argv[0]), *argv[1..]
     Process.wait
   else usage
   end
