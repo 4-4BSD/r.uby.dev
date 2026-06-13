@@ -11,14 +11,10 @@ class Router < Roda
       File.read(File.join(self.class.root, "public", "index.html"))
     end
 
-    r.on "ri" do
+    r.on "mruby" do
       response["content-type"] = "application/json"
-      r.get "index" do
-        ri.index.to_json
-      end
-
       r.get "search" do
-        ri.search(r.params["q"]).to_json
+        rg("../mruby/src").search(r.params["q"])
       end
     end
 
@@ -26,9 +22,8 @@ class Router < Roda
   end
 
   ##
-  # @param [String] query
-  # @return [String]
-  def ri
-    @ri ||= RI.new("ri")
+  # @return [RG]
+  def rg(path)
+    @rg ||= RG.new(path)
   end
 end

@@ -7,5 +7,5 @@ require "test/cmd"
 class Command < Test::Cmd
 end
 
-require_relative "ri"
+require_relative "rg"
 require_relative "router"

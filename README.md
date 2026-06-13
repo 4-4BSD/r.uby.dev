@@ -1,8 +1,7 @@
 ## About
 
 The source code for [r.uby.dev](https://r.uby.dev). This project
-provides Ruby documentation services that scripts can easily
-interact with.
+provides mruby-focused services that scripts can easily interact with.
 
 ## Usage
 
@@ -17,8 +16,7 @@ Serves `public/` locally.
 
 | Endpoint | Description |
 |---|---|
-| `GET /ri/index` | List available `ri` documentation entries |
-| `GET /ri/search?q=QUERY` | Render a documentation entry through `ri -T -f markdown QUERY` |
+| `GET /mruby/search?q=QUERY` | Search the mruby source tree with `rg -F QUERY` |
 
 ## License
 
