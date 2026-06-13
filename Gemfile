@@ -1,6 +1,8 @@
 source "https://rubygems.org"
 gem "logger"
 gem "irb"
+gem "test-cmd.rb"
+gem "json"
 gem "rubocop", "~> 1.84"
 gem "standard", "~> 1.54"
 gem "roda", "~> 3.104"
