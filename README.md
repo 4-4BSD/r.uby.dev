@@ -17,8 +17,8 @@ Serves `public/` locally.
 
 | Endpoint | Description |
 |---|---|
-| `GET /ri/search?q=QUERY` | Search Ruby documentation through `ri` |
-| `GET /rdoc/search?q=QUERY` | Search Ruby documentation through `rdoc` |
+| `GET /ri/index` | List available `ri` documentation entries |
+| `GET /ri/search?q=QUERY` | Render a documentation entry through `ri -T -f markdown QUERY` |
 
 ## License
 

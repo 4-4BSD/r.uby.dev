@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="Ruby documentation services — full-text search across Ruby's documentation, ri, and rdoc. Publicly accessible, no signup required.">
+    <meta name="description" content="Ruby documentation services — ri documentation over HTTP+JSON. Publicly accessible, no signup required.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="r.uby.dev">
-    <meta property="og:description" content="Ruby documentation services — full-text search across Ruby's documentation, ri, and rdoc.">
+    <meta property="og:description" content="Ruby documentation services — ri documentation over HTTP+JSON.">
     <meta property="og:url" content="https://r.uby.dev/">
     <meta property="og:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="r.uby.dev">
-    <meta name="twitter:description" content="Ruby documentation services — full-text search across Ruby's documentation, ri, and rdoc.">
+    <meta name="twitter:description" content="Ruby documentation services — ri documentation over HTTP+JSON.">
     <meta name="twitter:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <style>
@@ -234,7 +234,7 @@
           <img class="hero-logo" src="/images/rubydev.svg" alt="r.uby.dev">
           <span class="sr-only">r.uby.dev</span>
         </h1>
-        <p>Ruby documentation services for the Ruby community. <br> Free to use. No account required.</p>
+        <p>Resources and services for the Ruby community. <br> Free to use. No account required.</p>
       </div>
 
       <div class="service">
@@ -259,22 +259,20 @@
       <div class="service">
         <h2>Documentation</h2>
         <p>
-          Full-text search across Ruby's documentation via an HTTP+JSON
-          interface, intended for scripts, terminals, AI agents, and any
-          other software that speaks HTTP.
+          Documentation from the ri tool is available through an HTTP+JSON
+          interface, intended for scripts, terminals, AI agents, and
+          any other software that speaks HTTP.
         </p>
         <pre><code class="sh">##
-# Search Ruby documentation
-fetch -qo - 'https://r.uby.dev/ri/search?q=Enumerable'
+# List ri entries
+fetch -qo - 'https://r.uby.dev/ri/index'
 
 ##
-# Search rdoc
-fetch -qo - 'https://r.uby.dev/rdoc/search?q=Array#map'</code></pre>
+# Render an ri entry
+fetch -qo - 'https://r.uby.dev/ri/search?q=Enumerable'</code></pre>
         <p style="margin-top:14px;">Indexed sources:</p>
         <ul>
-          <li>Ruby documentation</li>
           <li>ri</li>
-          <li>rdoc</li>
         </ul>
       </div>
 
@@ -286,7 +284,7 @@ fetch -qo - 'https://r.uby.dev/rdoc/search?q=Array#map'</code></pre>
         <p>
           The documentation search can be
           <a href="https://github.com/4-4BSD/r.uby.dev#readme">self-hosted</a>
-          and includes a <code>make install</code> target alongside an
+          and for FreeBSD users there's a <code>make install</code> target alongside an
           <code>rc.d</code> script. Matz is also
           <a href="https://github.com/4-4BSD/matz#readme">open source</a>
           and can be built from source.
