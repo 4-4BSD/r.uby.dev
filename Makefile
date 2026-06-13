@@ -1,5 +1,5 @@
 PREFIX ?= /usr/local
-APPNAME ?= handbook
+APPNAME ?= rubydev
 APPDIR ?= $(PREFIX)/share/$(APPNAME)
 RCDIR ?= $(PREFIX)/etc/rc.d
 BUNDLE ?= bundle
@@ -9,7 +9,7 @@ RM ?= rm -f
 SED ?= sed
 
 APP_FILES = config.ru Gemfile Gemfile.lock LICENSE README.md
-APP_DIRS = .bundle bin lib libexec public
+APP_DIRS = .bundle bin libexec public
 
 .PHONY: install deinstall bundle check-bundle
 
@@ -22,12 +22,10 @@ install: check-bundle
 		rm -rf "$(DESTDIR)$(APPDIR)/$$dir"; \
 		cp -R "$$dir" "$(DESTDIR)$(APPDIR)/$$dir"; \
 	done
-	$(MKDIR) "$(DESTDIR)$(APPDIR)/share/handbook"
-	$(INSTALL) -m 0644 share/handbook/database.sqlite3 "$(DESTDIR)$(APPDIR)/share/handbook/database.sqlite3"
 	$(MKDIR) "$(DESTDIR)$(RCDIR)"
 	$(SED) -e "s|%%APPDIR%%|$(APPDIR)|g" -e "s|%%PREFIX%%|$(PREFIX)|g" \
-		etc/rc.d/handbook.in > "$(DESTDIR)$(RCDIR)/handbook"
-	chmod 0555 "$(DESTDIR)$(RCDIR)/handbook"
+		etc/rc.d/rubydev.in > "$(DESTDIR)$(RCDIR)/rubydev"
+	chmod 0555 "$(DESTDIR)$(RCDIR)/rubydev"
 
 bundle:
 	$(BUNDLE) config set path .bundle/gems
@@ -38,5 +36,5 @@ check-bundle:
 	@test -d .bundle/gems || (echo "Run 'make bundle' as an unprivileged user before 'make install'." >&2; exit 1)
 
 deinstall:
-	$(RM) "$(DESTDIR)$(RCDIR)/handbook"
+	$(RM) "$(DESTDIR)$(RCDIR)/rubydev"
 	rm -rf "$(DESTDIR)$(APPDIR)"
