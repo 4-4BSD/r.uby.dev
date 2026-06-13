@@ -16,7 +16,9 @@ Serves `public/` locally.
 
 | Endpoint | Description |
 |---|---|
-| `GET /mruby/search?q=QUERY` | Search the mruby source tree with `rg -F QUERY` |
+| `GET /mruby/src/index` | List files in the configured mruby source tree |
+| `GET /mruby/src/search?q=QUERY` | Search the mruby source tree with `rg -F QUERY` |
+| `GET /mruby/src/read?q=PATH` | Read a file from the mruby source tree |
 
 ## License
 

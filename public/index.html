@@ -258,13 +258,22 @@
       <div class="service">
         <h2>Documentation</h2>
         <p>
-          The first public endpoint searches the mruby source tree.
-          This will grow into a broader mruby reference service covering
-          documentation, source code, mrbgems, and related project material.
+          The first public endpoints expose the mruby source tree over
+          HTTP+JSON. This will grow into a broader mruby reference service
+          covering documentation, source code, mrbgems, and related project
+          material.
         </p>
         <pre><code class="sh">##
+# List mruby source files
+fetch -qo - 'https://r.uby.dev/mruby/src/index'
+
+##
 # Search mruby source code
-fetch -qo - 'https://r.uby.dev/mruby/search?q=mrb_gc'</code></pre>
+fetch -qo - 'https://r.uby.dev/mruby/src/search?q=mrb_gc'
+
+##
+# Read an mruby source file
+fetch -qo - 'https://r.uby.dev/mruby/src/read?q=gc.c'</code></pre>
         <p style="margin-top:14px;">Current source:</p>
         <ul>
           <li>mruby source code</li>

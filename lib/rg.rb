@@ -15,7 +15,7 @@ class RG
   def search(q)
     Dir.chdir(root) do
       cmd = command.dup.argv("-e", q, "-F")
-      JSON.dump({ok: cmd.success?, stdout: cmd.stdout, stderr: cmd.stderr})
+      {ok: cmd.success?, stdout: cmd.stdout, stderr: cmd.stderr}
     end
   end
 
