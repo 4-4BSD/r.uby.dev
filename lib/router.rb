@@ -12,7 +12,7 @@ class Router < Roda
       File.read(File.join(self.class.root, "public", "index.html"))
     end
 
-    r.on "mruby", "guides" do
+    r.on "api", "guides" do
       r.get "search" do
         rg(guides).search(r.params["q"])
       end
@@ -30,7 +30,7 @@ class Router < Roda
       end
     end
 
-    r.on "mruby", "mrbgems" do
+    r.on "api", "mrbgems" do
       r.get "search" do
         find(mrbgems).search(r.params["q"])
       end
@@ -48,7 +48,7 @@ class Router < Roda
       end
     end
 
-    r.on "mruby", "src" do
+    r.on "api", "mruby" do
       r.get "search" do
         rg(src).search(r.params["q"])
       end
