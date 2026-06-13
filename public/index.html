@@ -118,44 +118,23 @@
         margin-bottom: 0;
       }
 
-      .terminal {
-        margin: 14px 0 0;
-        overflow: hidden;
-        background: #000;
-        border: 1px solid var(--line);
-      }
-
-      .terminal-bar {
-        display: flex;
-        align-items: center;
-        padding: 6px 10px;
-        background: #0b0f14;
-        color: var(--muted);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 12px;
-        border-bottom: 1px solid #20262d;
-      }
-
-      .terminal-bar::before {
-        content: "ssh";
-      }
-
-      .terminal pre {
-        margin: 0;
-        padding: 14px 16px 16px;
+      .ssh-console {
+        margin: 12px 0 0;
+        padding: 11px 14px;
         overflow-x: auto;
+        background: var(--surface);
+        border-left: 3px solid var(--accent);
+        color: var(--fg);
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: clamp(16px, 3vw, 22px);
+        font-size: 15px;
         line-height: 1.5;
-        color: var(--accent);
-        background: #000;
       }
 
-      .terminal pre code {
-        background: none;
-        padding: 0;
+      .ssh-console code {
         border: none;
-        color: var(--accent);
+        background: none;
+        color: inherit;
+        padding: 0;
       }
 
       code,
@@ -262,7 +241,7 @@
           <img class="hero-logo" src="/images/rubydev.svg" alt="r.uby.dev">
           <span class="sr-only">r.uby.dev</span>
         </h1>
-        <p>Resources and services for the mruby community <br> Free to use. No account required.</p>
+        <p>Resources and services for the mruby community. <br> Free to use. No account required.</p>
       </div>
 
       <div class="service">
@@ -273,24 +252,17 @@
           tree, mrbgems, and related primary sources.
         </p>
         <p>
-          Matz is also available through a publicly accessible sshd 🙂 <br>
-          So you can try Matz without installing anything, and it is free to
-          use within reason.
+          Try Matz via SSH. Free to use. Nothing to download or install.
         </p>
-        <div class="terminal">
-          <div class="terminal-bar"></div>
-          <pre><code>ssh matz@r.uby.dev</code></pre>
-        </div>
+        <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
       </div>
 
       <div class="service">
         <h2>Documentation</h2>
         <p>
-          The first public endpoints expose the mruby source tree and
-          known mrbgem manifests over
-          HTTP+JSON. This will grow into a broader mruby reference service
-          covering documentation, source code, gems, and related project
-          material.
+          mruby guides, source code, and known mrbgem manifests are
+          available over HTTP+JSON for scripts, terminals, AI agents,
+          and any other software that speaks HTTP.
         </p>
         <table>
           <thead>
@@ -300,6 +272,18 @@
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td><code>GET /mruby/guides/index</code></td>
+              <td>List mruby guide documents.</td>
+            </tr>
+            <tr>
+              <td><code>GET /mruby/guides/search?q=QUERY</code></td>
+              <td>Search mruby guides.</td>
+            </tr>
+            <tr>
+              <td><code>GET /mruby/guides/read?q=PATH</code></td>
+              <td>Read an mruby guide document.</td>
+            </tr>
             <tr>
               <td><code>GET /mruby/src/index</code></td>
               <td>List mruby source files.</td>
@@ -328,13 +312,9 @@
         </table>
         <p style="margin-top:14px;">Current sources:</p>
         <ul>
+          <li>mruby guides</li>
           <li>mruby source code</li>
           <li>mrbgem manifests</li>
-        </ul>
-        <p style="margin-top:14px;">Planned sources:</p>
-        <ul>
-          <li>mruby documentation</li>
-          <li>related mruby project material</li>
         </ul>
       </div>
 
