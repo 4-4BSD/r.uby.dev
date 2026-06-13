@@ -12,6 +12,24 @@ class Router < Roda
       File.read(File.join(self.class.root, "public", "index.html"))
     end
 
+    r.on "mruby", "mrbgems" do
+      r.get "search" do
+        find(mrbgems).search(r.params["q"])
+      end
+
+      r.get "index" do
+        find(mrbgems).index("*.gem")
+      end
+
+      r.get "read" do
+        path = File.expand_path(r.params["q"], "/")
+        file = File.extname(path) == ".gem" ? path : "#{path}.gem"
+        {ok: true, contents: File.read(File.join(mrbgems, file))}
+      rescue => err
+        {ok: false, contents: ""}
+      end
+    end
+
     r.on "mruby", "src" do
       r.get "search" do
         rg(src).search(r.params["q"])
@@ -45,6 +63,12 @@ class Router < Roda
   # @return [Find]
   def find(path)
     @find ||= Find.new(path)
+  end
+
+  ##
+  # @return [String]
+  def mrbgems
+    ENV["MRBGEMS"] || "../mgem-list"
   end
 
   ##

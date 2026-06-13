@@ -11,12 +11,26 @@ class Find
 
   ##
   # @return [Hash]
-  def index
+  def index(name = "*")
     Dir.chdir @root do
       cmd = command
         .dup
         .argv(".")
         .argv("-type", "f")
+        .argv("-name", name)
+        {ok: cmd.success?, stdout: cmd.stdout, stderr: cmd.stderr}
+    end
+  end
+
+  ##
+  # @return [Hash]
+  def search(q)
+    Dir.chdir root do
+      cmd = command
+        .dup
+        .argv(".")
+        .argv("-type", "f")
+        .argv("-name", "*#{q}*")
         {ok: cmd.success?, stdout: cmd.stdout, stderr: cmd.stderr}
     end
   end
