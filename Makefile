@@ -9,7 +9,7 @@ RM ?= rm -f
 SED ?= sed
 
 APP_FILES = config.ru Gemfile Gemfile.lock LICENSE README.md
-APP_DIRS = .bundle bin libexec public
+APP_DIRS = .bundle bin lib libexec public
 
 .PHONY: install deinstall bundle check-bundle
 
