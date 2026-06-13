@@ -1,0 +1,74 @@
+#!/bin/sh
+
+# PROVIDE: rubydev
+# REQUIRE: LOGIN NETWORKING
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="rubydev"
+rcvar="rubydev_enable"
+
+load_rc_config "$name"
+
+: ${rubydev_enable:="NO"}
+: ${rubydev_dir:="%%APPDIR%%"}
+: ${rubydev_user:="www"}
+: ${rubydev_bind:="127.0.0.1"}
+: ${rubydev_port:="9292"}
+: ${rubydev_env:="production"}
+: ${rubydev_bundle:="%%PREFIX%%/bin/bundle"}
+: ${rubydev_path:="%%PREFIX%%/bin:/sbin:/bin:/usr/sbin:/usr/bin"}
+
+pidfile="/var/run/${name}.pid"
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+status_cmd="${name}_status"
+
+rubydev_start()
+{
+	if [ -f "$pidfile" ]; then
+		echo "${name} is already running."
+		return 1
+	fi
+
+	if [ ! -d "$rubydev_dir" ]; then
+		warn "${rubydev_dir} does not exist"
+		return 1
+	fi
+
+	echo "Starting ${name}."
+	cd "$rubydev_dir" || return 1
+	export BUNDLE_GEMFILE="${rubydev_dir}/Gemfile"
+	export RACK_ENV="$rubydev_env"
+	export PATH="$rubydev_path"
+	/usr/sbin/daemon -f -p "$pidfile" -t "$name" -u "$rubydev_user" \
+		"$rubydev_bundle" exec rackup \
+		-o "$rubydev_bind" \
+		-p "$rubydev_port" \
+		config.ru
+}
+
+rubydev_stop()
+{
+	if [ ! -f "$pidfile" ]; then
+		echo "${name} is not running."
+		return 1
+	fi
+
+	echo "Stopping ${name}."
+	kill "$(cat "$pidfile")"
+	rm -f "$pidfile"
+}
+
+rubydev_status()
+{
+	if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+		echo "${name} is running as pid $(cat "$pidfile")."
+	else
+		echo "${name} is not running."
+		return 1
+	fi
+}
+
+run_rc_command "$1"
