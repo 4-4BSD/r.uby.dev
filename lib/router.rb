@@ -82,13 +82,19 @@ class Router < Roda
   ##
   # @return [String]
   def mrbgems
-    ENV["MRBGEMS"] || "../mgem-list"
+    ENV["MRBGEMS"] || File.join(root, "../mgem-list")
   end
 
   ##
   # @return [String]
   def mruby
-    ENV["MRUBY"] || "../mruby"
+    ENV["MRUBY"] || File.join(root, "../mruby")
+  end
+
+  ##
+  # @return [String]
+  def root
+    @root ||= File.realpath File.join(__dir__, "..")
   end
 
   ##
