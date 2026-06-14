@@ -2,8 +2,6 @@
 
 class Router < Roda
   def self.root = File.realpath File.join(__dir__, "..")
-
-  plugin :public, root: File.join(root, "public")
   plugin :json
 
   route do |r|
@@ -67,8 +65,6 @@ class Router < Roda
         end
       end
     end
-
-    r.public
   end
 
   ##

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Matz</title>
+    <link rel="canonical" href="https://r.uby.dev/matz/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+
+    <!-- SEO -->
+    <meta name="description" content="Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.">
+    <meta name="robots" content="index,follow">
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Matz - mruby expert">
+    <meta property="og:description" content="Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.">
+    <meta property="og:url" content="https://r.uby.dev/matz/">
+    <meta property="og:image" content="https://r.uby.dev/images/rubydev.svg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Matz - mruby expert">
+    <meta name="twitter:description" content="Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/rubydev.svg">
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Matz",
+        "url": "https://r.uby.dev/matz/",
+        "description": "Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "FreeBSD",
+        "license": "https://github.com/4-4BSD/matz/blob/main/LICENSE",
+        "isAccessibleForFree": true
+      }
+    </script>
+
+    <style>
+      :root {
+        --bg: #0f1419;
+        --fg: #e1e4e8;
+        --muted: #8b949e;
+        --accent: #cc342d;
+        --line: #30363d;
+        --surface: #161b22;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        width: min(760px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 120px;
+        gap: 24px;
+        align-items: start;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 24px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      .summary {
+        max-width: 600px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .hero-image {
+        width: 120px;
+        height: auto;
+      }
+
+      section {
+        border-bottom: 1px solid var(--line);
+        padding: 28px 0;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      ul li {
+        margin-bottom: 6px;
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      pre {
+        margin: 14px 0 0;
+        overflow-x: auto;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      pre code {
+        display: block;
+        padding: 12px 0 12px 14px;
+        border-left: 3px solid var(--line);
+        background: var(--surface);
+        border-radius: 0 6px 6px 0;
+        color: var(--fg);
+      }
+
+      pre code.sh {
+        border-left-color: var(--accent);
+      }
+
+      .ssh-console {
+        margin: 12px 0 0;
+        padding: 11px 14px;
+        overflow-x: auto;
+        background: var(--surface);
+        border-left: 3px solid var(--accent);
+        color: var(--fg);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      .ssh-console code {
+        background: none;
+        padding: 0;
+        border: none;
+        color: inherit;
+      }
+
+      .try-options {
+        display: grid;
+        gap: 28px;
+      }
+
+      .try-method-label {
+        display: inline-block;
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .try-method p {
+        max-width: 600px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        border-top: 1px solid var(--line);
+        padding: 9px 0;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        font-weight: 600;
+        color: var(--fg);
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      td code {
+        font-size: 13px;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      footer {
+        padding-top: 22px;
+        color: var(--muted);
+        font-size: 13px;
+        display: flex;
+        gap: 12px;
+      }
+
+      footer a {
+        color: var(--muted);
+      }
+
+      footer a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 32px 0 56px;
+        }
+
+        header {
+          grid-template-columns: minmax(0, 1fr) 90px;
+          gap: 16px;
+        }
+
+        .hero-image {
+          width: 90px;
+        }
+
+        h1 {
+          font-size: 26px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Matz</h1>
+          <p class="summary">
+            Matz is designed to help you understand mruby using guide
+            documents, source code, mrbgem manifests, and related primary
+            project material.
+          </p>
+        </div>
+        <img class="hero-image" src="/images/rubydev.svg" alt="Ruby gemstone">
+      </header>
+
+      <section>
+        <h2>How can I try Matz?</h2>
+        <div class="try-options">
+          <div class="try-method">
+            <span class="try-method-label">SSH</span>
+            <p>The quick way is SSH. No install required. It is free to use within reason. If you're not sure what Matz is, this is a good way to find out without installing anything.</p>
+            <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
+          </div>
+
+          <div class="try-method">
+            <span class="try-method-label">HTTP</span>
+            <p>The same mruby reference material is also exposed through JSON endpoints for scripts, terminals, and agents.</p>
+            <pre><code class="sh">##
+# List mruby guides
+$ fetch -qo - 'https://r.uby.dev/api/guides/index'
+
+##
+# Search mruby source
+$ fetch -qo - 'https://r.uby.dev/api/mruby/search?q=mrb_gc'</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>What makes Matz different?</h2>
+        <ul>
+          <li><strong>Publically accessible via SSH</strong><br> Matz is available for anyone to use, for free, over SSH</li>
+          <li><strong>Focused on mruby.</strong><br> Matz treats mruby guides, source code, and mrbgems as first-class reference material.</li>
+          <li><strong>Grounded answers.</strong><br> Answers are expected to trace back to primary project sources rather than generic Ruby summaries.</li>
+          <li><strong>Terminal-native.</strong><br> You can use Matz over SSH, and the backing reference endpoints are plain HTTP+JSON.</li>
+          <li><strong>Read-only by design.</strong><br> The public tools inspect documentation and source material. They do not modify project files.</li>
+          <li><strong>Small deployment model.</strong><br> Matz follows the same statically linked, low-friction shape as the other r.uby.dev services.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Abilities</h2>
+        <p>
+          Matz tools are read-only. The first implemented tool is
+          <code>guide-index</code>; the remaining tools map one-to-one with
+          the public endpoints and follow the same shape.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Purpose</th>
+              <th>Endpoint</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>guide-index</code></td>
+              <td>List mruby guide documents.</td>
+              <td><code>GET /api/guides/index</code></td>
+              <td>Implemented</td>
+            </tr>
+            <tr>
+              <td><code>guide-search</code></td>
+              <td>Search mruby guide documents.</td>
+              <td><code>GET /api/guides/search?q=QUERY</code></td>
+              <td>Planned</td>
+            </tr>
+            <tr>
+              <td><code>guide-read</code></td>
+              <td>Read an mruby guide document.</td>
+              <td><code>GET /api/guides/read?q=PATH</code></td>
+              <td>Planned</td>
+            </tr>
+            <tr>
+              <td><code>mruby-index</code></td>
+              <td>List files in the mruby source tree.</td>
+              <td><code>GET /api/mruby/index</code></td>
+              <td>Planned</td>
+            </tr>
+            <tr>
+              <td><code>mruby-search</code></td>
+              <td>Search mruby source code.</td>
+              <td><code>GET /api/mruby/search?q=QUERY</code></td>
+              <td>Planned</td>
+            </tr>
+            <tr>
+              <td><code>mruby-read</code></td>
+              <td>Read an mruby source file.</td>
+              <td><code>GET /api/mruby/read?q=PATH</code></td>
+              <td>Planned</td>
+            </tr>
+            <tr>
+              <td><code>mrbgem-index</code></td>
+              <td>List known mrbgem manifests.</td>
+              <td><code>GET /api/mrbgems/index</code></td>
+              <td>Planned</td>
+            </tr>
+            <tr>
+              <td><code>mrbgem-search</code></td>
+              <td>Search known mrbgem manifest filenames.</td>
+              <td><code>GET /api/mrbgems/search?q=QUERY</code></td>
+              <td>Planned</td>
+            </tr>
+            <tr>
+              <td><code>mrbgem-read</code></td>
+              <td>Read an mrbgem manifest.</td>
+              <td><code>GET /api/mrbgems/read?q=GEM</code></td>
+              <td>Planned</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <footer>
+        <a href="/">r.uby.dev</a>
+        <span>&middot;</span>
+        <span>0BSD licensed</span>
+      </footer>
+    </main>
+  </body>
+</html>
