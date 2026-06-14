@@ -11,10 +11,11 @@ class RG
 
   ##
   # @param [String] q
+  # @param [Integer] context
   # @return [Hash]
-  def search(q)
+  def search(q, context: 5)
     Dir.chdir(root) do
-      cmd = command.dup.argv("-e", q, "-F")
+      cmd = command.dup.argv("-e", q, "-F", "--context", 5.to_s)
       {ok: cmd.success?, stdout: cmd.stdout, stderr: cmd.stderr}
     end
   end
