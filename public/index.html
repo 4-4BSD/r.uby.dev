@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="mruby-focused documentation and source services over HTTP+JSON. Publicly accessible, no signup required.">
+    <meta name="description" content="mruby-focused guide, source, and mrbgem services over SSH and HTTP+JSON. Publicly accessible, no signup required.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="r.uby.dev">
-    <meta property="og:description" content="mruby-focused documentation and source services over HTTP+JSON.">
+    <meta property="og:description" content="mruby-focused guide, source, and mrbgem services over SSH and HTTP+JSON.">
     <meta property="og:url" content="https://r.uby.dev/">
     <meta property="og:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="r.uby.dev">
-    <meta name="twitter:description" content="mruby-focused documentation and source services over HTTP+JSON.">
+    <meta name="twitter:description" content="mruby-focused guide, source, and mrbgem services over SSH and HTTP+JSON.">
     <meta name="twitter:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <style>
@@ -247,9 +247,9 @@
       <div class="service">
         <h2>Matz</h2>
         <p>
-          <a href="/matz/">Matz</a> is a statically linked, 3MB binary focused on mruby.
-          He answers questions from mruby documentation, the mruby source
-          tree, mrbgems, and related primary sources.
+          <a href="/matz/">Matz</a> is a statically linked, 3MB terminal
+          binary focused on mruby. It answers questions from the mruby guide
+          repository, indexed mruby source code, and mrbgem metadata.
         </p>
         <p>
           Try Matz via SSH. Free to use. Nothing to download or install.
@@ -260,7 +260,7 @@
       <div class="service">
         <h2>Documentation</h2>
         <p>
-          mruby guides, source code, and known mrbgem manifests are
+          mruby guides, source code, and known mrbgem metadata are
           available over HTTP+JSON for scripts, terminals, tools,
           and any other software that speaks HTTP.
         </p>
@@ -298,15 +298,15 @@
             </tr>
             <tr>
               <td><code>GET /api/mrbgems/index</code></td>
-              <td>List known mrbgem manifests.</td>
+              <td>List known mrbgem metadata files.</td>
             </tr>
             <tr>
               <td><code>GET /api/mrbgems/search?q=QUERY</code></td>
-              <td>Search known mrbgem manifest filenames.</td>
+              <td>Search known mrbgems by name.</td>
             </tr>
             <tr>
               <td><code>GET /api/mrbgems/read?q=GEM</code></td>
-              <td>Read an mrbgem manifest.</td>
+              <td>Read metadata for a known mrbgem.</td>
             </tr>
           </tbody>
         </table>
@@ -314,7 +314,7 @@
         <ul>
           <li>mruby guides</li>
           <li>mruby source code</li>
-          <li>mrbgem manifests</li>
+          <li>mrbgem metadata</li>
         </ul>
       </div>
 
@@ -336,7 +336,7 @@
       <div class="footer">
         <span>0BSD licensed</span>
         <span>&middot;</span>
-        <a href="mailto:0x1eef@hardenedbsd.org">Contact</a>
+        <a href="mailto:robert@4.4bsd.dev">Contact</a>
       </div>
     </main>
   </body>

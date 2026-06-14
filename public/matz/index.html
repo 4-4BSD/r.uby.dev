@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.">
+    <meta name="description" content="Matz teaches mruby from the mruby guide repository, indexed source code, and mrbgem metadata.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="Matz - mruby expert">
-    <meta property="og:description" content="Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.">
+    <meta property="og:description" content="Matz teaches mruby from the mruby guide repository, indexed source code, and mrbgem metadata.">
     <meta property="og:url" content="https://r.uby.dev/matz/">
     <meta property="og:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Matz - mruby expert">
-    <meta name="twitter:description" content="Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.">
+    <meta name="twitter:description" content="Matz teaches mruby from the mruby guide repository, indexed source code, and mrbgem metadata.">
     <meta name="twitter:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <script type="application/ld+json">
@@ -31,7 +31,7 @@
         "@type": "SoftwareApplication",
         "name": "Matz",
         "url": "https://r.uby.dev/matz/",
-        "description": "Matz is designed to help you learn and understand mruby using guide documents, source code, and mrbgem manifests.",
+        "description": "Matz teaches mruby from the mruby guide repository, indexed source code, and mrbgem metadata.",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "FreeBSD",
         "license": "https://github.com/4-4BSD/matz/blob/main/LICENSE",
@@ -264,9 +264,8 @@
         <div>
           <h1>Matz</h1>
           <p class="summary">
-            Matz is designed to help you understand mruby using guide
-            documents, source code, mrbgem manifests, and related primary
-            project material.
+            Matz teaches mruby by answering questions from the mruby
+            guide repository, indexed mruby source code, and mrbgem metadata.
           </p>
         </div>
         <img class="hero-image" src="/images/rubydev.svg" alt="Ruby gemstone">
@@ -277,13 +276,32 @@
         <div class="try-options">
           <div class="try-method">
             <span class="try-method-label">SSH</span>
-            <p>The quick way is SSH. No install required. It is free to use within reason. If you're not sure what Matz is, this is a good way to find out without installing anything.</p>
+            <p>
+              The quick way is SSH. No signup. No account. Nothing to
+              install. If you're not sure what Matz is, this is a good way
+              to find out.
+            </p>
             <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
           </div>
 
           <div class="try-method">
+            <span class="try-method-label">Local</span>
+            <p>
+              Matz also ships as a small terminal binary. Set a DeepSeek API
+              key and run it locally.
+            </p>
+            <pre><code class="sh">$ fetch https://github.com/4-4BSD/matz/releases/download/latest/matz
+$ chmod +x matz
+$ export DEEPSEEK_SECRET="sk-..."
+$ ./matz</code></pre>
+          </div>
+
+          <div class="try-method">
             <span class="try-method-label">HTTP</span>
-            <p>The same mruby reference material is also exposed through JSON endpoints for scripts, terminals, and agents.</p>
+            <p>
+              The same mruby reference material is also exposed through JSON
+              endpoints for scripts, terminals, and agents.
+            </p>
             <pre><code class="sh">##
 # List mruby guides
 $ fetch -qo - 'https://r.uby.dev/api/guides/index'
@@ -298,88 +316,145 @@ $ fetch -qo - 'https://r.uby.dev/api/mruby/search?q=mrb_gc'</code></pre>
       <section>
         <h2>What makes Matz different?</h2>
         <ul>
-          <li><strong>Publically accessible via SSH</strong><br> Matz is available for anyone to use, for free, over SSH</li>
-          <li><strong>Focused on mruby.</strong><br> Matz treats mruby guides, source code, and mrbgems as first-class reference material.</li>
-          <li><strong>Grounded answers.</strong><br> Answers are expected to trace back to primary project sources rather than generic Ruby summaries.</li>
-          <li><strong>Terminal-native.</strong><br> You can use Matz over SSH, and the backing reference endpoints are plain HTTP+JSON.</li>
-          <li><strong>Read-only by design.</strong><br> The public tools inspect documentation and source material. They do not modify project files.</li>
-          <li><strong>Small deployment model.</strong><br> Matz follows the same statically linked, low-friction shape as the other r.uby.dev services.</li>
+          <li>
+            <strong>Publically accessible via SSH</strong><br>
+            Matz is available for anyone to use, for free, over SSH.
+          </li>
+          <li>
+            <strong>Focused on mruby.</strong><br>
+            Matz treats mruby guides, source code, and mrbgems as first-class
+            reference material.
+          </li>
+          <li>
+            <strong>Grounded answers.</strong><br>
+            Answers must be sourced from available guide, source, and mrbgem
+            tool results.
+          </li>
+          <li>
+            <strong>Terminal-native.</strong><br>
+            Matz runs in your terminal, streams output as it works, and exposes
+            the same reference material through HTTP+JSON.
+          </li>
+          <li>
+            <strong>Read-only by design.</strong><br>
+            The public tools inspect hosted mruby material. They do not read or
+            write your local filesystem.
+          </li>
+          <li>
+            <strong>Small deployment model.</strong><br>
+            The local build is a statically linked, self-contained binary with
+            no Node.js, Electron, or browser runtime.
+          </li>
         </ul>
       </section>
 
       <section>
         <h2>Abilities</h2>
         <p>
-          Matz tools are read-only. The first implemented tool is
-          <code>guide-index</code>; the remaining tools map one-to-one with
-          the public endpoints and follow the same shape.
+          Matz chains these read-only tools against hosted mruby guide,
+          source, and mrbgem data.
         </p>
         <table>
           <thead>
             <tr>
               <th>Name</th>
               <th>Purpose</th>
-              <th>Endpoint</th>
-              <th>Status</th>
+              <th>Confirmation</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td><code>guide-index</code></td>
-              <td>List mruby guide documents.</td>
-              <td><code>GET /api/guides/index</code></td>
-              <td>Implemented</td>
+              <td>List available mruby guides.</td>
+              <td>No</td>
             </tr>
             <tr>
               <td><code>guide-search</code></td>
-              <td>Search mruby guide documents.</td>
-              <td><code>GET /api/guides/search?q=QUERY</code></td>
-              <td>Planned</td>
+              <td>Search the mruby guide repository.</td>
+              <td>No</td>
             </tr>
             <tr>
               <td><code>guide-read</code></td>
-              <td>Read an mruby guide document.</td>
-              <td><code>GET /api/guides/read?q=PATH</code></td>
-              <td>Planned</td>
+              <td>Read guide content by filename.</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td><code>gem-index</code></td>
+              <td>List known mrbgems.</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td><code>gem-search</code></td>
+              <td>Search known mrbgems by name.</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td><code>gem-read</code></td>
+              <td>Read metadata for a known mrbgem.</td>
+              <td>No</td>
             </tr>
             <tr>
               <td><code>mruby-index</code></td>
-              <td>List files in the mruby source tree.</td>
-              <td><code>GET /api/mruby/index</code></td>
-              <td>Planned</td>
+              <td>List indexed mruby source files.</td>
+              <td>No</td>
             </tr>
             <tr>
               <td><code>mruby-search</code></td>
-              <td>Search mruby source code.</td>
-              <td><code>GET /api/mruby/search?q=QUERY</code></td>
-              <td>Planned</td>
+              <td>Search indexed mruby source files.</td>
+              <td>No</td>
             </tr>
             <tr>
               <td><code>mruby-read</code></td>
-              <td>Read an mruby source file.</td>
-              <td><code>GET /api/mruby/read?q=PATH</code></td>
-              <td>Planned</td>
+              <td>Read an indexed mruby source file.</td>
+              <td>No</td>
             </tr>
             <tr>
-              <td><code>mrbgem-index</code></td>
-              <td>List known mrbgem manifests.</td>
-              <td><code>GET /api/mrbgems/index</code></td>
-              <td>Planned</td>
-            </tr>
-            <tr>
-              <td><code>mrbgem-search</code></td>
-              <td>Search known mrbgem manifest filenames.</td>
-              <td><code>GET /api/mrbgems/search?q=QUERY</code></td>
-              <td>Planned</td>
-            </tr>
-            <tr>
-              <td><code>mrbgem-read</code></td>
-              <td>Read an mrbgem manifest.</td>
-              <td><code>GET /api/mrbgems/read?q=GEM</code></td>
-              <td>Planned</td>
+              <td><code>version</code></td>
+              <td>Report Matz's version number.</td>
+              <td>No</td>
             </tr>
           </tbody>
         </table>
+      </section>
+
+      <section>
+        <h2>How it works</h2>
+        <ul>
+          <li>
+            <strong>mruby-llm runtime.</strong><br>
+            Matz is built on
+            <a href="https://github.com/llmrb/mruby-llm">mruby-llm</a>,
+            the mruby port of
+            <a href="https://github.com/llmrb/llm.rb">llm.rb</a>.
+          </li>
+          <li>
+            <strong>Cooperative scheduler.</strong><br>
+            Long-running calls execute in worker tasks while the terminal
+            interface stays responsive.
+          </li>
+          <li>
+            <strong>Guide integration.</strong><br>
+            Matz can list, search, and read the mruby guide repository.
+          </li>
+          <li>
+            <strong>mrbgem integration.</strong><br>
+            Matz can list known mrbgems and read mrbgem metadata when a
+            question involves packages or extensions.
+          </li>
+          <li>
+            <strong>Source integration.</strong><br>
+            Matz can list, search, and read indexed mruby source files when
+            implementation details matter.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Build from source</h2>
+        <p>Matz is an mruby gem built with the mruby-llm runtime.</p>
+        <pre><code class="sh">$ git clone https://github.com/4-4BSD/matz.git
+$ cd matz
+$ make</code></pre>
       </section>
 
       <footer>
