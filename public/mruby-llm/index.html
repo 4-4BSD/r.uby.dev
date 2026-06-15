@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>mruby-llm</title>
+    <link rel="canonical" href="https://r.uby.dev/mruby-llm/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+
+    <!-- SEO -->
+    <meta name="description" content="mruby-llm is a compact mruby runtime for providers, agents, tools, streaming, MCP, A2A, files, and persisted state.">
+    <meta name="robots" content="index,follow">
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="mruby-llm">
+    <meta property="og:description" content="A compact mruby runtime for providers, agents, tools, streaming, MCP, A2A, files, and persisted state.">
+    <meta property="og:url" content="https://r.uby.dev/mruby-llm/">
+    <meta property="og:image" content="https://r.uby.dev/images/rubydev.svg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="mruby-llm">
+    <meta name="twitter:description" content="A compact mruby runtime for providers, agents, tools, streaming, MCP, A2A, files, and persisted state.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/rubydev.svg">
+
+    <style>
+      :root {
+        --bg: #0f1419;
+        --fg: #e1e4e8;
+        --muted: #8b949e;
+        --accent: #cc342d;
+        --line: #30363d;
+        --surface: #161b22;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        width: min(760px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 120px;
+        gap: 24px;
+        align-items: start;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 24px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      .summary {
+        max-width: 620px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .hero-image {
+        width: 120px;
+        height: auto;
+      }
+
+      section {
+        border-bottom: 1px solid var(--line);
+        padding: 28px 0;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      ul li {
+        margin-bottom: 6px;
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      pre {
+        margin: 14px 0 0;
+        overflow-x: auto;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      pre code {
+        display: block;
+        padding: 12px 0 12px 14px;
+        border-left: 3px solid var(--accent);
+        background: var(--surface);
+        border-radius: 0 6px 6px 0;
+        color: var(--fg);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        border-top: 1px solid var(--line);
+        padding: 9px 0;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        font-weight: 600;
+        color: var(--fg);
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .showcase {
+        display: grid;
+        gap: 22px;
+      }
+
+      .project {
+        border-top: 1px solid var(--line);
+        padding-top: 18px;
+      }
+
+      .project:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .project p:last-child {
+        margin-bottom: 0;
+      }
+
+      footer {
+        padding-top: 22px;
+        color: var(--muted);
+        font-size: 13px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      footer a {
+        color: var(--muted);
+      }
+
+      footer a:hover {
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 32px 0 56px;
+        }
+
+        header {
+          grid-template-columns: minmax(0, 1fr) 90px;
+          gap: 16px;
+        }
+
+        .hero-image {
+          width: 90px;
+        }
+
+        h1 {
+          font-size: 26px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>mruby-llm</h1>
+          <p class="summary">
+            mruby-llm is a compact mruby runtime for providers, agents,
+            tools, skills, MCP, A2A, streaming, files, and persisted state.
+          </p>
+        </div>
+        <img class="hero-image" src="/images/rubydev.svg" alt="Ruby gemstone">
+      </header>
+
+      <section>
+        <h2>Runtime</h2>
+        <p>
+          mruby-llm brings the llm.rb execution model to mruby so small
+          standalone applications can talk to model providers, run tools,
+          stream output, and keep state without depending on a full Ruby
+          installation.
+        </p>
+        <p>
+          It began as a fork of <a href="/llm.rb/">llm.rb</a>. The two
+          projects now share design work and portable features where that
+          makes sense.
+        </p>
+        <pre><code>$ git clone https://github.com/llmrb/mruby-llm.git</code></pre>
+      </section>
+
+      <section>
+        <h2>What it provides</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Area</th>
+              <th>Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Providers</td>
+              <td>OpenAI, OpenAI-compatible endpoints, Anthropic, Gemini, DeepSeek, xAI, Z.ai, Ollamaq, and llama.cpp.</td>
+            </tr>
+            <tr>
+              <td>Agents</td>
+              <td>Tool loops, confirmation hooks, loop guards, and streaming terminal output.</td>
+            </tr>
+            <tr>
+              <td>Tools</td>
+              <td>Typed tool definitions that can be composed with local tools, MCP tools, and A2A skills.</td>
+            </tr>
+            <tr>
+              <td>Embedding</td>
+              <td>Applications can link the runtime into small self-contained mruby binaries.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Showcase</h2>
+        <div class="showcase">
+          <div class="project">
+            <h3>Matz</h3>
+            <p>
+              <a href="/matz/">Matz</a> is an mruby expert for the terminal.
+              It uses mruby-llm to answer from the mruby guide repository,
+              indexed mruby source code, and mrbgem metadata.
+            </p>
+            <pre><code>$ ssh matz@r.uby.dev</code></pre>
+          </div>
+
+          <div class="project">
+            <h3>Robert</h3>
+            <p>
+              <a href="https://4.4bsd.dev/robert">Robert</a> is a FreeBSD
+              expert for the terminal. It uses mruby-llm to work from manual
+              pages, Handbook material, ports, packages, and local system
+              tools.
+            </p>
+            <pre><code>$ ssh robert@4.4bsd.dev</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Source</h2>
+        <ul>
+          <li><a href="https://github.com/llmrb/mruby-llm">mruby-llm on GitHub</a></li>
+          <li><a href="/llm.rb/">llm.rb landing page</a></li>
+          <li><a href="https://github.com/llmrb/llm.rb">llm.rb on GitHub</a></li>
+          <li><a href="https://github.com/4-4BSD/matz">Matz on GitHub</a></li>
+          <li><a href="https://github.com/llmrb/robert">Robert on GitHub</a></li>
+        </ul>
+      </section>
+
+      <footer>
+        <a href="/">r.uby.dev</a>
+        <span>&middot;</span>
+        <a href="/matz/">Matz</a>
+        <span>&middot;</span>
+        <span>0BSD licensed</span>
+      </footer>
+    </main>
+  </body>
+</html>
