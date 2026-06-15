@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="mruby-llm is a compact mruby runtime for providers, agents, tools, streaming, MCP, A2A, files, and persisted state.">
+    <meta name="description" content="The llm.rb runtime for standalone mruby applications, small static binaries, terminal tools, and services.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="mruby-llm">
-    <meta property="og:description" content="A compact mruby runtime for providers, agents, tools, streaming, MCP, A2A, files, and persisted state.">
+    <meta property="og:description" content="Build AI-powered terminal applications and services without a full Ruby installation.">
     <meta property="og:url" content="https://r.uby.dev/mruby-llm/">
     <meta property="og:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="mruby-llm">
-    <meta name="twitter:description" content="A compact mruby runtime for providers, agents, tools, streaming, MCP, A2A, files, and persisted state.">
+    <meta name="twitter:description" content="Build AI-powered terminal applications and services without a full Ruby installation.">
     <meta name="twitter:image" content="https://r.uby.dev/images/rubydev.svg">
 
     <style>
@@ -230,8 +230,8 @@
         <div>
           <h1>mruby-llm</h1>
           <p class="summary">
-            mruby-llm is a compact mruby runtime for providers, agents,
-            tools, skills, MCP, A2A, streaming, files, and persisted state.
+            The llm.rb runtime for standalone mruby applications, small static
+            binaries, terminal tools, and services.
           </p>
         </div>
         <img class="hero-image" src="/images/rubydev.svg" alt="Ruby gemstone">
@@ -240,15 +240,19 @@
       <section>
         <h2>Runtime</h2>
         <p>
-          mruby-llm brings the llm.rb execution model to mruby so small
-          standalone applications can talk to model providers, run tools,
-          stream output, and keep state without depending on a full Ruby
-          installation.
+          mruby-llm brings the llm.rb execution model to mruby so standalone
+          applications can talk to model providers, run tools, stream output,
+          and keep state without depending on a full Ruby installation.
         </p>
         <p>
           It began as a fork of <a href="/llm/">llm.rb</a>. The two
           projects now share design work and portable features where that
           makes sense.
+        </p>
+        <p>
+          It makes it practical to build small self-contained AI applications
+          that ship as standalone binaries measured in megabytes, not hundreds
+          of megabytes.
         </p>
         <pre><code>$ git clone https://github.com/llmrb/mruby-llm.git</code></pre>
       </section>
@@ -279,12 +283,21 @@
               <td>Embedding</td>
               <td>Applications can link the runtime into small self-contained mruby binaries.</td>
             </tr>
+            <tr>
+              <td>Distribution</td>
+              <td>Static terminal applications can ship as standalone binaries around 3MB.</td>
+            </tr>
           </tbody>
         </table>
       </section>
 
       <section>
-        <h2>Showcase</h2>
+        <h2>Built with mruby-llm</h2>
+        <p>
+          Matz and Robert prove the runtime is small enough to embed
+          in terminal applications, but capable enough to run tools, stream
+          output, and back public SSH services.
+        </p>
         <div class="showcase">
           <div class="project">
             <h3>Matz</h3>
