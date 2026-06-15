@@ -145,9 +145,19 @@
       th,
       td {
         border-top: 1px solid var(--line);
-        padding: 9px 0;
+        padding: 9px 14px;
         text-align: left;
         vertical-align: top;
+      }
+
+      th:first-child,
+      td:first-child {
+        padding-left: 0;
+      }
+
+      th:last-child,
+      td:last-child {
+        padding-right: 0;
       }
 
       th {
@@ -269,7 +279,7 @@
           <tbody>
             <tr>
               <td>Providers</td>
-              <td>OpenAI, OpenAI-compatible endpoints, Anthropic, Gemini, DeepSeek, xAI, Z.ai, Ollamaq, and llama.cpp.</td>
+              <td>OpenAI, OpenAI-compatible endpoints, Anthropic, Gemini, DeepSeek, xAI, Z.ai, Ollama, and llama.cpp.</td>
             </tr>
             <tr>
               <td>Agents</td>
@@ -320,17 +330,6 @@
             <pre><code>$ ssh robert@4.4bsd.dev</code></pre>
           </div>
         </div>
-      </section>
-
-      <section>
-        <h2>Source</h2>
-        <ul>
-          <li><a href="https://github.com/llmrb/mruby-llm">mruby-llm on GitHub</a></li>
-          <li><a href="/llm/">llm.rb landing page</a></li>
-          <li><a href="https://github.com/llmrb/llm.rb">llm.rb on GitHub</a></li>
-          <li><a href="https://github.com/4-4BSD/matz">Matz on GitHub</a></li>
-          <li><a href="https://github.com/llmrb/robert">Robert on GitHub</a></li>
-        </ul>
       </section>
 
       <footer>
