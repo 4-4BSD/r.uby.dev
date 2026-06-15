@@ -24,7 +24,7 @@ body {
 main {
   width: min(860px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 48px 0 72px;
+  padding: 56px 0 80px;
 }
 
 a {
@@ -120,9 +120,9 @@ header {
 
 .hero-logo {
   display: block;
-  width: 156px;
+  width: min(240px, 72vw);
   height: auto;
-  margin: 0 auto 20px;
+  margin: 0 auto 8px;
 }
 
 .hero h1 {
@@ -137,6 +137,12 @@ header {
   margin: 0 auto;
   color: var(--muted);
   font-size: 16px;
+}
+
+.hero .ssh-console {
+  max-width: 320px;
+  margin: 8px auto 0;
+  text-align: center;
 }
 
 .service {
