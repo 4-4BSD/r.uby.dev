@@ -17,13 +17,13 @@
     <meta property="og:title" content="Ruby's most capable AI runtime">
     <meta property="og:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
     <meta property="og:url" content="https://r.uby.dev/llm/">
-    <meta property="og:image" content="https://r.uby.dev/images/rubydev.svg">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb">
     <meta name="twitter:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
-    <meta name="twitter:image" content="https://r.uby.dev/images/rubydev.svg">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="/css/main.css">
@@ -43,12 +43,13 @@
             <a href="#install">Install</a>
             <a href="#quick-start">Quick start</a>
             <a href="#protocols">Protocols</a>
+            <a href="#skills">Skills</a>
             <a href="#orm">ORM</a>
             <a href="#persistence">Persistence</a>
             <a href="https://github.com/llmrb/llm.rb">GitHub</a>
           </div>
         </div>
-        <img class="hero-image" src="/images/rubydev.svg" alt="Ruby gemstone">
+        <img class="hero-image" src="/images/llm-ruby.png" alt="Ruby gemstone">
       </header>
 
       <section>
@@ -209,6 +210,42 @@ mcp.session do
   agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
   agent.talk "Use the available tools to inspect the environment."
 end</code></pre>
+      </section>
+
+      <section id="skills">
+        <h2>Skills</h2>
+        <p>
+          Skills package reusable instructions and scoped tool access in
+          <code>SKILL.md</code> directories. They let applications version
+          specialized behavior beside the code that depends on it, then load
+          that behavior into agents when the task calls for it.
+        </p>
+        <pre><code class="language-yaml">---
+name: release
+description: Prepare a release
+tools: ["search-docs", "git"]
+---
+
+## Task
+
+Review the release state, summarize what changed, and prepare the release.</code></pre>
+        <p>
+          When a skill runs, llm.rb starts a subagent with the skill
+          instructions, its allowed tools, and recent conversation context.
+        </p>
+        <pre><code class="language-ruby">require "llm"
+
+class ReleaseAgent &lt; LLM::Agent
+  model "gpt-5.4-mini"
+  skills "./skills/release"
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+ReleaseAgent.new(llm, stream: $stdout).talk("Prepare the next release.")</code></pre>
+        <p>
+          Skills can also use <code>tools: inherit</code> when they should run
+          with the parent agent's available Ruby, MCP, or A2A tools.
+        </p>
       </section>
 
       <section>
