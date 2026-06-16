@@ -6,6 +6,9 @@ module Clean
   # @param [String] str
   # @return [String]
   def clean(str)
-    str.gsub("#{@root}/", "")
+    str
+      .gsub("#{@root}/", "")
+      .force_encoding("UTF-8")
+      .scrub
   end
 end
