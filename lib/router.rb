@@ -23,7 +23,7 @@ class Router < Roda
         path = File.expand_path(r.params["q"], "/")
         file = File.extname(path) == ".md" ? path : "#{path}.md"
         {ok: true, contents: File.read(File.join(guides, file))}
-      rescue => exx
+      rescue
         {ok: false, contents: ""}
       end
     end
@@ -41,7 +41,7 @@ class Router < Roda
         path = File.expand_path(r.params["q"], "/")
         file = File.extname(path) == ".gem" ? path : "#{path}.gem"
         {ok: true, contents: File.read(File.join(mrbgems, file))}
-      rescue => err
+      rescue
         {ok: false, contents: ""}
       end
     end
@@ -56,13 +56,11 @@ class Router < Roda
       end
 
       r.get "read" do
-        Dir.chdir(src) do
-          path = File.expand_path(r.params["q"], "/")
-          file = File.join(Dir.getwd, path)
-          {ok: true, contents: File.read(file)}
-        rescue
-          {ok: false, contents: ""}
-        end
+        path = File.expand_path(r.params["q"], "/")
+        file = File.join(src, path)
+        {ok: true, contents: File.read(file)}
+      rescue
+        {ok: false, contents: ""}
       end
     end
   end

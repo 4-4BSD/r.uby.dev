@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class RG
+  include Clean
+
   ##
   # @param [String] root
   # @return [RG]
@@ -14,10 +16,13 @@ class RG
   # @param [Integer] context
   # @return [Hash]
   def search(q, context: 5)
-    Dir.chdir(root) do
-      cmd = command.dup.argv("-e", q, "-F", "--context", 5.to_s)
-      {ok: cmd.success?, stdout: cmd.stdout, stderr: cmd.stderr}
-    end
+    cmd = command
+      .dup
+      .argv("-e", q)
+      .argv("--context", 5.to_s)
+      .argv("-F")
+      .argv(@root)
+    {ok: cmd.success?, stdout: clean(cmd.stdout), stderr: clean(cmd.stderr)}
   end
 
   private
