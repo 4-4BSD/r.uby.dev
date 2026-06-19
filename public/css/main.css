@@ -112,6 +112,34 @@ header {
   height: auto;
 }
 
+.site-logo {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  width: calc((100vw - 760px) / 2);
+}
+
+.site-logo img {
+  display: block;
+  width: min(210px, 92%);
+  height: auto;
+}
+
+.logo-page {
+  width: min(760px, calc(100% - 32px));
+  padding-top: 104px;
+}
+
+.logo-page header {
+  display: block;
+}
+
+.logo-page .summary {
+  max-width: 600px;
+}
+
 /* Home */
 .hero {
   text-align: center;
@@ -120,7 +148,7 @@ header {
 
 .hero-logo {
   display: block;
-  width: min(240px, 72vw);
+  width: min(420px, 86vw);
   height: auto;
   margin: 0 auto 8px;
 }
@@ -370,6 +398,20 @@ footer a:hover,
     padding: 32px 0 56px;
   }
 
+  .site-logo {
+    top: 18px;
+    left: 16px;
+    width: auto;
+  }
+
+  .site-logo img {
+    width: 150px;
+  }
+
+  .logo-page {
+    padding-top: 96px;
+  }
+
   header {
     grid-template-columns: minmax(0, 1fr) 90px;
     gap: 16px;
@@ -380,7 +422,7 @@ footer a:hover,
   }
 
   .hero-logo {
-    width: 122px;
+    width: min(300px, 88vw);
   }
 
   h1 {
