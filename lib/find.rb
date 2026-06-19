@@ -19,7 +19,7 @@ class Find
       .argv(@root)
       .argv("-type", "f")
       .argv("-name", name)
-    {ok: cmd.success?, stdout: clean(cmd.stdout), stderr: clean(cmd.stderr)}
+    {ok: cmd.success?, stdout: indexify(clean(cmd.stdout)), stderr: clean(cmd.stderr)}
   end
 
   ##
@@ -34,6 +34,13 @@ class Find
   end
 
   private
+
+  def indexify(stream)
+    stream.each_line.map do |line|
+      line = line.chomp
+      File.basename(line, File.extname(line))
+    end.join("\n")
+  end
 
   attr_reader :root, :command
 end
