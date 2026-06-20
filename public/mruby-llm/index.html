@@ -34,18 +34,22 @@
     <main class="logo-page">
       <header>
         <div>
-          <h1>mruby-llm</h1>
-          <p class="summary">
-            The llm.rb runtime for standalone mruby applications, small static
-            binaries, terminal tools, and services.
-          </p>
+          <div class="quick-links">
+            <a href="#capabilities">Features</a>
+            <a href="#built-with">Showcase</a>
+            <a href="/llm/">llm.rb</a>
+            <a href="https://github.com/r-uby-dev/mruby-llm">GitHub</a>
+          </div>
         </div>
       </header>
 
       <section>
-        <h2>Runtime</h2>
+        <h2>Hey 👋</h2>
         <p>
-          mruby-llm brings the llm.rb execution model to mruby so standalone
+          Let me tell you about <a target="_blank" href="https://github.com/r-uby-dev/mruby-llm#readme">mruby-llm</a> &ndash; the llm.rb runtime for standalone mruby applications.
+        </p>
+        <p>
+          It brings the llm.rb execution model to mruby so standalone
           applications can talk to model providers, run tools, stream output,
           and keep state without depending on a full Ruby installation.
         </p>
@@ -59,16 +63,16 @@
           that ship as standalone binaries measured in megabytes, not hundreds
           of megabytes.
         </p>
-        <pre><code>$ git clone https://github.com/llmrb/mruby-llm.git</code></pre>
+        <pre><code>$ git clone https://github.com/r-uby-dev/mruby-llm.git</code></pre>
       </section>
 
-      <section>
-        <h2>What it provides</h2>
+      <section id="capabilities">
+        <h2>Features</h2>
         <table>
           <thead>
             <tr>
-              <th>Area</th>
-              <th>Use</th>
+              <th>Feature</th>
+              <th>Description</th>
             </tr>
           </thead>
           <tbody>
@@ -96,13 +100,8 @@
         </table>
       </section>
 
-      <section>
-        <h2>Built with mruby-llm</h2>
-        <p>
-          matz and robert prove the runtime is small enough to embed
-          in terminal applications, but capable enough to run tools, stream
-          output, and back public SSH services.
-        </p>
+      <section id="built-with">
+        <h2>Showcase</h2>
         <div class="showcase">
           <div class="project">
             <h3>matz</h3>
