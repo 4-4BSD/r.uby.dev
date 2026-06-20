@@ -1,11 +1,24 @@
 /* Variables */
 :root {
+  color-scheme: dark;
   --bg: #0f1419;
   --fg: #e1e4e8;
   --muted: #8b949e;
   --accent: #cc342d;
   --line: #30363d;
   --surface: #161b22;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --fg: #24292f;
+    --muted: #57606a;
+    --accent: #cc342d;
+    --line: #d0d7de;
+    --surface: #f6f8fa;
+  }
 }
 
 /* Base */
@@ -19,6 +32,14 @@ body {
   color: var(--fg);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.6;
+}
+
+input,
+textarea,
+select,
+button {
+  color: inherit;
+  font: inherit;
 }
 
 main {
@@ -227,6 +248,50 @@ pre code.hljs {
   background: var(--surface);
 }
 
+@media (prefers-color-scheme: light) {
+  pre code.hljs,
+  .hljs {
+    color: var(--fg);
+    background: var(--surface);
+  }
+
+  .hljs-comment,
+  .hljs-quote {
+    color: #6e7781;
+  }
+
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-subst {
+    color: #cf222e;
+  }
+
+  .hljs-string,
+  .hljs-title,
+  .hljs-section,
+  .hljs-attribute,
+  .hljs-literal,
+  .hljs-template-tag,
+  .hljs-template-variable,
+  .hljs-type,
+  .hljs-addition {
+    color: #116329;
+  }
+
+  .hljs-number,
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-variable {
+    color: #0550ae;
+  }
+
+  .hljs-built_in,
+  .hljs-builtin-name,
+  .hljs-class .hljs-title {
+    color: #953800;
+  }
+}
+
 .ssh-console {
   margin: 12px 0 0;
   padding: 11px 14px;
@@ -330,8 +395,10 @@ td code {
 .quick-links {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   margin-top: 16px;
+  text-align: center;
 }
 
 .quick-links a {
