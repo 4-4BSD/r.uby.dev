@@ -57,28 +57,16 @@
       </header>
 
       <section>
-        <h2>How can I try matz?</h2>
+        <h2>Quick start</h2>
         <div class="try-options">
           <div class="try-method">
             <span class="try-method-label">SSH</span>
             <p>
-              The quick way is SSH. No signup. No account. Nothing to
-              install. If you're not sure what matz is, this is a good way
-              to find out.
+              The easiest way to try matz is via SSH. No signup. No account. Nothing to
+              install. <br> If you're not sure what matz is, this is a good way
+              to find out. 🙂
             </p>
             <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
-          </div>
-
-          <div class="try-method">
-            <span class="try-method-label">Local</span>
-            <p>
-              matz also ships as a small terminal binary. Set a DeepSeek API
-              key and run it locally.
-            </p>
-            <pre><code class="sh">$ fetch https://github.com/4-4BSD/matz/releases/download/latest/matz
-$ chmod +x matz
-$ export DEEPSEEK_SECRET="sk-..."
-$ ./matz</code></pre>
           </div>
 
           <div class="try-method">
@@ -99,7 +87,7 @@ $ fetch -qo - 'https://r.uby.dev/api/mruby/search?q=mrb_gc'</code></pre>
       </section>
 
       <section>
-        <h2>What makes matz different?</h2>
+        <h2>Features</h2>
         <ul>
           <li>
             <strong>Publically accessible via SSH</strong><br>
@@ -203,7 +191,7 @@ $ fetch -qo - 'https://r.uby.dev/api/mruby/search?q=mrb_gc'</code></pre>
       </section>
 
       <section>
-        <h2>How it works</h2>
+        <h2>Under the hood</h2>
         <ul>
           <li>
             <strong>mruby-llm runtime.</strong><br>
@@ -234,7 +222,7 @@ $ fetch -qo - 'https://r.uby.dev/api/mruby/search?q=mrb_gc'</code></pre>
 
       <section>
         <h2>Build from source</h2>
-        <p>matz is an mruby gem built with the mruby-llm runtime.</p>
+        <p>matz is an mruby gem built with the <a href="/mruby-llm">mruby-llm</a> runtime.</p>
         <pre><code class="sh">$ git clone https://github.com/4-4BSD/matz.git
 $ cd matz
 $ make</code></pre>
