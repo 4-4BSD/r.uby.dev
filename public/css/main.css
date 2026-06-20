@@ -113,23 +113,21 @@ header {
 }
 
 .site-logo {
-  position: absolute;
-  top: 24px;
-  left: 0;
   display: flex;
   justify-content: center;
-  width: calc((100vw - 760px) / 2);
+  width: min(760px, calc(100% - 32px));
+  margin: 40px auto 24px;
 }
 
 .site-logo img {
   display: block;
-  width: min(210px, 92%);
+  width: min(420px, 92%);
   height: auto;
 }
 
 .logo-page {
   width: min(760px, calc(100% - 32px));
-  padding-top: 104px;
+  padding-top: 0;
 }
 
 .logo-page header {
@@ -141,14 +139,18 @@ header {
 }
 
 /* Home */
+.home-page {
+  padding-top: 0;
+}
+
 .hero {
   text-align: center;
-  padding: 32px 0 40px;
+  padding: 40px 0 40px;
 }
 
 .hero-logo {
   display: block;
-  width: min(420px, 86vw);
+  width: min(420px, 92%);
   height: auto;
   margin: 0 auto 8px;
 }
@@ -398,18 +400,25 @@ footer a:hover,
     padding: 32px 0 56px;
   }
 
+  .home-page {
+    padding-top: 0;
+  }
+
+  .home-page .hero {
+    padding-top: 24px;
+  }
+
   .site-logo {
-    top: 18px;
-    left: 16px;
-    width: auto;
+    width: min(100% - 32px, 760px);
+    margin: 24px auto 18px;
   }
 
   .site-logo img {
-    width: 150px;
+    width: min(300px, 92%);
   }
 
   .logo-page {
-    padding-top: 96px;
+    padding-top: 0;
   }
 
   header {
@@ -422,7 +431,7 @@ footer a:hover,
   }
 
   .hero-logo {
-    width: min(300px, 88vw);
+    width: min(300px, 92%);
   }
 
   h1 {
