@@ -8,25 +8,26 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="Ruby's capable AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, embeddings, and persisted state.">
+    <meta name="description" content="Ruby's capable AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="Ruby's capable AI runtime">
-    <meta property="og:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, embeddings, and persisted state.">
+    <meta property="og:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
     <meta property="og:url" content="https://r.uby.dev/llm/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb">
-    <meta name="twitter:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, embeddings, and persisted state.">
+    <meta name="twitter:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="/css/main.css">
+
   </head>
   <body>
     <a class="site-logo" href="/" aria-label="r.uby.dev home">
@@ -39,31 +40,31 @@
             <a href="#install">Install</a>
             <a href="#quick-start">Quick start</a>
             <a href="#protocols">Protocols</a>
-            <a href="#embeddings">Embeddings</a>
+            <a href="#skills">Skills</a>
             <a href="#orm">ORM</a>
-            <a href="#production">Production</a>
+            <a href="#persistence">Persistence</a>
             <a href="https://github.com/r-uby-dev/llm.rb">GitHub</a>
           </div>
         </div>
       </header>
 
       <section>
-        <h2>Hey</h2>
+        <h2>Hey 👋</h2>
         <p>
           Let me tell you about <a target="_blank" href="https://github.com/r-uby-dev/llm.rb#readme">llm.rb</a> &ndash; Ruby's capable AI runtime.
         </p>
         <p>
-          It runs on Ruby's standard library by default and loads optional
-          pieces only when needed. Applications can start with a provider and
-          a single context, then add agents, tools, streaming, persistence,
-          embeddings, and protocol clients without changing the core shape of
-          the code.
+          It runs on Ruby's standard library by default and loads
+          optional pieces only when needed. Applications can start
+          with a provider and a single context, then add agents, tools,
+          streaming, persistence, and protocol clients without changing the
+          core shape of the code.
         </p>
         <p>
           It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
-          Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp. It
-          also includes ActiveRecord and Sequel support, plus concurrent tool
-          execution through threads, tasks, fibers, ractors, and fork.
+          Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
+          It also includes ActiveRecord and Sequel support, plus concurrent
+          tool execution through threads, tasks, fibers, ractors, and fork.
         </p>
       </section>
 
@@ -103,12 +104,12 @@
               <td>Remote tools and skills plugged into the same runtime as local Ruby tools.</td>
             </tr>
             <tr>
-              <td>Embeddings</td>
-              <td>Text embeddings, local similarity search, and provider vector stores for retrieval workflows.</td>
-            </tr>
-            <tr>
               <td>Persistence</td>
               <td>JSON serialization, ActiveRecord integration, and Sequel integration for long-lived state.</td>
+            </tr>
+            <tr>
+              <td>ORM Integration</td>
+              <td>Persist contexts and agents through ActiveRecord and Sequel with built-in serialization.</td>
             </tr>
             <tr>
               <td>Operations</td>
@@ -122,11 +123,11 @@
         <h2>Quick start</h2>
         <div class="examples">
           <div class="example">
-            <h3><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></h3>
+            <h3>LLM::Agent</h3>
             <p>
-              <code>LLM::Agent</code> is the default high-level interface. It manages
-              tool execution for you and keeps conversation state in its
-              underlying context.
+              <code>LLM::Agent</code> is the default high-level interface.
+              It manages tool execution for you and keeps the conversation
+              state in its underlying context.
             </p>
             <pre><code class="language-ruby">require "llm"
 
@@ -136,10 +137,10 @@ agent.talk "Hello world"</code></pre>
           </div>
 
           <div class="example">
-            <h3><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></h3>
+            <h3>LLM::Context</h3>
             <p>
-              <code>LLM::Context</code> is the lower-level runtime object. Use it when
-              you want to manage tool execution manually.
+              <code>LLM::Context</code> is the lower-level runtime object.
+              Use it when you want to manage tool execution manually.
             </p>
             <pre><code class="language-ruby">require "llm"
 
@@ -154,7 +155,7 @@ ctx.talk "Hello world"</code></pre>
               Tools are plain Ruby classes with typed parameters. They can be
               used by contexts, agents, MCP clients, A2A clients, and skills.
             </p>
-            <pre><code class="language-ruby">class ReadFile &lt; LLM::Tool
+            <pre><code class="language-ruby">class ReadFile < LLM::Tool
   name "read-file"
   description "Read a file"
   parameter :path, String, "The filename or path"
@@ -166,15 +167,6 @@ ctx.talk "Hello world"</code></pre>
 end</code></pre>
           </div>
         </div>
-        <p>
-          For ordinary application code, prefer
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>.
-          Reach for
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait-instance_method"><code>LLM::Context#wait</code></a>
-          and
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#functions-3F-instance_method"><code>LLM::Context#functions?</code></a>
-          when the tool loop itself is part of what you are building.
-        </p>
       </section>
 
       <section id="protocols">
@@ -214,20 +206,14 @@ mcp.session do
   agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
   agent.talk "Use the available tools to inspect the environment."
 end</code></pre>
-        <p>
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html"><code>LLM::MCP</code></a>
-          and
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html"><code>LLM::A2A</code></a>
-          plug remote tools and skills into the same runtime as local Ruby tools.
-        </p>
       </section>
 
       <section id="skills">
         <h2>Skills</h2>
         <p>
           Skills package reusable instructions and scoped tool access in
-          <code>SKILL.md</code> directories. They turn repeatable workflows into
-          named capabilities that agents can load on demand.
+          <code>SKILL.md</code> directories. They turn repeatable workflows
+          into named capabilities that agents can load on demand.
         </p>
         <pre><code class="language-yaml">---
 name: release
@@ -238,7 +224,13 @@ tools: ["search-docs", "git"]
 ## Task
 
 Review the release state, summarize what changed, and prepare the release.</code></pre>
-        <pre><code class="language-ruby">class ReleaseAgent &lt; LLM::Agent
+        <p>
+          When a skill runs, llm.rb starts a subagent with the skill
+          instructions, its allowed tools, and recent conversation context.
+        </p>
+        <pre><code class="language-ruby">require "llm"
+
+class ReleaseAgent &lt; LLM::Agent
   model "gpt-5.4-mini"
   skills "./skills/release"
 end
@@ -246,8 +238,6 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 ReleaseAgent.new(llm, stream: $stdout).talk("Prepare the next release.")</code></pre>
         <p>
-          When a skill runs, llm.rb starts a subagent with the skill
-          instructions, its allowed tools, and recent conversation context.
           Skills can also use <code>tools: inherit</code> when they should run
           with the parent agent's available Ruby, MCP, or A2A tools.
         </p>
@@ -257,11 +247,10 @@ ReleaseAgent.new(llm, stream: $stdout).talk("Prepare the next release.")</code><
         <h2>Streaming</h2>
         <p>
           Streams can be simple IO objects or subclasses of
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a>
-          with structured callbacks for content, reasoning, tool calls, tool
-          returns, and compaction.
+          <code>LLM::Stream</code> with structured callbacks for content,
+          reasoning, tool calls, tool returns, and compaction.
         </p>
-        <pre><code class="language-ruby">class MyStream &lt; LLM::Stream
+        <pre><code class="language-ruby">class MyStream < LLM::Stream
   def on_content(content)
     print content
   end
@@ -282,7 +271,7 @@ agent.talk "Explain Ruby fibers."</code></pre>
           Agents can resolve tool work sequentially or concurrently with
           threads, tasks, fibers, ractors, or forks.
         </p>
-        <pre><code class="language-ruby">class Agent &lt; LLM::Agent
+        <pre><code class="language-ruby">class Agent < LLM::Agent
   model "gpt-5.4-mini"
   tools ReadFile
   concurrency :thread
@@ -291,118 +280,26 @@ end
 llm = LLM.openai(key: ENV["KEY"])
 agent = Agent.new(llm, stream: $stdout)
 agent.talk "Read README.md and CHANGELOG.md and compare them."</code></pre>
-        <p>
-          Use
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#method-c-concurrency"><code>LLM::Agent.concurrency</code></a>
-          for the reusable agent default. Use
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait-instance_method"><code>LLM::Context#wait</code></a>
-          when you need to choose a strategy for one explicit tool loop.
-        </p>
-      </section>
-
-      <section id="structured-output">
-        <h2>Structured output</h2>
-        <p>
-          Use
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a>
-          when you need JSON with a known shape.
-        </p>
-        <pre><code class="language-ruby">class Report &lt; LLM::Schema
-  property :category, Enum["performance", "security", "outage"]
-  property :summary, String, "Short summary"
-  property :services, Array[String], "Impacted services"
-  required %i[category summary services]
-end
-
-agent = LLM::Agent.new(llm, schema: Report)
-res = agent.talk("Structure this report: 'API latency spiked.'")
-puts res.content!</code></pre>
-      </section>
-
-      <section id="embeddings">
-        <h2>Embeddings and retrieval</h2>
-        <p>
-          Embeddings turn text into vectors that can be compared by semantic
-          similarity. Use them when keyword search is too brittle or when you
-          want a small local RAG index.
-        </p>
-        <pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"])
-res = llm.embed("llm.rb manages providers, agents, tools, and state")
-
-puts res.model
-puts res.embeddings.first.size</code></pre>
-        <p>
-          For small scripts, keep an in-memory index and rank chunks with
-          cosine similarity.
-        </p>
-        <pre><code class="language-ruby">def cosine(a, b)
-  dot = a.zip(b).sum { |x, y| x * y }
-  mag_a = Math.sqrt(a.sum { |x| x * x })
-  mag_b = Math.sqrt(b.sum { |x| x * x })
-  dot / (mag_a * mag_b)
-end
-
-docs = {
-  "agent" => "LLM::Agent manages tool loops and guards for you.",
-  "context" => "LLM::Context is the low-level stateful runtime.",
-  "mcp" => "MCP tools are exposed through the same tool runtime."
-}
-
-doc_vectors = llm.embed(docs.values).embeddings
-query_vector = llm.embed("How do tools run automatically?").embeddings.first
-
-ranked = docs.keys.zip(docs.values, doc_vectors).sort_by do |(_key, _text, vector)|
-  -cosine(query_vector, vector)
-end
-
-ranked.first(2).each { |key, text, _vector| puts "[#{key}] #{text}" }</code></pre>
-        <p>
-          When you want provider-side retrieval, upload files and create a
-          vector store through
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/OpenAI.html#vector_stores-instance_method"><code>LLM::OpenAI#vector_stores</code></a>.
-        </p>
-        <pre><code class="language-ruby">file = llm.files.create(file: "README.md")
-store = llm.vector_stores.create_and_poll(
-  name: "llm.rb docs",
-  file_ids: [file.id]
-)
-
-results = llm.vector_stores.search(
-  vector: store,
-  query: "When should I use LLM::Agent instead of LLM::Context?"
-)
-
-results.each { |chunk| puts chunk }</code></pre>
-        <p>
-          OpenAI, Google, and Ollama expose embeddings through
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed-instance_method"><code>LLM::Provider#embed</code></a>.
-          If a provider returns HTTP 404 for an unsupported embeddings API,
-          llm.rb raises
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM.html#NotFoundError-constant"><code>LLM::NotFoundError</code></a>.
-        </p>
       </section>
 
       <section id="orm">
-        <h2>ORM integration</h2>
+        <h2>ORM Integration</h2>
         <p>
           llm.rb treats ActiveRecord and Sequel as first-class integration
-          points. The built-in wrappers persist serialized runtime state in one
-          column while your application keeps control of provider, model, and
-          tool configuration.
+          points. The built-in wrappers persist the serialized runtime state
+          in one column while your application keeps control of provider,
+          model, and tool configuration.
         </p>
         <p>
-          With ActiveRecord,
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/ActsAsAgent.html"><code>acts_as_agent</code></a>
-          wraps
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
-          directly on a model, including agent DSL features such as
-          instructions, tools, and concurrency.
+          With ActiveRecord, <code>acts_as_agent</code> wraps
+          <code>LLM::Agent</code> directly on a model, including agent DSL
+          features such as instructions, tools, and concurrency.
         </p>
         <pre><code class="language-ruby">require "llm"
 require "active_record"
 require "llm/active_record"
 
-class Ticket &lt; ApplicationRecord
+class Ticket < ApplicationRecord
   acts_as_agent provider: :set_provider, context: :set_context
   model "gpt-5.4-mini"
   instructions "You are a concise support assistant."
@@ -427,8 +324,10 @@ puts ticket.talk("How do I rotate my API key?").content</code></pre>
       <section id="persistence">
         <h2>Persistence</h2>
         <p>
-          Agents and contexts can serialize to JSON and restore later. The same
-          serialized state powers the ActiveRecord and Sequel integrations.
+          Agents and contexts can serialize to JSON and restore later. The
+          same serialized state powers the ActiveRecord and Sequel integrations,
+          so applications can persist conversations in ordinary database
+          columns without designing a separate message store first.
         </p>
         <pre><code class="language-ruby">require "llm"
 
@@ -440,83 +339,6 @@ string = agent1.to_json
 agent2 = LLM::Agent.new(llm, stream: $stdout)
 agent2.restore(string:)
 agent2.talk "What is my favorite language?"</code></pre>
-        <p>
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#to_json-instance_method"><code>LLM::Agent#to_json</code></a>
-          and
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore-instance_method"><code>LLM::Agent#restore</code></a>
-          operate on the same underlying state shape as
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>.
-        </p>
-      </section>
-
-      <section id="multimodal">
-        <h2>Multimodal input</h2>
-        <p>
-          Prompts can be strings,
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Prompt.html"><code>LLM::Prompt</code></a>
-          objects, or arrays that mix text with tagged content.
-        </p>
-        <pre><code class="language-ruby">agent = LLM::Agent.new(llm)
-agent.talk [
-  "Describe this image",
-  agent.image_url("https://example.com/image.png")
-]</code></pre>
-        <p>
-          Attach local files directly with
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask-instance_method"><code>LLM::Agent#ask</code></a>.
-        </p>
-        <pre><code class="language-ruby">agent = LLM::Agent.new(llm)
-puts agent.ask("Summarize this document.", with: "README.md").content</code></pre>
-      </section>
-
-      <section id="tracing">
-        <h2>Tracing</h2>
-        <p>
-          Attach tracing at the provider level. Requests and tool calls through
-          that provider are then instrumented.
-        </p>
-        <pre><code class="language-ruby">llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
-agent = LLM::Agent.new(llm)
-agent.talk("Hello")</code></pre>
-        <p>
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>
-          is useful during development.
-          <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a>
-          is useful when you need spans in memory for custom reporting.
-        </p>
-      </section>
-
-      <section id="production">
-        <h2>Production</h2>
-        <p>
-          Share provider instances. Create one agent or context per request,
-          job, or thread because that is where mutable conversation state lives.
-        </p>
-        <pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"], persistent: true)
-
-Thread.new do
-  agent = LLM::Agent.new(llm)
-  agent.talk("Hello from thread 1")
-end
-
-Thread.new do
-  agent = LLM::Agent.new(llm)
-  agent.talk("Hello from thread 2")
-end</code></pre>
-        <p>
-          Use persistent HTTP connections when request volume grows, track cost
-          from the conversation runtime, and use the local model registry for
-          capabilities and limits without making an API call.
-        </p>
-        <pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"], transport: :net_http_persistent)
-
-agent = LLM::Agent.new(llm)
-agent.talk("Hello")
-puts "Estimated cost: $#{agent.cost}"
-
-registry = LLM.registry_for(:openai)
-info = registry.limit(model: "gpt-4.1")
-puts "Context window: #{info.context} tokens"</code></pre>
       </section>
 
       <section>
