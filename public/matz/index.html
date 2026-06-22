@@ -50,8 +50,9 @@
         <div>
           <h1>matz</h1>
           <p class="summary">
-            matz teaches mruby by answering questions from the mruby
-            guide repository, indexed mruby source code, and mrbgem metadata.
+            matz is designed to teach you mruby by using official sources
+            such as the mruby guide index, the mrbgem index, and the mruby
+            source code.
           </p>
         </div>
       </header>
@@ -62,9 +63,9 @@
           <div class="try-method">
             <span class="try-method-label">SSH</span>
             <p>
-              The easiest way to try matz is via SSH. No signup. No account. Nothing to
-              install. <br> If you're not sure what matz is, this is a good way
-              to find out. 🙂
+              Whenever you have an mruby question, you can ask matz via SSH.
+              <br>
+              No signup required. Free to use.
             </p>
             <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
           </div>
@@ -94,29 +95,28 @@ $ fetch -qo - 'https://r.uby.dev/api/mruby/search?q=mrb_gc'</code></pre>
             matz is available for anyone to use, for free, over SSH.
           </li>
           <li>
+            <strong>Designed to teach</strong><br>
+            matz is designed to help you learn. He is not designed to automate a solution.
+          </li>
+          <li>
             <strong>Focused on mruby</strong><br>
             matz treats mruby guides, source code, and mrbgems as first-class
             reference material.
           </li>
           <li>
             <strong>Grounded answers</strong><br>
-            Answers must be sourced from available guide, source, and mrbgem
-            tool results.
+            All answers must be sourced from the available guides, source code,
+            and mrbgem metadata.
           </li>
           <li>
             <strong>Terminal-native</strong><br>
-            matz runs in your terminal, streams output as it works, and exposes
-            the same reference material through HTTP+JSON.
+            matz runs in your terminal as a small mruby-linked binary.
           </li>
           <li>
             <strong>Read-only by design</strong><br>
-            The public tools inspect hosted mruby material. They do not read or
-            write your local filesystem.
-          </li>
-          <li>
-            <strong>Small deployment model</strong><br>
-            The local build is a statically linked, self-contained binary with
-            no Node.js, Electron, or browser runtime.
+            matz only uses mruby reference material available over HTTP.
+            <br>
+            He can't read from or write to your local filesystem.
           </li>
         </ul>
       </section>
