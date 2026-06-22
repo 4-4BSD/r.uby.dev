@@ -50,6 +50,7 @@ main {
 
 a {
   color: var(--accent);
+  font-weight: 700;
   text-decoration: none;
 }
 
