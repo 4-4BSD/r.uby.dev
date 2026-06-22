@@ -67,6 +67,37 @@
 
 <h2 id="unreleased">Unreleased</h2>
 
+<h2 id="v11-3-1">v11.3.1</h2>
+
+<p>Changes since <code>v11.3.0</code>.</p>
+
+<p>This release rebrands the project under the r.uby.dev umbrella, removes
+the Jekyll-based docs site in favor of a pure-markdown deepdive, and
+cleans up YARD documentation across the codebase.</p>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><p><strong>Rebrand to r.uby.dev</strong> <br>
+Update README.md with the new logo, streamlined copy, and r.uby.dev
+URLs. Rewrite <code>resources/deepdive.md</code> as a concise walkthrough and
+bundle it with the gem. Remove the <code>docs/</code> directory (Jekyll site).
+Update all references from <code>llmrb.github.io</code> to <code>r.uby.dev</code>.</p></li>
+<li><p><strong>Update gemspec</strong> <br>
+Update homepage, metadata URLs, email, and author list. Switch the
+YARD markdown processor from kramdown to redcarpet.</p></li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><strong>Fix YARD documentation</strong> <br>
+Fix unnamed, misnamed, and missing <code>@param</code> tags across provider
+adapters, transport classes, stream, tool, schema, registry, agent,
+and ActiveRecord integration files. Fix backtick-wrapped constant
+references and other YARD formatting issues.</li>
+</ul>
+
 <h2 id="v11-3-0">v11.3.0</h2>
 
 <p>Changes since <code>v11.2.0</code>.</p>
@@ -1661,7 +1692,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Sun Jun 21 04:05:19 2026 by
+  Generated on Mon Jun 22 10:36:50 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
