@@ -270,7 +270,7 @@ puts ticket.talk("How do I rotate my API key?").content</code></pre>
           Agents and contexts can serialize to JSON and restore later. The
           same serialized state powers the ActiveRecord and Sequel integrations,
           so applications can persist conversations in ordinary database
-          columns without designing a separate message store first.
+          columns, job queues, or the filesystem.
         </p>
         <pre><code class="language-ruby">require "llm"
 
