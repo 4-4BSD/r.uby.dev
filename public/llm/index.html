@@ -39,9 +39,9 @@
           <div class="quick-links">
             <a href="#install">Install</a>
             <a href="#quick-start">Quick start</a>
-            <a href="#protocols">Protocols</a>
-            <a href="#skills">Skills</a>
+            <a href="#mcp">MCP</a>
             <a href="#orm">ORM</a>
+            <a href="#skills">Skills</a>
             <a href="#persistence">Persistence</a>
             <a href="https://github.com/r-uby-dev/llm.rb">GitHub</a>
           </div>
@@ -137,30 +137,15 @@ end</code></pre>
         </div>
       </section>
 
-      <section id="protocols">
-        <h2>Protocols and skills</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Feature</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>MCP</td>
-              <td>Use tools provided by local stdio servers or remote HTTP MCP servers.</td>
-            </tr>
-            <tr>
-              <td>A2A</td>
-              <td>Use skills provided by remote A2A agents as local runtime tools.</td>
-            </tr>
-            <tr>
-              <td>Skills</td>
-              <td>Package reusable instructions and scoped tool access in <code>SKILL.md</code> directories.</td>
-            </tr>
-          </tbody>
-        </table>
+      <section id="mcp">
+        <h2>MCP</h2>
+        <p>
+          The Model Context Protocol (MCP) has first-class support
+          in llm.rb. The stdio and http transports work out of the
+          box. MCP tools are translated into a subclass of
+          <code>LLM::Tool</code> that can be used with <code>LLM::Context</code>
+          or <code>LLM::Agent</code>.
+        </p>
         <pre><code class="language-ruby">require "llm"
 
 llm   = LLM.openai(key: ENV["KEY"])
