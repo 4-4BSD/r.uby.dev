@@ -31,7 +31,7 @@ John and I remain friends, although we both eventually moved onto other projects
 
 [mruby](https://github.com/mruby/mruby)
 
-I have contributed [multiple commits](https://github.com/mruby/mruby/commits?author=0x1eef) to mruby, the minimalist version of ruby that is often associated with embedded systems.
+I have contributed [multiple commits](https://github.com/mruby/mruby/commits?author=bsdrobert) to mruby, the minimalist version of ruby that is often associated with embedded systems.
 I often use mruby for systems programming but not always &ndash; I also ported the AI runtime I authored at my previous company to mruby.
 
 [HardenedBSD](https://github.com/hardenedbsd/hardenedbsd)
