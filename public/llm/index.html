@@ -51,20 +51,27 @@
       <section>
         <h2>Welcome</h2>
         <p>
-          Welcome to the homepage for <a target="_blank" href="https://github.com/r-uby-dev/llm.rb#readme">llm.rb</a> &ndash; Ruby's capable AI runtime.
+          Welcome to the homepage for <a target="_blank" href="https://github.com/r-uby-dev/llm.rb#readme">llm.rb</a>.
         </p>
         <p>
-          It runs on Ruby's standard library by default and loads
-          optional pieces only when needed. Applications can start
-          with a provider and a single context, then add agents, tools,
-          streaming, persistence, and protocol clients without changing the
-          core shape of the code.
+          llm.rb is not a library, framework or toolkit but an advanced runtime
+          for building highly capable AI applications on CRuby. By default
+          it has zero runtime dependencies although certain functionality &ndash;
+          such as ActiveRecord support &ndash; require optional dependencies
+          that are opt-in.
         </p>
         <p>
-          It supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
+          The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
           Gemini, DeepSeek, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
-          It also includes ActiveRecord and Sequel support, plus concurrent
-          tool execution through threads, tasks, fibers, ractors, and fork.
+          It has first-class support for streaming, tool calls,  MCP
+          and A2A, embeddings, vector stores and the RAG pattern.
+        <p>
+          There are multiple HTTP backends to choose from, tools can be run concurrently
+          or in parallel via threads, async tasks, fibers, ractors, and fork, and it is
+          also possible to make a tool call while the model is still streaming.
+        <p>
+          The runtime builds on top of three core concepts: providers, contexts, and agents,
+          so once you learn the fundamentals, everything else falls into place naturally.
         </p>
       </section>
 
@@ -243,15 +250,11 @@ agent.talk "Read README.md and CHANGELOG.md and compare them."</code></pre>
       <section id="orm">
         <h2>ORM</h2>
         <p>
-          llm.rb treats ActiveRecord and Sequel as first-class integration
-          points. The built-in wrappers persist the serialized runtime state
-          in one column while your application keeps control of provider,
-          model, and tool configuration.
-        </p>
-        <p>
-          With ActiveRecord, <code>acts_as_agent</code> wraps
-          <code>LLM::Agent</code> directly on a model, including agent DSL
-          features such as instructions, tools, and concurrency.
+          There is first-class support for both ActiveRecord, and Sequel.
+          Given ActiveRecord, <code>acts_as_agent</code> will wrap an
+          <code>LLM::Agent</code> around an instance of a model, and it
+          includes same interface with support for instructions, tools,
+          and concurrency.
         </p>
         <pre><code class="language-ruby">require "llm"
 require "active_record"
@@ -302,8 +305,9 @@ agent2.talk "What is my favorite language?"</code></pre>
       <section>
         <h2>Applications</h2>
         <p>
-          The llm.rb runtime and its ports power small terminal applications
-          that can be tried over SSH.
+          <a href="/mruby-llm">mruby-llm</a> is a port of llm.rb to the mruby runtime, and it
+          has been used to build novel applications that are available to the general public
+          via SSH.
         </p>
         <table>
           <thead>
