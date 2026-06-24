@@ -235,7 +235,7 @@ agent.talk "Read README.md and CHANGELOG.md and compare them."</code></pre>
           There is first-class support for both ActiveRecord, and Sequel.
           Given ActiveRecord, <code>acts_as_agent</code> will wrap an
           <code>LLM::Agent</code> around an instance of a model, and it
-          includes same interface with support for instructions, tools,
+          has the same interface with support for instructions, tools,
           and concurrency.
         </p>
         <pre><code class="language-ruby">require "llm"
@@ -243,12 +243,13 @@ require "active_record"
 require "llm/active_record"
 
 class Ticket < ApplicationRecord
-  acts_as_agent provider: :set_provider, context: :set_context
-  model "gpt-5.4-mini"
-  instructions "You are a concise support assistant."
-  tools SearchDocs, Escalate
-  concurrency :thread
-
+  acts_as_agent(provider: :set_provider, context: :set_context) do
+    model "gpt-5.4-mini"
+    instructions "You are a concise support assistant."
+    tools SearchDocs, Escalate
+    concurrency :thread
+  end
+  
   private
 
   def set_provider
