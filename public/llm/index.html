@@ -164,13 +164,11 @@ end</code></pre>
         </table>
         <pre><code class="language-ruby">require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
-mcp = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
-
-mcp.session do
-  agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
-  agent.talk "Use the available tools to inspect the environment."
-end</code></pre>
+llm   = LLM.openai(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
+agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
+agent.talk "Use the available tools to inspect the environment."
+</code></pre>
       </section>
 
       <section id="skills">
