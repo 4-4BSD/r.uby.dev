@@ -2,3 +2,5 @@
 *.lock
 *.core
 .bundle/gems
+node_modules/
+public/js/

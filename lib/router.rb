@@ -2,12 +2,20 @@
 
 class Router < Roda
   def self.root = File.realpath File.join(__dir__, "..")
+
   plugin :json
+  plugin :render
 
   route do |r|
     r.root do
       response["content-type"] = "text/html"
       File.read(File.join(self.class.root, "public", "index.html"))
+    end
+
+    r.on "resume" do
+      r.get(true) { resume! }
+      r.root { resume! }
+      r.get("index.html") { resume! }
     end
 
     r.on "api", "guides" do
@@ -105,5 +113,10 @@ class Router < Roda
   # @return [String]
   def src
     File.join(mruby, "src")
+  end
+
+  def resume!
+    response["content-type"] = "text/html"
+    view("resume", engine: "md", layout: "resume")
   end
 end
