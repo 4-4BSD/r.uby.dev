@@ -44,6 +44,7 @@
             <a href="#mcp">MCP</a>
             <a href="#a2a">A2A</a>
             <a href="#rag">RAG</a>
+            <a href="#orm">ORM</a>
             <a href="#concurrency">Concurrency</a>
           </div>
         </div>
@@ -251,6 +252,59 @@ agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
 agent.talk "Run the tools in parallel"
 </code></pre>
       </section>
+      <section id="orm">
+        <h3>ORM</h3>
+        <p>
+          Because both <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>, and <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>
+          can be serialized to JSON and stored in a simple string both ActiveRecord
+          and Sequel support can be implemented within a single column on a single row.
+        <p>
+        <p>
+          The runtime
+          includes first-class support for both ActiveRecord <i>and</i> Sequel, and
+          for both Rack-based applications <i>and</i> Rails-based applications. On
+          databases where it is supported, such as PostgresSQL, the column can be
+          optimized by using the <code>jsonb</code> type.
+        </p>
+                        <pre><code class="language-ruby">require "active_record"
+require "llm"
+require "llm/active_record"
+
+class Agent < ApplicationRecord
+  acts_as_agent do
+    model "deepseek-v4-pro"
+    instructions "solve the user's query"
+    tools [Research, FinalizeResearch, ActOnResearch]
+  end
+
+  private
+
+  ##
+  # By convention, this method defines the provider
+  # for a model. If neccessary, it can be renamed and
+  # configured via `provider: :your_method` instead.
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+
+  ##
+  # By convention, this method should return what is
+  # given as the second argument to `LLM::Context` or
+  # `LLM::Agent`.
+  #
+  # Often, there is no need to set it, so it can be left
+  # undefined or it can be reassigned in the same way as
+  # `set_provider`. For example: `context: :your_method`
+  def set_context
+    {}
+  end
+end
+
+agent = Agent.create!
+agent.talk "perform research"
+</code></pre>
+      </section>
+
       <section>
         <h2>Applications</h2>
         <p>
