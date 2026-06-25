@@ -43,6 +43,7 @@
             <a href="#streaming">Stream</a>
             <a href="#mcp">MCP</a>
             <a href="#a2a">A2A</a>
+            <a href="#rag">RAG</a>
             <a href="https://github.com/r-uby-dev/llm">GitHub</a>
           </div>
         </div>
@@ -200,6 +201,33 @@ a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
 agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.tools)
 agent.talk "Run the skill"
 </code></pre>
+      </section>
+      <section id="rag">
+        <h3>RAG</h3>
+        <p>
+          Most providers offer an embedding model that can be
+          used for semantic search, or similarity search. An
+          embedding model can generate embeddings that can then
+          be stored in a database that is optimized for storing
+          and querying vectors, such as SQLite's <a href="https://github.com/asg017/sqlite-vec" target="_blank">sqlite-vec</a>
+          or PostgreSQL's <a href="https://github.com/pgvector/pgvector">pg-vector</a>.
+        <p>
+        <p>
+          llm.rb also includes support for OpenAI's vector store API, and it
+          provides a vector database as a HTTP service but we won't cover
+          that here.
+        </p>
+        <pre><code class="language-ruby">require "llm"
+
+llm  = LLM.openai(key: ENV["KEY"])
+body = "llm.rb is Ruby's capable AI runtime."
+embedding = llm.embed([body]).embeddings.first
+
+Document.create!(
+  title: "llm.rb",
+  body:,
+  embedding:,
+)</code></pre>
       </section>
       <section>
         <h2>Applications</h2>
