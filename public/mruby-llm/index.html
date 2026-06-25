@@ -3,27 +3,29 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>mruby-llm</title>
+    <title>mruby's capable AI runtime</title>
     <link rel="canonical" href="https://r.uby.dev/mruby-llm/">
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="The llm.rb runtime for standalone mruby applications, small static binaries, terminal tools, and services.">
+    <meta name="description" content="mruby's capable AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and standalone binaries.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="r.uby.dev">
-    <meta property="og:title" content="mruby-llm">
-    <meta property="og:description" content="Build AI-powered terminal applications and services without a full Ruby installation.">
+    <meta property="og:title" content="mruby's capable AI runtime">
+    <meta property="og:description" content="Build AI-powered terminal applications and services as small standalone mruby binaries.">
     <meta property="og:url" content="https://r.uby.dev/mruby-llm/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="mruby-llm">
-    <meta name="twitter:description" content="Build AI-powered terminal applications and services without a full Ruby installation.">
+    <meta name="twitter:description" content="Build AI-powered terminal applications and services as small standalone mruby binaries.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="/css/main.css">
 
   </head>
@@ -35,106 +37,264 @@
       <header>
         <div>
           <div class="quick-links">
-            <a href="#capabilities">Features</a>
-            <a href="#built-with">Showcase</a>
-            <a href="/llm/">llm.rb</a>
-            <a href="https://github.com/r-uby-dev/mruby-llm">GitHub</a>
+            <a href="#install">Install</a>
+            <a href="#quick-start">Quick start</a>
+            <a href="#tools">Tools</a>
+            <a href="#streaming">Stream</a>
+            <a href="#mcp">MCP</a>
+            <a href="#a2a">A2A</a>
+            <a href="#rag">RAG</a>
+            <a href="#concurrency">Concurrency</a>
           </div>
         </div>
       </header>
 
       <section>
-        <h2>Hey 👋</h2>
+        <h2>Welcome</h2>
         <p>
-          Let me tell you about <a target="_blank" href="https://github.com/r-uby-dev/mruby-llm#readme">mruby-llm</a> &ndash; the llm.rb runtime for standalone mruby applications.
+          Welcome to the <a target="_blank" href="https://github.com/r-uby-dev/mruby-llm#readme">mruby-llm</a> homepage.
         </p>
         <p>
-          It brings the llm.rb execution model to mruby so standalone
-          applications can talk to model providers, run tools, stream output,
-          and keep state without depending on a full Ruby installation.
+          mruby-llm is not a library, framework or toolkit but an advanced
+          runtime for building highly capable AI applications with mruby.
+        <p>
+          It is designed for terminal tools, services, small standalone
+          binaries, and embedded systems. In theory it could run anywhere
+          mruby runs but in practice it will depend on the device. 
         </p>
         <p>
-          It began as a fork of <a href="/llm/">llm.rb</a>. The two
-          projects now share design work and portable features where that
-          makes sense.
+          Embedded systems are not the only use-case though. mruby is a good
+          candidate for all kinds of software, and sometimes people think it
+          is only for embedded devices. That's not the case. It can be used to
+          build software as or more capable as CRuby can, and on the same
+          platforms.
         </p>
-        <p>
-          It makes it practical to build small self-contained AI applications
-          that ship as standalone binaries measured in megabytes, not hundreds
-          of megabytes.
-        </p>
-        <pre><code>$ git clone https://github.com/r-uby-dev/mruby-llm.git</code></pre>
       </section>
 
-      <section id="capabilities">
+      <section>
         <h2>Features</h2>
+        <p>
+          The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic,
+          Google Gemini, DeepSeek, xAI, Z.ai, Ollama, and llama.cpp. It has
+          first-class support for streaming, tool calls, MCP and A2A,
+          embeddings, vector stores and the RAG pattern.
+        <p>
+          It brings the llm.rb execution model to mruby: providers, contexts,
+          agents, tools, skills, streaming, files, and persisted state. The
+          same ideas carry across both runtimes, but mruby-llm is shaped around
+          static builds and standalone applications.
+        <p>
+          mruby-llm makes it practical to build small self-contained AI
+          applications that ship as standalone binaries measured in megabytes,
+          not hundreds of megabytes.
+        </p>
+      </section>
+
+      <section id="install">
+        <h2>Install</h2>
+        <p class="install-copy">
+          Source code and build instructions are available from
+          <a href="https://github.com/r-uby-dev/mruby-llm">github.com/r-uby-dev/mruby-llm</a>.
+        </p>
+        <pre><code class="language-ruby">MRuby::Build.new("app") do |conf|
+  conf.gembox "default"
+  conf.gem github: "r-uby-dev/mruby-llm", branch: "main"
+end</code></pre>
+      </section>
+
+      <section id="quick-start">
+        <h2>Quick start</h2>
+        <div class="examples">
+          <div class="example">
+            <h3>LLM::Agent</h3>
+            <p>
+              The <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> class is the default high-level interface,
+              and it is recommended for most use-cases. It manages tool execution
+              automatically, guards against infinite loops, manages conversation
+              state, and much more.
+            </p>
+            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "Hello world"</code></pre>
+          </div>
+
+          <div class="example">
+            <h3>LLM::Context</h3>
+            <p>
+              The <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code> class is at the heart of the runtime
+              and it is what <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> uses under the hood.
+              It requires that the tool call loop be managed manually &ndash;
+              sometimes that can be useful, but usually for advanced use-cases.
+              If you're new to mruby-llm, try <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> first.
+            </p>
+            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm, stream: $stdout)
+ctx.talk "Hello world"</code></pre>
+          </div>
+
+          <div id="tools" class="example">
+            <h3>LLM::Tool</h3>
+            <p>
+              Subclasses of <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> are plain Ruby classes with
+              an optional set of typed parameters. <br> The model can choose to
+              call them on your behalf, and they're one of the most powerful features
+              for extending the feature set or abilities of a model.
+            </p>
+            <pre><code class="language-ruby">class ReadFile < LLM::Tool
+  name "read-file"
+  description "Read a file"
+  parameter :path, String, "The filename or path"
+  required %i[path]
+
+  def call(path:)
+    {contents: File.read(path)}
+  end
+end</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="streaming">
+        <h3>LLM::Stream</h3>
+        <p>
+          Streams can be simple IO objects or subclasses of
+          <code><a href="/api-docs/llm.rb/LLM/Stream.html">LLM::Stream</a></code> with structured callbacks for content,
+          reasoning, tool calls, tool returns, and compaction.
+        </p>
+        <pre><code class="language-ruby">class MyStream < LLM::Stream
+  def on_content(content)
+    print content
+  end
+
+  def on_reasoning_content(content)
+    warn content
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: MyStream.new)
+agent.talk "Explain Ruby fibers."</code></pre>
+      </section>
+
+      <section id="mcp">
+        <h3>LLM::MCP</h3>
+        <p>
+          The Model Context Protocol (MCP) has first-class support
+          in mruby-llm. The stdio and http transports work out of the
+          box. MCP tools are translated into subclasses of
+          <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> that can be used with <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>
+          or <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>.
+        </p>
+        <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+mcp = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
+
+mcp.run do
+  agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
+  agent.talk "Use the available tools to inspect the environment."
+end</code></pre>
+      </section>
+
+      <section id="a2a">
+        <h3>LLM::A2A</h3>
+        <p>
+          The Agent 2 Agent (A2A) protocol has first-class support
+          in mruby-llm. The rest and jsonrpc transports work out of the
+          box. A2A skills are translated into subclasses of
+          <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> that can be used with <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>
+          or <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>.
+        </p>
+        <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+a2a = LLM::A2A.rest(url: "https://remote-agent.example.com")
+
+agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
+agent.talk "Run the skill"</code></pre>
+      </section>
+
+      <section id="rag">
+        <h3>RAG</h3>
+        <p>
+          Most providers offer an embedding model that can be
+          used for semantic search, or similarity search. An
+          embedding model can generate embeddings that can then
+          be stored in a database that is optimized for storing
+          and querying vectors, such as SQLite's <a href="https://github.com/asg017/sqlite-vec" target="_blank">sqlite-vec</a>
+          or PostgreSQL's <a href="https://github.com/pgvector/pgvector">pg-vector</a>.
+        <p>
+        <p>
+          mruby-llm also includes support for OpenAI's vector store API. It
+          provides a vector database as a HTTP service but we won't cover
+          that here.
+        </p>
+        <pre><code class="language-ruby">llm  = LLM.openai(key: ENV["KEY"])
+body = "mruby-llm is mruby's capable AI runtime."
+embedding = llm.embed([body]).embeddings.first
+
+Document.create!(
+  title: "mruby-llm",
+  body:,
+  embedding:,
+)</code></pre>
+      </section>
+
+      <section id="concurrency">
+        <h3>Concurrency</h3>
+        <p>
+          mruby-llm supports multiple tool execution strategies. The choice
+          between them often depends on the requirements of your application
+          and the mruby build you ship.
+        </p>
+        <p>
+          Sequential execution uses <code>:call</code>. Lightweight concurrent
+          work can use <code>:task</code>, and process isolation can use
+          <code>:fork</code> when the target platform supports it.
+        </p>
+        <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+tools = [FetchNews, FetchStocks, FetchFeeds]
+
+agent = LLM::Agent.new(llm, tools:, concurrency: :task)
+agent.talk "Run the tools concurrently"</code></pre>
+      </section>
+
+      <section>
+        <h2>Applications</h2>
+        <p>
+          mruby-llm is used to build small terminal applications that are
+          available to the general public over SSH.
+        </p>
         <table>
           <thead>
             <tr>
-              <th>Feature</th>
-              <th>Description</th>
+              <th>Application</th>
+              <th>Try it</th>
+              <th>Runtime</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Providers</td>
-              <td>OpenAI, OpenAI-compatible endpoints, Anthropic, Gemini, DeepSeek, xAI, Z.ai, Ollama, and llama.cpp.</td>
+              <td><a href="/matz/">matz</a></td>
+              <td><code>ssh matz@r.uby.dev</code></td>
+              <td><a href="/mruby-llm/">mruby-llm</a></td>
             </tr>
             <tr>
-              <td>Agents</td>
-              <td>Tool loops, confirmation hooks, loop guards, and streaming terminal output.</td>
-            </tr>
-            <tr>
-              <td>Tools</td>
-              <td>Typed tool definitions that can be composed with local tools, MCP tools, and A2A skills.</td>
-            </tr>
-            <tr>
-              <td>Embedding</td>
-              <td>Applications can link the runtime into small self-contained mruby binaries.</td>
-            </tr>
-            <tr>
-              <td>Distribution</td>
-              <td>Static terminal applications can ship as standalone binaries around 3MB.</td>
+              <td><a href="https://4.4bsd.dev/robert">robert</a></td>
+              <td><code>ssh robert@4.4bsd.dev</code></td>
+              <td><a href="/mruby-llm/">mruby-llm</a></td>
             </tr>
           </tbody>
         </table>
       </section>
 
-      <section id="built-with">
-        <h2>Showcase</h2>
-        <div class="showcase">
-          <div class="project">
-            <h3>matz</h3>
-            <p>
-              <a href="/matz/">matz</a> is an mruby expert for the terminal.
-              It uses mruby-llm to answer from the mruby guide repository,
-              indexed mruby source code, and mrbgem metadata.
-            </p>
-            <pre><code>$ ssh matz@r.uby.dev</code></pre>
-          </div>
-
-          <div class="project">
-            <h3>robert</h3>
-            <p>
-              <a href="https://4.4bsd.dev/robert">robert</a> is a FreeBSD
-              expert for the terminal. It uses mruby-llm to work from manual
-              pages, Handbook material, ports, packages, and local system
-              tools.
-            </p>
-            <pre><code>$ ssh robert@4.4bsd.dev</code></pre>
-          </div>
-        </div>
-      </section>
-
       <footer>
         <a href="/">r.uby.dev</a>
         <span>&middot;</span>
-        <a href="/matz/">matz</a>
+        <a href="/llm/">llm.rb</a>
         <span>&middot;</span>
         <span>0BSD licensed</span>
       </footer>
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
     <!-- Cloudflare Web Analytics -->
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b565dccbae55404faf2c00fc90b87f9a"}'></script>
     <!-- End Cloudflare Web Analytics -->
