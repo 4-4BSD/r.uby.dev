@@ -39,10 +39,10 @@
           <div class="quick-links">
             <a href="#install">Install</a>
             <a href="#quick-start">Quick start</a>
+            <a href="#tools">Tools</a>
+            <a href="#streaming">Stream</a>
             <a href="#mcp">MCP</a>
-            <a href="#orm">ORM</a>
-            <a href="#skills">Skills</a>
-            <a href="#serialization">Serialization</a>
+            <a href="#a2a">A2A</a>
             <a href="https://github.com/r-uby-dev/llm">GitHub</a>
           </div>
         </div>
@@ -54,7 +54,7 @@
           Welcome to the <a target="_blank" href="https://github.com/r-uby-dev/llm#readme">llm.rb</a> homepage.
         </p>
         <p>
-          <a target="_blank" href="https://github.com/r-uby-dev/llm#readme">llm.rb</a> is not a library, framework or toolkit but an advanced runtime
+          llm.rb is not a library, framework or toolkit but an advanced runtime
           for building highly capable AI applications on CRuby. By default
           it has zero runtime dependencies although certain functionality &ndash;
           such as ActiveRecord support &ndash; require optional dependencies
@@ -93,9 +93,10 @@
           <div class="example">
             <h3>LLM::Agent</h3>
             <p>
-              <code>LLM::Agent</code> is the default high-level interface.
-              It manages tool execution for you and keeps the conversation
-              state in its underlying context.
+              The <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> class is the default high-level interface,
+              and it is recommended for most use-cases. It manages tool execution
+              automatically, guards against infinite loops, manages conversation
+              state, and much more.
             </p>
             <pre><code class="language-ruby">require "llm"
 
@@ -107,8 +108,11 @@ agent.talk "Hello world"</code></pre>
           <div class="example">
             <h3>LLM::Context</h3>
             <p>
-              <code>LLM::Context</code> is the lower-level runtime object.
-              Use it when you want to manage tool execution manually.
+              The <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code> class is at the heart of the runtime
+              and it is what <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> uses under the hood.
+              It requires that the tool call loop be managed manually &ndash;
+              sometimes that can be useful, but usually for advanced use-cases.
+              If you're new to llm.rb, try <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> first.
             </p>
             <pre><code class="language-ruby">require "llm"
 
@@ -117,11 +121,13 @@ ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"</code></pre>
           </div>
 
-          <div class="example">
-            <h3>Tools</h3>
+          <div id="tools" class="example">
+            <h3>LLM::Tool</h3>
             <p>
-              Tools are plain Ruby classes with typed parameters. They can be
-              used by contexts, agents, MCP clients, A2A clients, and skills.
+              Subclasses of <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> are plain Ruby classes with
+              an optional set of typed parameters. <br> The model can choose to
+              call them on your behalf, and they're one of the most powerful features
+              for extending the feature set or abilities of a model.
             </p>
             <pre><code class="language-ruby">class ReadFile < LLM::Tool
   name "read-file"
@@ -137,64 +143,11 @@ end</code></pre>
         </div>
       </section>
 
-      <section id="mcp">
-        <h2>MCP</h2>
-        <p>
-          The Model Context Protocol (MCP) has first-class support
-          in <a target="_blank" href="https://github.com/r-uby-dev/llm#readme">llm.rb</a>. The stdio and http transports work out of the
-          box. MCP tools are translated into a subclass of
-          <code>LLM::Tool</code> that can be used with <code>LLM::Context</code>
-          or <code>LLM::Agent</code>.
-        </p>
-        <pre><code class="language-ruby">require "llm"
-
-llm   = LLM.openai(key: ENV["KEY"])
-mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
-agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
-agent.talk "Use the available tools to inspect the environment."
-</code></pre>
-      </section>
-
-      <section id="skills">
-        <h2>Skills</h2>
-        <p>
-          Skills package reusable instructions and scoped tool access in
-          <code>SKILL.md</code> directories. They turn repeatable workflows
-          into named capabilities that agents can load on demand.
-        </p>
-        <pre><code class="language-yaml">---
-name: release
-description: Prepare a release
-tools: ["search-docs", "git"]
----
-
-## Task
-
-Review the release state, summarize what changed, and prepare the release.</code></pre>
-        <p>
-          When a skill runs, <a target="_blank" href="https://github.com/r-uby-dev/llm#readme">llm.rb</a> starts a subagent with the skill
-          instructions, its allowed tools, and recent conversation context.
-        </p>
-        <pre><code class="language-ruby">require "llm"
-
-class ReleaseAgent &lt; LLM::Agent
-  model "gpt-5.4-mini"
-  skills "./skills/release"
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-ReleaseAgent.new(llm, stream: $stdout).talk("Prepare the next release.")</code></pre>
-        <p>
-          Skills can also use <code>tools: inherit</code> when they should run
-          with the parent agent's available Ruby, MCP, or A2A tools.
-        </p>
-      </section>
-
-      <section id="streaming">
-        <h2>Streaming</h2>
+            <section id="streaming">
+        <h3>LLM::Stream</h3>
         <p>
           Streams can be simple IO objects or subclasses of
-          <code>LLM::Stream</code> with structured callbacks for content,
+          <code><a href="/api-docs/llm.rb/LLM/Stream.html">LLM::Stream</a></code> with structured callbacks for content,
           reasoning, tool calls, tool returns, and compaction.
         </p>
         <pre><code class="language-ruby">class MyStream < LLM::Stream
@@ -212,75 +165,40 @@ agent = LLM::Agent.new(llm, stream: MyStream.new)
 agent.talk "Explain Ruby fibers."</code></pre>
       </section>
 
-      <section id="concurrency">
-        <h2>Concurrency</h2>
+      <section id="mcp">
+        <h3>LLM::MCP</h3>
         <p>
-          Agents can resolve tool work sequentially or concurrently with
-          threads, tasks, fibers, ractors, or forks.
-        </p>
-        <pre><code class="language-ruby">class Agent < LLM::Agent
-  model "gpt-5.4-mini"
-  tools ReadFile
-  concurrency :thread
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-agent = Agent.new(llm, stream: $stdout)
-agent.talk "Read README.md and CHANGELOG.md and compare them."</code></pre>
-      </section>
-
-      <section id="orm">
-        <h2>ORM</h2>
-        <p>
-          There is first-class support for both ActiveRecord, and Sequel.
-          Given ActiveRecord, <code>acts_as_agent</code> will wrap an
-          <code>LLM::Agent</code> around an instance of a model, and it
-          has the same interface with support for instructions, tools,
-          skills and concurrency.
-        </p>
-        <pre><code class="language-ruby">require "llm"
-require "active_record"
-require "llm/active_record"
-
-class Ticket < ApplicationRecord
-  acts_as_agent(provider: :set_provider) do
-    model "gpt-5.4-mini"
-    instructions "You are a concise support assistant."
-    tools SearchDocs, Escalate
-    concurrency :thread
-  end
-
-  private
-
-  def set_provider
-    LLM.openai(key: ENV["OPENAI_SECRET"])
-  end
-end
-
-ticket = Ticket.create!
-puts ticket.talk("How do I rotate my API key?").content</code></pre>
-      </section>
-
-      <section id="serialization">
-        <h2>Serialization</h2>
-        <p>
-          Agents and contexts can serialize to JSON and restore later. The
-          same serialized state powers the ActiveRecord and Sequel integrations,
-          so applications can persist conversations in ordinary database
-          columns, job queues, or the filesystem.
+          The Model Context Protocol (MCP) has first-class support
+          in llm.rb. The stdio and http transports work out of the
+          box. MCP tools are translated into subclasses of
+          <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> that can be used with <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>
+          or <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>.
         </p>
         <pre><code class="language-ruby">require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
-agent1 = LLM::Agent.new(llm)
-agent1.talk "Remember that my favorite language is Ruby"
-string = agent1.to_json
-
-agent2 = LLM::Agent.new(llm, stream: $stdout)
-agent2.restore(string:)
-agent2.talk "What is my favorite language?"</code></pre>
+llm   = LLM.openai(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
+agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
+agent.talk "Run the tool"
+</code></pre>
       </section>
+            <section id="a2a">
+        <h3>LLM::A2A</h3>
+        <p>
+          The Agent 2 Agent (A2A) protocol has first-class support
+          in llm.rb. The http and jsonrpc transports work out of the
+          box. A2A skills are translated into subclasses of
+          <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> that can be used with <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>
+          or <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>.
+        </p>
+        <pre><code class="language-ruby">require "llm"
 
+llm   = LLM.openai(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
+agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.tools)
+agent.talk "Run the skill"
+</code></pre>
+      </section>
       <section>
         <h2>Applications</h2>
         <p>
