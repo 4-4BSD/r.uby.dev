@@ -229,6 +229,28 @@ Document.create!(
   embedding:,
 )</code></pre>
       </section>
+      <section id="concurrency">
+        <h3>Concurrency</h3>
+        <p>
+          The runtime supports five different concurrency strategies that have
+          different attributes. The choice between all of them often depends
+          on the requirements of your application.
+        </p>
+        <p>
+          IO-bound tools are a good fit for the <code>:task</code>, <code>:thread</code>,
+          and <code>:fiber</code> strategies while true parallelism can be achieved
+          with the <code>:fork</code> and <code>:ractor</code> strategies. The
+          <code>:fork</code> strategy also provides a separate process that offers
+          isolation from its parent.
+        </p>
+                <pre><code class="language-ruby">require "llm"
+
+llm   = LLM.openai(key: ENV["KEY"])
+tools = [FetchNews, FetchStocks, FetchFeeds]
+agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
+agent.talk "Run the tools in parallel"
+</code></pre>
+      </section>
       <section>
         <h2>Applications</h2>
         <p>
