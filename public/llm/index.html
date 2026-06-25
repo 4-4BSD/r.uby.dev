@@ -190,7 +190,7 @@ agent.talk "Run the tool"
         <h3>LLM::A2A</h3>
         <p>
           The Agent 2 Agent (A2A) protocol has first-class support
-          in llm.rb. The http and jsonrpc transports work out of the
+          in llm.rb. The rest and jsonrpc transports work out of the
           box. A2A skills are translated into subclasses of
           <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> that can be used with <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>
           or <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>.
@@ -199,7 +199,7 @@ agent.talk "Run the tool"
 
 llm   = LLM.deepseek(key: ENV["KEY"])
 a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
-agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.tools)
+agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
 agent.talk "Run the skill"
 </code></pre>
       </section>
