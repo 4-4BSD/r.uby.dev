@@ -97,8 +97,7 @@
 <p>This wrapper reuses the same record-backed runtime surface as
 <span class='object_link'><a href="Plugin.html" title="LLM::Sequel::Plugin (module)">Plugin</a></span>, but builds an <span class='object_link'><a href="../Agent.html" title="LLM::Agent (class)">LLM::Agent</a></span> instead of an
 <span class='object_link'><a href="../Context.html" title="LLM::Context (class)">LLM::Context</a></span>. Agent defaults such as model, tools, schema,
-instructions, and concurrency are configured on the model class and
-forwarded to an internal agent subclass.</p>
+instructions, and concurrency are configured on an internal agent subclass.</p>
 
 
   </div>
@@ -226,14 +225,14 @@ forwarded to an internal agent subclass.</p>
       <pre class="lines">
 
 
+17
 18
 19
 20
-21
-22</pre>
+21</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/sequel/agent.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/sequel/agent.rb', line 17</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_apply'>apply</span><span class='lparen'>(</span><span class='id identifier rubyid_model'>model</span><span class='comma'>,</span> <span class='op'>**</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span> <span class='const'><span class='object_link'><a href="Agent/ClassMethods.html" title="LLM::Sequel::Agent::ClassMethods (module)">ClassMethods</a></span></span>
@@ -260,21 +259,21 @@ forwarded to an internal agent subclass.</p>
       <pre class="lines">
 
 
+23
 24
 25
 26
 27
-28
-29</pre>
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/sequel/agent.rb', line 24</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/sequel/agent.rb', line 23</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_configure'>configure</span><span class='lparen'>(</span><span class='id identifier rubyid_model'>model</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#EMPTY_HASH-constant" title="LLM::Sequel::Agent::EMPTY_HASH (constant)">EMPTY_HASH</a></span></span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DEFAULTS-constant" title="LLM::Sequel::Agent::DEFAULTS (constant)">DEFAULTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_extension'>extension</span> <span class='symbol'>:pg_json</span> <span class='kw'>if</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>json</span><span class='words_sep'> </span><span class='tstring_content'>jsonb</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:format</span><span class='rbracket'>]</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_instance_variable_set'>instance_variable_set</span><span class='lparen'>(</span><span class='symbol'>:@llm_agent_options</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_instance_exec'>instance_exec</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_block'>block</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_instance_exec'>instance_exec</span><span class='lparen'>(</span><span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_agent'>agent</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -286,7 +285,7 @@ forwarded to an internal agent subclass.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jun 25 21:21:29 2026 by
+  Generated on Thu Jun 25 23:49:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

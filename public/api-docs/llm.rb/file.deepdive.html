@@ -290,10 +290,107 @@ scenes.</p>
 </span>  <span class='kw'>end</span>
 <span class='kw'>end</span>
 </code></pre>
+
+<h2 id="orm">ORM</h2>
+
+<p>Both ActiveRecord, and Sequel have first-class support on the
+llm.rb runtime. In both cases an ActiveRecord or Sequel model
+can be turned into a model that has the same capabilities as
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>,
+or <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>.</p>
+
+<p>The main difference is that the runtime persists directly into
+the database with no requirements beyond a single column on a
+single row. That means it is usually trivial to turn an existing
+model into an AI-aware model.</p>
+
+<h4 id="activerecord">ActiveRecord</h4>
+
+<p>The ActiveRecord interface for
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+is
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/ActsAsAgent.html"><code>acts_as_agent</code></a>.
+It yields an instance of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>,
+and that can be used
+to configure the agent (eg which model, instructions, skills,
+tools, etc).</p>
+
+<p>An interesting option is the <code>format</code> option, by default it
+defaults to <code>:string</code> but it can also be changed to <code>:json</code>
+or <code>:jsonb</code> depending on the configuration and type of underlying
+column. The JSONB column type is recommended.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>active_record</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm/active_record</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>Agent</span> <span class='op'>&lt;</span> <span class='const'>ApplicationRecord</span>
+  <span class='id identifier rubyid_acts_as_agent'>acts_as_agent</span><span class='lparen'>(</span><span class='label'>format:</span> <span class='symbol'>:jsonb</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_agent'>agent</span><span class='op'>|</span>
+    <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_model'>model</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-v4-pro</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_instructions'>instructions</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>solve the user&#39;s query</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_tools'>tools</span> <span class='lbracket'>[</span><span class='const'>Research</span><span class='comma'>,</span> <span class='const'>FinalizeResearch</span><span class='comma'>,</span> <span class='const'>ActOnResearch</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_private'>private</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># By convention, this method defines the provider
+</span>  <span class='comment'># for a model. If neccessary, it can be renamed and
+</span>  <span class='comment'># configured via `provider: :your_method` instead.
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_set_provider'>set_provider</span>
+    <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># By convention, this method should return what is
+</span>  <span class='comment'># given as the second argument to `LLM::Context` or
+</span>  <span class='comment'># `LLM::Agent`.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># Often, there is no need to set it, so it can be left
+</span>  <span class='comment'># undefined or it can be reassigned in the same way as
+</span>  <span class='comment'># `set_provider`. For example: `context: :your_method`
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_set_context'>set_context</span>
+    <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'>Agent</span><span class='period'>.</span><span class='id identifier rubyid_create!'>create!</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>perform research</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<h4 id="sequel">Sequel</h4>
+
+<p>The following is a Sequel equivalent to the ActiveRecord example,
+but to keep it interesting and informative, this example also
+configures a per-model tracer that logs to <code>$stdout</code>. Works the
+same for ActiveRecord.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sequel</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>Agent</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="Sequel.html" title="Sequel (module)">Sequel</a></span></span><span class='op'>::</span><span class='const'>Model</span>
+  <span class='id identifier rubyid_plugin'>plugin</span><span class='lparen'>(</span><span class='symbol'>:agent</span><span class='comma'>,</span> <span class='label'>format:</span> <span class='symbol'>:jsonb</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_agent'>agent</span><span class='op'>|</span>
+    <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_model'>model</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-v4-pro</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_instructions'>instructions</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>solve the user&#39;s query</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_tools'>tools</span> <span class='lbracket'>[</span><span class='const'>Research</span><span class='comma'>,</span> <span class='const'>FinalizeResearch</span><span class='comma'>,</span> <span class='const'>ActOnResearch</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='lbrace'>{</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer/Logger.html" title="LLM::Tracer::Logger (class)">Logger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Tracer/Logger.html#initialize-instance_method" title="LLM::Tracer::Logger#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>io:</span> <span class='gvar'>$stdout</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_private'>private</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_set_provider'>set_provider</span>
+    <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DEEPSEEK_SECRET</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'>Agent</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>perform research</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
 </div></div>
 
       <div id="footer">
-  Generated on Thu Jun 25 21:21:29 2026 by
+  Generated on Thu Jun 25 23:49:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

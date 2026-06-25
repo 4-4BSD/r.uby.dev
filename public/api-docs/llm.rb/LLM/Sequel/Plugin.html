@@ -131,21 +131,21 @@ can also be configured as symbols that are called on the model.</p>
 
     <dl class="constants">
       
-        <dt id="EMPTY_HASH-constant" class="">EMPTY_HASH =
-          
-        </dt>
-        <dd><pre class="code"><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
-      
         <dt id="DEFAULTS-constant" class="">DEFAULTS =
           
         </dt>
         <dd><pre class="code"><span class='lbrace'>{</span>
   <span class='label'>data_column:</span> <span class='symbol'>:data</span><span class='comma'>,</span>
   <span class='label'>format:</span> <span class='symbol'>:string</span><span class='comma'>,</span>
-  <span class='label'>tracer:</span> <span class='kw'>nil</span><span class='comma'>,</span>
-  <span class='label'>provider:</span> <span class='kw'>nil</span><span class='comma'>,</span>
-  <span class='label'>context:</span> <span class='const'><span class='object_link'><a href="#EMPTY_HASH-constant" title="LLM::Sequel::Plugin::EMPTY_HASH (constant)">EMPTY_HASH</a></span></span>
+  <span class='label'>provider:</span> <span class='symbol'>:set_provider</span><span class='comma'>,</span>
+  <span class='label'>context:</span> <span class='symbol'>:set_context</span><span class='comma'>,</span>
+  <span class='label'>tracer:</span> <span class='symbol'>:set_tracer</span>
 <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="EMPTY_HASH-constant" class="">EMPTY_HASH =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
       
     </dl>
   
@@ -413,7 +413,7 @@ assigned through <code>llm.tracer = ...</code> on the resolved provider.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jun 25 21:21:29 2026 by
+  Generated on Thu Jun 25 23:49:59 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
