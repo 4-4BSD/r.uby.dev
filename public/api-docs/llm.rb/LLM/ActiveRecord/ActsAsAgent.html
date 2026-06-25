@@ -139,7 +139,7 @@ class and forwarded to an internal agent subclass.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#acts_as_agent-instance_method" title="#acts_as_agent (instance method)">#<strong>acts_as_agent</strong>(options = EMPTY_HASH) { ... } </a>
+      <a href="#acts_as_agent-instance_method" title="#acts_as_agent (instance method)">#<strong>acts_as_agent</strong>(options = EMPTY_HASH) {|agent| ... } </a>
     
 
     
@@ -172,7 +172,7 @@ class and forwarded to an internal agent subclass.</p>
       <div class="method_details first">
   <h3 class="signature first" id="acts_as_agent-instance_method">
   
-    #<strong>acts_as_agent</strong>(options = EMPTY_HASH) { ... } 
+    #<strong>acts_as_agent</strong>(options = EMPTY_HASH) {|agent| ... } 
   
 
   
@@ -271,6 +271,25 @@ DSL methods such as <code>model</code>, <code>tools</code>, <code>schema</code>,
     </li>
   
 </ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>agent</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Agent.html" title="LLM::Agent (class)">LLM::Agent</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Yields an instance of <span class='object_link'><a href="../Agent.html" title="LLM::Agent (class)">LLM::Agent</a></span>.</p>
+</div>
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -278,23 +297,23 @@ DSL methods such as <code>model</code>, <code>tools</code>, <code>schema</code>,
       <pre class="lines">
 
 
-96
-97
 98
 99
 100
 101
-102</pre>
+102
+103
+104</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/active_record/acts_as_agent.rb', line 96</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/active_record/acts_as_agent.rb', line 98</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_acts_as_agent'>acts_as_agent</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../ActiveRecord.html#EMPTY_HASH-constant" title="LLM::ActiveRecord::EMPTY_HASH (constant)">EMPTY_HASH</a></span></span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../ActiveRecord.html#DEFAULTS-constant" title="LLM::ActiveRecord::DEFAULTS (constant)">DEFAULTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_class_attribute'>class_attribute</span> <span class='symbol'>:llm_plugin_options</span><span class='comma'>,</span> <span class='label'>instance_accessor:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>default:</span> <span class='const'><span class='object_link'><a href="../ActiveRecord.html#DEFAULTS-constant" title="LLM::ActiveRecord::DEFAULTS (constant)">DEFAULTS</a></span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:llm_plugin_options</span><span class='rparen'>)</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_llm_plugin_options'>llm_plugin_options</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
   <span class='id identifier rubyid_extend'>extend</span> <span class='const'><span class='object_link'><a href="ActsAsAgent/Hooks.html" title="LLM::ActiveRecord::ActsAsAgent::Hooks (module)">Hooks</a></span></span>
-  <span class='id identifier rubyid_class_exec'>class_exec</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_block'>block</span>
+  <span class='id identifier rubyid_block_given?'>block_given?</span> <span class='op'>?</span> <span class='id identifier rubyid_class_exec'>class_exec</span><span class='lparen'>(</span><span class='id identifier rubyid_agent'>agent</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -306,7 +325,7 @@ DSL methods such as <code>model</code>, <code>tools</code>, <code>schema</code>,
 </div>
 
       <div id="footer">
-  Generated on Mon Jun 22 10:36:51 2026 by
+  Generated on Thu Jun 25 17:44:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
