@@ -60,7 +60,7 @@
         <p>
           It is designed for terminal tools, services, small standalone
           binaries, and embedded systems. In theory it could run anywhere
-          mruby runs but in practice it will depend on the device. 
+          mruby runs but in practice it will depend on the device.
         </p>
         <p>
           Embedded systems are not the only use-case though. mruby is a good
@@ -79,14 +79,18 @@
           first-class support for streaming, tool calls, MCP and A2A,
           embeddings, vector stores and the RAG pattern.
         <p>
-          It brings the llm.rb execution model to mruby: providers, contexts,
-          agents, tools, skills, streaming, files, and persisted state. The
-          same ideas carry across both runtimes, but mruby-llm is shaped around
-          static builds and standalone applications.
+          It supports nearly all the same features as <a href="/llm">llm.rb</a>,
+          and if you already know llm.rb then you already know mruby-llm &ndash;
+          it is a smaller subset. The type of applications you can build is quite
+          different though. While CRuby primarily targets the web, mruby allows
+          you to target a much broader set of platforms, and it also allows you
+          to distribute your software as a standalone binary.
+        </p>
         <p>
-          mruby-llm makes it practical to build small self-contained AI
-          applications that ship as standalone binaries measured in megabytes,
-          not hundreds of megabytes.
+          I think it is accurate to say that mruby-llm is <a href="/llm">llm.rb</a>
+          plus the features of the mruby runtime. That's what makes it interesting.
+          You can do things you wouldn't normally do in CRuby, and that makes it
+          possible to use the same llm.rb runtime in ways you couldn't before.
         </p>
       </section>
 
