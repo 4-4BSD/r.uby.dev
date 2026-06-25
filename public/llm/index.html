@@ -271,10 +271,10 @@ require "llm"
 require "llm/active_record"
 
 class Agent < ApplicationRecord
-  acts_as_agent do
-    model "deepseek-v4-pro"
-    instructions "solve the user's query"
-    tools [Research, FinalizeResearch, ActOnResearch]
+  acts_as_agent do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
   end
 
   private
