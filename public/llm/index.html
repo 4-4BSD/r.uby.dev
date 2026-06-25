@@ -103,7 +103,7 @@
             </p>
             <pre><code class="language-ruby">require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"</code></pre>
           </div>
@@ -119,7 +119,7 @@ agent.talk "Hello world"</code></pre>
             </p>
             <pre><code class="language-ruby">require "llm"
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.deepseek(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"</code></pre>
           </div>
@@ -163,7 +163,7 @@ end</code></pre>
   end
 end
 
-llm = LLM.openai(key: ENV["KEY"])
+llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, stream: MyStream.new)
 agent.talk "Explain Ruby fibers."</code></pre>
       </section>
@@ -179,7 +179,7 @@ agent.talk "Explain Ruby fibers."</code></pre>
         </p>
         <pre><code class="language-ruby">require "llm"
 
-llm   = LLM.openai(key: ENV["KEY"])
+llm   = LLM.deepseek(key: ENV["KEY"])
 mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
 agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
 agent.talk "Run the tool"
@@ -196,7 +196,7 @@ agent.talk "Run the tool"
         </p>
         <pre><code class="language-ruby">require "llm"
 
-llm   = LLM.openai(key: ENV["KEY"])
+llm   = LLM.deepseek(key: ENV["KEY"])
 a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
 agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.tools)
 agent.talk "Run the skill"
@@ -245,7 +245,7 @@ Document.create!(
         </p>
                 <pre><code class="language-ruby">require "llm"
 
-llm   = LLM.openai(key: ENV["KEY"])
+llm   = LLM.deepseek(key: ENV["KEY"])
 tools = [FetchNews, FetchStocks, FetchFeeds]
 agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
 agent.talk "Run the tools in parallel"
