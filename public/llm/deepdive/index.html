@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, and tracing.">
+    <meta name="description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, schemas, and tracing.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="llm.rb deep dive">
-    <meta property="og:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, and tracing.">
+    <meta property="og:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, schemas, and tracing.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb deep dive">
-    <meta name="twitter:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, and tracing.">
+    <meta name="twitter:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, schemas, and tracing.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -53,6 +53,8 @@
               <a href="#orm">ORM</a>
               <a class="toc-sub" href="#activerecord">ActiveRecord</a>
               <a class="toc-sub" href="#sequel">Sequel</a>
+              <a href="#schema">Schema</a>
+              <a class="toc-sub" href="#estimation">Estimation</a>
               <a href="#tracer">Tracer</a>
               <a class="toc-sub" href="#provider-wide-tracer">Provider-wide tracer</a>
               <a class="toc-sub" href="#agent-local-tracer">Agent-local tracer</a>
@@ -281,6 +283,37 @@ end
 
 agent = Agent.create
 agent.talk "perform research"
+</code></pre>
+
+<h2 id="schema">Schema</h2>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> class can be subclassed to describe the shape of a JSON object or objects that you expect the model to respond with.</p>
+
+<p>It can be useful for a wide range of use cases but the most popular might be classification, data extraction, and transferring structured data between different software rather than blobs of text that a machine cannot easily parse in a structured way.</p>
+
+<h4 id="estimation">Estimation</h4>
+
+<p>The following example asks the model to estimate the age of a person in a photo. The model provides a structured response that’s represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>.</p>
+
+<p>The object returned by <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Contract/Completion.html#content!-instance_method"><code>LLM::Response#content!</code></a> has methods that can access the age, confidence, and comments properties. This approach can also work for extracting data or an analysis from a PDF, and other file types.</p>
+
+<pre><code class="language-ruby">require "llm"
+require "pp"
+
+class Estimation &lt; LLM::Schema
+  property :age, String, "The estimated age of the person"
+  property :confidence, Number, "Your confidence in the estimate"
+  property :comments, String, "Any additional comments or context"
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Estimation)
+res = agent.ask "Given this photo, provide an age estimate", with: "photo.jpg"
+
+##
+# Coerces the model's response from a JSON string
+# to an instance of LLM::Object.
+pp res.content!
 </code></pre>
 
 <h2 id="tracer">Tracer</h2>
