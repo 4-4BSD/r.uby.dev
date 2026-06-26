@@ -147,8 +147,7 @@ and disabled by default.</p>
 </span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>opentelemetry-exporter-otlp</span><span class='tstring_end'>&quot;</span></span>
 
-<span class='id identifier rubyid_endpoint'>endpoint</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://api.smith.langchain.com/otel/v1/traces</span><span class='tstring_end'>&quot;</span></span>
-<span class='id identifier rubyid_exporter'>exporter</span> <span class='op'>=</span> <span class='const'>OpenTelemetry</span><span class='op'>::</span><span class='const'>Exporter</span><span class='op'>::</span><span class='const'>OTLP</span><span class='op'>::</span><span class='const'>Exporter</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='label'>endpoint:</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_exporter'>exporter</span> <span class='op'>=</span> <span class='const'>OpenTelemetry</span><span class='op'>::</span><span class='const'>Exporter</span><span class='op'>::</span><span class='const'>OTLP</span><span class='op'>::</span><span class='const'>Exporter</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
 
 <span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_openai'><span class='object_link'><a href="../../LLM.html#openai-class_method" title="LLM.openai (method)">openai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'>Telemetry</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="LLM::Tracer::Telemetry#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>exporter:</span><span class='rparen'>)</span>
@@ -466,14 +465,14 @@ and disabled by default.</p>
       <pre class="lines">
 
 
+46
 47
 48
 49
-50
-51</pre>
+50</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 46</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_provider'>provider</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>super</span>
@@ -540,13 +539,13 @@ the risk of losing spans that are still buffered.</p>
       <pre class="lines">
 
 
+186
+187
 188
-189
-190
-191</pre>
+189</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 188</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 186</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_flush!'>flush!</span>
   <span class='ivar'>@tracer_provider</span><span class='period'>.</span><span class='id identifier rubyid_force_flush'>force_flush</span>
@@ -643,8 +642,7 @@ created until <span class='object_link'><a href="#stop_trace-instance_method" ti
       
       
         &mdash;
-        <div class='inline'><p>Optional. Trace-level metadata merged into the trace (e.g. langsmith.metadata.*).
-Only used by tracers that support it (e.g. <span class='object_link'><a href="Langsmith.html" title="LLM::Tracer::Langsmith (class)">Langsmith</a></span>).</p>
+        <div class='inline'><p>Optional. Trace-level metadata merged into the trace by tracers that support it.</p>
 </div>
       
     </li>
@@ -671,6 +669,7 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+59
 60
 61
 62
@@ -687,16 +686,13 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
 73
 74
 75
-76
-77
-78</pre>
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 60</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 59</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_start_trace'>start_trace</span><span class='lparen'>(</span><span class='label'>trace_group_id:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>attributes:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='label'>metadata:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='id identifier rubyid_trace_group_id'>trace_group_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
-
   <span class='id identifier rubyid_span_context'>span_context</span> <span class='op'>=</span> <span class='id identifier rubyid_span_context_from_trace_group_id'>span_context_from_trace_group_id</span><span class='lparen'>(</span><span class='id identifier rubyid_trace_group_id'>trace_group_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_parent_ctx'>parent_ctx</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>OpenTelemetry</span><span class='op'>::</span><span class='const'>Trace</span><span class='period'>.</span><span class='id identifier rubyid_context_with_span'>context_with_span</span><span class='lparen'>(</span>
     <span class='op'>::</span><span class='const'>OpenTelemetry</span><span class='op'>::</span><span class='const'>Trace</span><span class='period'>.</span><span class='id identifier rubyid_non_recording_span'>non_recording_span</span><span class='lparen'>(</span><span class='id identifier rubyid_span_context'>span_context</span><span class='rparen'>)</span>
@@ -755,15 +751,15 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+80
+81
 82
 83
 84
-85
-86
-87</pre>
+85</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 82</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 80</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_stop_trace'>stop_trace</span>
   <span class='ivar'>@root_span</span><span class='op'>&amp;.</span><span class='id identifier rubyid_finish'>finish</span>
@@ -845,16 +841,16 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+89
+90
 91
 92
 93
 94
-95
-96
-97</pre>
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 91</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 89</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_request_start'>on_request_start</span><span class='lparen'>(</span><span class='label'>operation:</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>inputs:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_operation'>operation</span>
@@ -964,7 +960,7 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       
       
         &mdash;
-        <div class='inline'><p>Optional metadata (emitted as langsmith.metadata.*) from llm.rb or caller.</p>
+        <div class='inline'><p>Optional metadata from llm.rb or caller.</p>
 </div>
       
     </li>
@@ -978,17 +974,17 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+99
+100
 101
 102
 103
 104
 105
-106
-107
-108</pre>
+106</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 101</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_request_finish'>on_request_finish</span><span class='lparen'>(</span><span class='label'>operation:</span><span class='comma'>,</span> <span class='label'>res:</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>span:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>outputs:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>metadata:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_span'>span</span>
@@ -1053,17 +1049,17 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+110
+111
 112
 113
 114
 115
 116
-117
-118
-119</pre>
+117</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 112</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 110</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_request_error'>on_request_error</span><span class='lparen'>(</span><span class='label'>ex:</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_span'>span</span>
@@ -1166,6 +1162,8 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+122
+123
 124
 125
 126
@@ -1179,12 +1177,10 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
 134
 135
 136
-137
-138
-139</pre>
+137</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 124</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 122</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_start'>on_tool_start</span><span class='lparen'>(</span><span class='label'>id:</span><span class='comma'>,</span> <span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='comma'>,</span> <span class='label'>model:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_attributes'>attributes</span> <span class='op'>=</span> <span class='lbrace'>{</span>
@@ -1265,6 +1261,8 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+142
+143
 144
 145
 146
@@ -1273,12 +1271,10 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
 149
 150
 151
-152
-153
-154</pre>
+152</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 144</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 142</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_finish'>on_tool_finish</span><span class='lparen'>(</span><span class='label'>result:</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_span'>span</span>
@@ -1354,17 +1350,17 @@ Only used by tracers that support it (e.g. <span class='object_link'><a href="La
       <pre class="lines">
 
 
+157
+158
 159
 160
 161
 162
 163
-164
-165
-166</pre>
+164</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 159</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 157</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_error'>on_tool_error</span><span class='lparen'>(</span><span class='label'>ex:</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_span'>span</span>
@@ -1425,14 +1421,14 @@ exporter</p>
       <pre class="lines">
 
 
+172
+173
 174
 175
-176
-177
-178</pre>
+176</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 174</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tracer/telemetry.rb', line 172</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_spans'>spans</span>
   <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>unless</span> <span class='ivar'>@exporter</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:finished_spans</span><span class='rparen'>)</span>
@@ -1449,7 +1445,7 @@ exporter</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jun 25 23:50:03 2026 by
+  Generated on Fri Jun 26 20:16:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

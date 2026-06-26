@@ -112,8 +112,7 @@
   <div class="discussion">
     <p>The <span class='object_link'><a href="" title="LLM::XAI::Images (class)">LLM::XAI::Images</a></span> class provides an interface
 for <a href="https://docs.x.ai/docs/guides/image-generations">xAI&#39;s images API</a>.
-xAI supports multiple response formats: temporary URLs, or binary strings
-encoded in base64. The default is to return base64-encoded image data.</p>
+xAI returns base64-encoded image data.</p>
 
 
   </div>
@@ -124,30 +123,11 @@ encoded in base64. The default is to return base64-encoded image data.</p>
     <h4 class="tag_title">Examples:</h4>
     
       
-        <h5 class="example_title"><div class='inline'><p>Temporary URLs</p>
-</div></h5>
-      
-      <pre class="example code"><code><span class='comment'>#!/usr/bin/env ruby
-</span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
-<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>open-uri</span><span class='tstring_end'>&quot;</span></span>
-<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fileutils</span><span class='tstring_end'>&quot;</span></span>
-
-<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_xai'><span class='object_link'><a href="../../LLM.html#xai-class_method" title="LLM.xai (method)">xai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span> <span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A dog on a rocket to the moon</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
-                     <span class='label'>response_format:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>url</span><span class='tstring_end'>&quot;</span></span>
-<span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mv'>mv</span> <span class='const'>OpenURI</span><span class='period'>.</span><span class='id identifier rubyid_open_uri'>open_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_urls'>urls</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span>
-             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rocket.png</span><span class='tstring_end'>&quot;</span></span></code></pre>
-    
-      
-        <h5 class="example_title"><div class='inline'><p>Binary strings</p>
-</div></h5>
-      
       <pre class="example code"><code><span class='comment'>#!/usr/bin/env ruby
 </span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 
 <span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_xai'><span class='object_link'><a href="../../LLM.html#xai-class_method" title="LLM.xai (method)">xai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span> <span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A dog on a rocket to the moon</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
-                        <span class='label'>response_format:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b64_json</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span> <span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A dog on a rocket to the moon</span><span class='tstring_end'>&quot;</span></span>
 <span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rocket.png</span><span class='tstring_end'>&quot;</span></span></code></pre>
     
   </div>
@@ -171,7 +151,7 @@ encoded in base64. The default is to return base64-encoded image data.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#create-instance_method" title="#create (instance method)">#<strong>create</strong>(prompt:, model: &quot;grok-imagine-image&quot;, **params)  &#x21d2; LLM::Response </a>
+      <a href="#create-instance_method" title="#create (instance method)">#<strong>create</strong>(prompt:, model: &quot;grok-imagine-image-quality&quot;, **params)  &#x21d2; LLM::Response </a>
     
 
     
@@ -194,7 +174,7 @@ encoded in base64. The default is to return base64-encoded image data.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#edit-instance_method" title="#edit (instance method)">#<strong>edit</strong>(model: &quot;grok-imagine-image&quot;)  &#x21d2; Object </a>
+      <a href="#edit-instance_method" title="#edit (instance method)">#<strong>edit</strong>(image:, prompt:, model: &quot;grok-imagine-image-quality&quot;, **params)  &#x21d2; LLM::Response </a>
     
 
     
@@ -208,29 +188,8 @@ encoded in base64. The default is to return base64-encoded image data.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#create_variation-instance_method" title="#create_variation (instance method)">#<strong>create_variation</strong>(model: &quot;grok-imagine-image&quot;)  &#x21d2; Object </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
+    <span class="summary_desc"><div class='inline'><p>Edit an image.</p>
+</div></span>
   
 </li>
 
@@ -249,7 +208,7 @@ encoded in base64. The default is to return base64-encoded image data.</p>
       <div class="method_details first">
   <h3 class="signature first" id="create-instance_method">
   
-    #<strong>create</strong>(prompt:, model: &quot;grok-imagine-image&quot;, **params)  &#x21d2; <tt><span class='object_link'><a href="../Response.html" title="LLM::Response (class)">LLM::Response</a></span></tt> 
+    #<strong>create</strong>(prompt:, model: &quot;grok-imagine-image-quality&quot;, **params)  &#x21d2; <tt><span class='object_link'><a href="../Response.html" title="LLM::Response (class)">LLM::Response</a></span></tt> 
   
 
   
@@ -299,7 +258,7 @@ encoded in base64. The default is to return base64-encoded image data.</p>
         <span class='type'>(<tt>String</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&quot;grok-imagine-image&quot;</tt>)</em>
+        <em class="default">(defaults to: <tt>&quot;grok-imagine-image-quality&quot;</tt>)</em>
       
       
         &mdash;
@@ -352,15 +311,25 @@ encoded in base64. The default is to return base64-encoded image data.</p>
       <pre class="lines">
 
 
-43
-44
-45</pre>
+34
+35
+36
+37
+38
+39
+40
+41</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/xai/images.rb', line 43</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/xai/images.rb', line 34</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>prompt:</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>grok-imagine-image</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
-  <span class='kw'>super</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>prompt:</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>grok-imagine-image-quality</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_req'>req</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Transport.html" title="LLM::Transport (class)">Transport</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Transport/Request.html" title="LLM::Transport::Request (class)">Request</a></span></span><span class='period'>.</span><span class='id identifier rubyid_post'><span class='object_link'><a href="../Transport/Request.html#post-class_method" title="LLM::Transport::Request.post (method)">post</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/images/generations</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_headers'>headers</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>prompt:</span><span class='comma'>,</span> <span class='label'>n:</span> <span class='int'>1</span><span class='comma'>,</span> <span class='label'>model:</span><span class='comma'>,</span> <span class='label'>response_format:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b64_json</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span><span class='comma'>,</span> <span class='id identifier rubyid_span'>span</span><span class='comma'>,</span> <span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>request:</span> <span class='id identifier rubyid_req'>req</span><span class='comma'>,</span> <span class='label'>operation:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OpenAI.html" title="LLM::OpenAI (class)">OpenAI</a></span></span><span class='op'>::</span><span class='const'>ResponseAdapter</span><span class='period'>.</span><span class='id identifier rubyid_adapt'>adapt</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='symbol'>:image</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tracer'>tracer</span><span class='period'>.</span><span class='id identifier rubyid_on_request_finish'>on_request_finish</span><span class='lparen'>(</span><span class='label'>operation:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>model:</span><span class='comma'>,</span> <span class='label'>res:</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -370,7 +339,7 @@ encoded in base64. The default is to return base64-encoded image data.</p>
       <div class="method_details ">
   <h3 class="signature " id="edit-instance_method">
   
-    #<strong>edit</strong>(model: &quot;grok-imagine-image&quot;)  &#x21d2; <tt><span class='object_link'><a href="../Object.html" title="LLM::Object (class)">Object</a></span></tt> 
+    #<strong>edit</strong>(image:, prompt:, model: &quot;grok-imagine-image-quality&quot;, **params)  &#x21d2; <tt><span class='object_link'><a href="../Response.html" title="LLM::Response (class)">LLM::Response</a></span></tt> 
   
 
   
@@ -378,19 +347,96 @@ encoded in base64. The default is to return base64-encoded image data.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>Edit an image</p>
+
 
   </div>
 </div>
 <div class="tags">
   
-<p class="tag_title">Raises:</p>
-<ul class="raise">
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_xai'><span class='object_link'><a href="../../LLM.html#xai-class_method" title="LLM.xai (method)">xai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_edit'>edit</span><span class='lparen'>(</span><span class='label'>image:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/images/book.png</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The book is floating in the clouds</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>floating-book.png</span><span class='tstring_end'>&quot;</span></span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>image</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt><span class='object_link'><a href="../File.html" title="LLM::File (class)">LLM::File</a></span></tt>, <tt><span class='object_link'><a href="../File.html" title="LLM::File (class)">File</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The image to edit</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>prompt</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The prompt</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>model</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&quot;grok-imagine-image-quality&quot;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>The model to use</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>params</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Other parameters (see xAI docs)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
   
     <li>
       
       
-        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../Response.html" title="LLM::Response (class)">LLM::Response</a></span></tt>)</span>
       
       
       
@@ -398,57 +444,12 @@ encoded in base64. The default is to return base64-encoded image data.</p>
   
 </ul>
 
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-49
-50
-51</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/xai/images.rb', line 49</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_edit'>edit</span><span class='lparen'>(</span><span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>grok-imagine-image</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>**</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
     
-      <div class="method_details ">
-  <h3 class="signature " id="create_variation-instance_method">
-  
-    #<strong>create_variation</strong>(model: &quot;grok-imagine-image&quot;)  &#x21d2; <tt><span class='object_link'><a href="../Object.html" title="LLM::Object (class)">Object</a></span></tt> 
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
+      <li><a href="https://docs.x.ai/docs/guides/image-generations" target="_parent" title="xAI docs">xAI docs</a></li>
     
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Raises:</p>
-<ul class="raise">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>NotImplementedError</tt>)</span>
-      
-      
-      
-    </li>
-  
-</ul>
+  </ul>
 
 </div><table class="source_code">
   <tr>
@@ -456,15 +457,35 @@ encoded in base64. The default is to return base64-encoded image data.</p>
       <pre class="lines">
 
 
-55
 56
-57</pre>
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/xai/images.rb', line 55</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/xai/images.rb', line 56</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_create_variation'>create_variation</span><span class='lparen'>(</span><span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>grok-imagine-image</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>**</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_edit'>edit</span><span class='lparen'>(</span><span class='label'>image:</span><span class='comma'>,</span> <span class='label'>prompt:</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>grok-imagine-image-quality</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_req'>req</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Transport.html" title="LLM::Transport (class)">Transport</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Transport/Request.html" title="LLM::Transport::Request (class)">Request</a></span></span><span class='period'>.</span><span class='id identifier rubyid_post'><span class='object_link'><a href="../Transport/Request.html#post-class_method" title="LLM::Transport::Request.post (method)">post</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/images/edits</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_headers'>headers</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='label'>prompt:</span><span class='comma'>,</span>
+    <span class='label'>model:</span><span class='comma'>,</span>
+    <span class='label'>image:</span> <span class='id identifier rubyid_image_url'>image_url</span><span class='lparen'>(</span><span class='id identifier rubyid_image'>image</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>response_format:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b64_json</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span><span class='comma'>,</span> <span class='id identifier rubyid_span'>span</span><span class='comma'>,</span> <span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>request:</span> <span class='id identifier rubyid_req'>req</span><span class='comma'>,</span> <span class='label'>operation:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OpenAI.html" title="LLM::OpenAI (class)">OpenAI</a></span></span><span class='op'>::</span><span class='const'>ResponseAdapter</span><span class='period'>.</span><span class='id identifier rubyid_adapt'>adapt</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='symbol'>:image</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tracer'>tracer</span><span class='period'>.</span><span class='id identifier rubyid_on_request_finish'>on_request_finish</span><span class='lparen'>(</span><span class='label'>operation:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>model:</span><span class='comma'>,</span> <span class='label'>res:</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -476,7 +497,7 @@ encoded in base64. The default is to return base64-encoded image data.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jun 25 23:50:04 2026 by
+  Generated on Fri Jun 26 20:16:24 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

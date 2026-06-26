@@ -63,9 +63,143 @@
         <div class="clear"></div>
       </div>
 
-      <div id="content"><div id='filecontents'><h1 id="changelog">Changelog</h1>
+      <div id="content"><div id='filecontents'><p align="center">
+  <a href="https://r.uby.dev">
+    <img
+      src="https://github.com/r-uby-dev/llm.rb/raw/main/rubydev.svg"
+      width="400"
+      height="200"
+      border="0"
+      alt="a r.uby.dev project"
+     >
+  </a>
+</p>
 
-<h2 id="unreleased">Unreleased</h2>
+<blockquote>
+<p>Changelog <br>
+a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
+</blockquote>
+
+<h2 id="whats-next">What&#39;s next</h2>
+
+<p>These changes have not yet been released. <br>
+They cover changes made since the last public
+release <code>v11.3.1</code> and will be part of the next
+major release: <code>v12.0.0</code>.</p>
+
+<h3 id="breaking">Breaking</h3>
+
+<ul>
+<li><strong>OpenAI: default to the Responses API</strong> <br>
+The responses API has both models and features that are unavailable
+on the chat completions API, and the responses API appears to be
+the API of the future for OpenAI.</li>
+</ul>
+
+<p>Worth noting: the llm.rb implementation does <strong>not</strong> store state
+  server-side by default. This can be changed with the <code>store: true</code>
+  option. The legacy chat completions API can be accessed with the
+  <code>mode: :completions</code> option.</p>
+
+<p>llm.rb has had support for the responses API for quite
+  a while but it was not the default, and a number of bugs
+  were found and fixed during the process of making it the
+  default.</p>
+
+<ul>
+<li><p><strong>OpenAI: use gpt-image for image generation</strong> <br>
+The <code>dalle</code> models are in the process of being deprecated, and support
+has been dropped from llm.rb. The <code>gpt-image</code> models are the next-generation
+image-generation models from OpenAI.</p></li>
+<li><p><strong>xAI: provide images as base64-encoded data</strong> <br>
+Both xAI, and OpenAI had the option to generate images via a URL
+you can fetch, or as a base64-encoded string embedded directly
+in the response.</p></li>
+</ul>
+
+<p>OpenAI is moving away from the URL transport since deprecating dalle,
+  and with that in mind, llm.rb has dropped support for the URL transport
+  across all providers that supported it.</p>
+
+<p>Google, xAI, and OpenAI now consistently provide generated and modified
+  images as a base64-encoded string.</p>
+
+<ul>
+<li><p><strong>ActiveRecord: yield <code>LLM::Agent</code> to <code>acts_as_agent</code></strong> <br>
+With this change we yield an instance of <code>LLM::Agent</code> to the <code>acts_as_agent</code>
+method, and drop the methods (such as <code>model</code>, <code>instructions</code>, etc) that
+were previously defined directly on the model. This keeps the number of
+methods that llm.rb adds to an ActiveRecord model at a minimum and retains
+the same capabilities as before.</p></li>
+<li><p><strong>Sequel: yield <code>LLM::Agent</code> to <code>plugin(:agent)</code></strong> <br>
+Ditto as above but for Sequel.</p></li>
+<li><p><strong>Remove the langsmith tracer</strong> <br>
+This code was contributed by a third party but contains
+many anti-patterns that are against llm.rb conventions
+and best practices. It was merged without oversight or
+review, and basically against the ethos of open source.</p></li>
+</ul>
+
+<p>I also don&#39;t have a langsmith account to maintain the
+  code. The alternative is the <code>LLM::Tracer::Telemetry</code> class
+  that was originally written by me, and serves as a
+  general-purpose OTP tracer.</p>
+
+<h3 id="add">Add</h3>
+
+<ul>
+<li><p><strong>xAI: add <code>LLM::XAI::Images#edit</code></strong> <br>
+With this change it is possible to both generate images
+from a prompt, and edit an existing image with a prompt.
+xAI now has the same edit and create capabilities that
+OpenAI has.</p></li>
+<li><p><strong>Add <code>LLM::Schema.defaults</code></strong> <br>
+This method lets you map multiple property names to
+different default values. It is similar to <code>LLM::Schema.required</code>
+in the sense that it is called after the properties of
+a schema have been defined.</p></li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><p><strong>Fix Google <code>temperature</code> parameter fall-through</strong> <br>
+Ensure provider-level <code>temperature</code> and other <code>generationConfig</code>
+parameters are forwarded to the API correctly instead of being
+silently dropped.</p></li>
+<li><p><strong>Fix Google <code>generationConfig</code> collisions</strong> <br>
+Prevent duplicate or conflicting <code>generationConfig</code> keys in the
+Google request adapter.</p></li>
+</ul>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><p><strong>Change OpenAI defaults</strong> <br>
+The default chat model is now <code>gpt-5.4-mini</code>. <br>
+The default image model is now <code>gpt-image</code>.</p></li>
+<li><p><strong>Change google defaults</strong> <br>
+The default chat model is now <code>gemini-3.1-flash-lite</code> <br>
+The default embeddings model is now <code>gemini-embedding-2</code></p></li>
+<li><p><strong>Change xAI defaults</strong> <br>
+The default chat model is now <code>grok-4.3</code>. <br>
+The default image model is now <code>grok-imagine-image-quality</code>.</p></li>
+<li><p><strong>Return an <code>LLM::Object</code> from <code>LLM::Response#content!</code></strong> <br>
+The Hash-like, indifferent access data structure known as
+<code>LLM::Object</code> provides a convenient interface around a Hash
+object. It allows method access via <code>obj.key</code>, and decays
+into a Hash in many cases.</p></li>
+</ul>
+
+<p>The <code>LLM::Response#content!</code> method now wraps its content
+  in an <code>LLM::Object</code> but only after it has parsed its
+  content (a JSON string) into a Ruby data structure.</p>
+
+<ul>
+<li><strong>Refresh model metadata</strong> <br>
+Update <code>data/*.json</code> files with current provider model listings,
+pricing, and capabilities.</li>
+</ul>
 
 <h2 id="v11-3-1">v11.3.1</h2>
 
@@ -1692,7 +1826,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Thu Jun 25 23:49:59 2026 by
+  Generated on Fri Jun 26 20:16:19 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
