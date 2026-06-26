@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+
+    <!-- SEO -->
+    <meta name="description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, and tracing.">
+    <meta name="robots" content="index,follow">
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="llm.rb deep dive">
+    <meta property="og:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, and tracing.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="llm.rb deep dive">
+    <meta name="twitter:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, and tracing.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <a class="site-logo" href="/" aria-label="r.uby.dev home">
+      <img src="/images/rubydev-workmark.svg" alt="r.uby.dev">
+    </a>
+    <main class="logo-page deepdive-page">
+      <div class="deepdive-layout">
+        <aside class="deepdive-toc" aria-label="Table of contents">
+          <h2>Contents</h2>
+              <a href="#welcome">Welcome</a>
+              <a href="#mcp">MCP</a>
+              <a class="toc-sub" href="#stdio">stdio</a>
+              <a class="toc-sub" href="#http">http</a>
+              <a href="#a2a">A2A</a>
+              <a class="toc-sub" href="#rest">rest</a>
+              <a class="toc-sub" href="#jsonrpc">jsonrpc</a>
+              <a href="#transports">Transports</a>
+              <a class="toc-sub" href="#nethttp">net/http</a>
+              <a class="toc-sub" href="#nethttppersistent">net/http/persistent</a>
+              <a class="toc-sub" href="#curb">curb</a>
+              <a href="#stream">Stream</a>
+              <a class="toc-sub" href="#io-like-object">IO-like object</a>
+              <a class="toc-sub" href="#llmstream">LLM::Stream</a>
+              <a href="#orm">ORM</a>
+              <a class="toc-sub" href="#activerecord">ActiveRecord</a>
+              <a class="toc-sub" href="#sequel">Sequel</a>
+              <a href="#tracer">Tracer</a>
+              <a class="toc-sub" href="#provider-wide-tracer">Provider-wide tracer</a>
+              <a class="toc-sub" href="#agent-local-tracer">Agent-local tracer</a>
+        </aside>
+
+        <article class="deepdive-content">
+<h2 id="welcome">Welcome</h2>
+
+<p>Welcome to the llm.rb deepdive. This document is a continuation of the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes you are familiar with the basics already, and focuses on features that didn’t make it into the homepage documentation.</p>
+
+<h2 id="mcp">MCP</h2>
+
+<h4 id="stdio">stdio</h4>
+
+<p>The stdio transport connects to an MCP server that is launched as a separate process, and both its standard input and standard output streams are used for communication. It is recommended but not required to execute commands for a stdio transport over a persistent session via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> method – otherwise you could end up launching the same process multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
+agent = LLM::Agent.new(llm)
+
+mcp.session do
+  agent.talk "What's happening on forgejo?", tools: mcp.tools
+end
+</code></pre>
+
+<h4 id="http">http</h4>
+
+<p>The http transport connects to an MCP server over HTTP, and unlike the stdio transport, the MCP server does not have to be running locally. Popular services like GitHub provide their own MCP server over HTTP, and it is one of the most capable MCP servers I have used.</p>
+
+<p>Unlike the stdio transport, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> carries little benefit for the http transport and it can be omitted.  It is recommended to consider the <code>net_http_persistent</code> transport for MCP interactions that run over HTTP, otherwise you could end up tearing down and setting up the same connection multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {
+    "Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"
+  },
+  transport: :net_http_persistent
+)
+agent = LLM::Agent.new(llm)
+agent.talk "What's happening on GitHub?", tools: mcp.tools
+</code></pre>
+
+<h2 id="a2a">A2A</h2>
+
+<h4 id="rest">rest</h4>
+
+<p>The rest transport communicates with other agents via A2A endpoints that speak both HTTP and JSON. The skills advertised by an agent become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> that can be used by both <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> – similar to how MCP tools become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h4 id="jsonrpc">jsonrpc</h4>
+
+<p>The jsonrpc transport communicates with other agents via HTTP and a protocol known as jsonrpc. Sometimes an agent will implement both, or just one of each. An agent’s card, which is represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html"><code>LLM::A2A::Card</code></a>, can be used to discover available transports via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces-instance_method"><code>LLM::A2A::Card#interfaces</code></a> method.</p>
+
+<pre><code class="language-ruby">require "llm"
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.jsonrpc(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h2 id="transports">Transports</h2>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html"><code>LLM::MCP</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html"><code>LLM::A2A</code></a> classes all accept a <code>transport</code> option that decides which library will be used for HTTP communication. There are three options out of the box: <a href="https://github.com/ruby/net-http"><code>net-http</code></a>, <a href="https://github.com/drbrain/net-http-persistent"><code>net-http-persistent</code></a>, and <a href="https://github.com/taf2/curb"><code>curb</code></a>.</p>
+
+<h4 id="nethttp">net/http</h4>
+
+<p>The <a href="https://github.com/ruby/net-http"><code>net/http</code></a> transport is represented by the symbol <code>:net_http</code>. <br /> It is the default transport.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: "...", transport: :net_http)
+mcp = LLM::MCP.http(url: "...", transport: :net_http)
+a2a = LLM::A2A.rest(url: "...", transport: :net_http)
+</code></pre>
+
+<h4 id="nethttppersistent">net/http/persistent</h4>
+
+<p>The <a href="https://github.com/drbrain/net-http-persistent"><code>net/http/persistent</code></a> transport is represented by the symbol <code>:net_http_persistent</code>. <br /> It maintains a connection pool so the cost of tearing down and setting up a connection repeatedly is kept low, and it is built on top of <a href="https://github.com/ruby/net-http"><code>net/http</code></a>.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: "...", transport: :net_http_persistent)
+mcp = LLM::MCP.http(url: "...", transport: :net_http_persistent)
+a2a = LLM::A2A.rest(url: "...", transport: :net_http_persistent)
+</code></pre>
+
+<h4 id="curb">curb</h4>
+
+<p>The <a href="https://github.com/taf2/curb"><code>curb</code></a> transport is represented by the symbol <code>:curb</code>. <br /> It provides bindings for libcurl – a widely used, highly portable and feature-rich HTTP library written in C.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: "...", transport: :curb)
+mcp = LLM::MCP.http(url: "...", transport: :curb)
+a2a = LLM::A2A.rest(url: "...", transport: :curb)
+</code></pre>
+
+<h2 id="stream">Stream</h2>
+
+<h4 id="io-like-object">IO-like object</h4>
+
+<p>Any object that implements the <code>#&lt;&lt;</code> method can receive chunks from a stream. That includes objects like <code>$stdout</code>. This form of streaming is simple and limited. It is the equivalent of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_content-instance_method"><code>LLM::Stream#on_content</code></a>, and doesn’t include any of the other <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a> hooks.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "hello world"
+</code></pre>
+
+<h4 id="llmstream">LLM::Stream</h4>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a> class provides many hooks that a subclass can implement. They range from being notified when a tool call starts to when a tool call finishes, or when a conversation is due to be compacted because the context window exceeded a defined limit. All these callbacks support a responsive user interface where the user is always aware of what is happening behind the scenes.</p>
+
+<pre><code class="language-ruby">class Stream &lt; LLM::Stream
+  def on_content(content)
+    puts content
+  end
+
+  def on_reasoning_content(content)
+    puts content
+  end
+
+  def on_tool_call(tool, error)
+    # this callback can be used to either log a tool call,
+    # or execute a tool call during a stream.
+  end
+
+  def on_tool_return(tool, result)
+  end
+
+  def on_compaction(ctx, compactor)
+    # this callback is called *before* a compact happens
+  end
+
+  def on_compaction_finish(ctx, compactor)
+    # this callback is called *after* a compact happens
+  end
+end
+</code></pre>
+
+<h2 id="orm">ORM</h2>
+
+<p>Both ActiveRecord, and Sequel have first-class support on the llm.rb runtime. In both cases an ActiveRecord or Sequel model can be turned into a model that has the same capabilities as <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, or <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>.</p>
+
+<p>The main difference is that the runtime persists directly into the database with no requirements beyond a single column on a single row. That means it is usually trivial to turn an existing model into an AI-aware model.</p>
+
+<h4 id="activerecord">ActiveRecord</h4>
+
+<p>The ActiveRecord interface for <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> is <a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/ActsAsAgent.html"><code>acts_as_agent</code></a>. It yields an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, and that can be used to configure the agent (eg which model, instructions, skills, tools, etc).</p>
+
+<p>An interesting option is the <code>format</code> option, by default it defaults to <code>:string</code> but it can also be changed to <code>:json</code> or <code>:jsonb</code> depending on the configuration and type of underlying column. The JSONB column type is recommended.</p>
+
+<pre><code class="language-ruby">require "active_record"
+require "llm"
+require "llm/active_record"
+
+class Agent &lt; ApplicationRecord
+  acts_as_agent(format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+  end
+
+  private
+
+  ##
+  # By convention, this method defines the provider
+  # for a model. If neccessary, it can be renamed and
+  # configured via `provider: :your_method` instead.
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+
+  ##
+  # By convention, this method should return what is
+  # given as the second argument to `LLM::Context` or
+  # `LLM::Agent`.
+  #
+  # Often, there is no need to set it, so it can be left
+  # undefined or it can be reassigned in the same way as
+  # `set_provider`. For example: `context: :your_method`
+  def set_context
+    {}
+  end
+end
+
+agent = Agent.create!
+agent.talk "perform research"
+</code></pre>
+
+<h4 id="sequel">Sequel</h4>
+
+<p>The following is a Sequel equivalent to the ActiveRecord example, but to keep it interesting and informative, this example also configures a per-model tracer that logs to <code>$stdout</code>. Works the same for ActiveRecord.</p>
+
+<pre><code class="language-ruby">require "sequel"
+require "llm"
+require "llm/sequel/plugin"
+
+class Agent &lt; Sequel::Model
+  plugin(:agent, format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+    agent.tracer { LLM::Tracer::Logger.new(llm, io: $stdout) }
+  end
+
+  private
+
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+end
+
+agent = Agent.create
+agent.talk "perform research"
+</code></pre>
+
+<h2 id="tracer">Tracer</h2>
+
+<p>The runtime can be observed by subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a>. <br /> The default tracers include a tracer that can write to standard output (<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>), and a generic OpenTelemetry tracer that can export spans via OTLP (<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a>).</p>
+
+<p>llm.rb has numerous hooks implemented throughout the runtime that <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a> subclasses can hook into, and the tracer is purposefully designed to be extensible. The scope of a trace can vary from an individual agent (an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>), or for every request a provider makes (an indirect instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>).</p>
+
+<h4 id="provider-wide-tracer">Provider-wide tracer</h4>
+
+<p>The following two examples demonstrate provider-wide tracers that cover every request made for a single provider.</p>
+
+<pre><code class="language-ruby">##
+# Provider-wide tracer
+# Writes to $stdout
+llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
+
+##
+# Provider-wide tracer
+# Writes to deepseek.log
+llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Logger.new(llm, path: "deepseek.log")
+</code></pre>
+
+<h4 id="agent-local-tracer">Agent-local tracer</h4>
+
+<p>The next two examples demonstrate a tracer that is local to an agent.</p>
+
+<pre><code class="language-ruby">##
+# Agent-local
+# Writes to $stdout
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, io: $stdout))
+
+##
+# Agent-local
+# Writes to deepseek-agent.log
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek-agent.log"))
+</code></pre>
+
+        </article>
+      </div>
+
+      <footer>
+        <a href="/">r.uby.dev</a>
+        <span>&middot;</span>
+        <a href="/llm/">llm.rb</a>
+        <span>&middot;</span>
+        <span>0BSD licensed</span>
+      </footer>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <!-- Cloudflare Web Analytics -->
+    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b565dccbae55404faf2c00fc90b87f9a"}'></script>
+    <!-- End Cloudflare Web Analytics -->
+  </body>
+</html>
