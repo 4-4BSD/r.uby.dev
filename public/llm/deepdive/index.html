@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="description" content="A deeper tour of llm.rb features including agents, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="llm.rb deep dive">
-    <meta property="og:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta property="og:description" content="A deeper tour of llm.rb features including agents, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb deep dive">
-    <meta name="twitter:description" content="A deeper tour of llm.rb features including MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -41,25 +41,10 @@
             <a href="#welcome">Welcome</a>
           </div>
           <div class="toc-group">
-            <h3>Protocols</h3>
-            <details>
-              <summary>MCP</summary>
-              <a class="toc-sub" href="#stdio">stdio</a>
-              <a class="toc-sub" href="#http">http</a>
-            </details>
-            <details>
-              <summary>A2A</summary>
-              <a class="toc-sub" href="#rest">rest</a>
-              <a class="toc-sub" href="#jsonrpc">jsonrpc</a>
-            </details>
-          </div>
-          <div class="toc-group">
             <h3>Runtime</h3>
             <details>
-              <summary>Transports</summary>
-              <a class="toc-sub" href="#nethttp">net/http</a>
-              <a class="toc-sub" href="#nethttppersistent">net/http/persistent</a>
-              <a class="toc-sub" href="#curb">curb</a>
+              <summary>Agents</summary>
+              <a class="toc-sub" href="#as-a-subclass">As a subclass</a>
             </details>
             <details>
               <summary>Stream</summary>
@@ -67,13 +52,19 @@
               <a class="toc-sub" href="#llmstream">LLM::Stream</a>
             </details>
             <details>
+              <summary>Schema</summary>
+              <a class="toc-sub" href="#estimation">Estimation</a>
+            </details>
+            <details>
               <summary>ORM</summary>
               <a class="toc-sub" href="#activerecord">ActiveRecord</a>
               <a class="toc-sub" href="#sequel">Sequel</a>
             </details>
             <details>
-              <summary>Schema</summary>
-              <a class="toc-sub" href="#estimation">Estimation</a>
+              <summary>Transports</summary>
+              <a class="toc-sub" href="#nethttp">net/http</a>
+              <a class="toc-sub" href="#nethttppersistent">net/http/persistent</a>
+              <a class="toc-sub" href="#curb">curb</a>
             </details>
             <details>
               <summary>Tracer</summary>
@@ -86,12 +77,61 @@
               <a class="toc-sub" href="#edits">Edits</a>
             </details>
           </div>
+          <div class="toc-group">
+            <h3>Protocols</h3>
+            <details>
+              <summary>MCP</summary>
+              <a class="toc-sub" href="#stdio">stdio</a>
+              <a class="toc-sub" href="#http">http</a>
+            </details>
+            <details>
+              <summary>A2A</summary>
+              <a class="toc-sub" href="#rest">rest</a>
+              <a class="toc-sub" href="#jsonrpc">jsonrpc</a>
+            </details>
+          </div>
         </aside>
 
         <article class="deepdive-content">
 <h2 id="welcome">Welcome</h2>
 
 <p>Welcome to the llm.rb deepdive. This document is a continuation of the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes you are familiar with the basics already, and focuses on features that didn’t make it into the homepage documentation.</p>
+
+<h2 id="agents">Agents</h2>
+
+<p>An agent is represented by the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> class, and it is built on top of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> - the heart of the runtime. An agent manages the tool loop automatically, implements a tool loop guard for misbehaving models, and it can use five different concurrency strategies to execute tools.</p>
+
+<p>An agent can be a subclass of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, or a direct instance of it. The subclass approach is useful when you want reusable agents that can attach behavior (as methods) to their own class.</p>
+
+<h4 id="as-a-subclass">As a subclass</h4>
+
+<p>A subclass of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> can define its model, tools, and other attributes at the class-level. All of these attributes are optional, and they act as defaults that can be overriden on the instance level.</p>
+
+<p>The example uses the <code>:fork</code> concurrency model. It has two primary benefits: tools are run in parallel, and in a separate process with a separate memory address space.</p>
+
+<p>The example purposefully demonstrates how the attributes can be lazily defined with a block, or a Symbol that is evaluated as an instance method on the subclass. It is not strictly neccessary, though, and the example would be simpler without it.</p>
+
+<pre><code class="language-ruby">class Agent &lt; LLM::Agent
+  model "deepseek-v4-pro"
+  tools { [DoResearch, FinalizeResearch, ActOnResearch] }
+  stream { $stdout }
+  tracer :set_tracer
+  concurrency :fork
+
+  def research!
+    talk "start the research"
+  end
+
+  private
+
+  def set_tracer
+    LLM::Tracer::Logger.new(llm, io: $stderr)
+  end
+end
+llm   = LLM.deepseek(key: ENV["KEY"])
+agent = Agent.new(llm).tap(&amp;:research!)
+agent.talk "How did the research go?"
+</code></pre>
 
 <h2 id="mcp">MCP</h2>
 
