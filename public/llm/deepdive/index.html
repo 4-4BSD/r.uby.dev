@@ -96,9 +96,8 @@
         <article class="deepdive-content">
 <h2 id="welcome">Welcome</h2>
 
-<p>Welcome to the llm.rb deepdive. You are reading this document in the markdown format. Anreading experience is available at <a href="https://r.uby.dev/llm/deepdive">https://r.uby.dev/llm/deepdive</a>.</p>
-
-<p>This document is a continuation of the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes you are familiar with the basics already, and focuses on features that didn’t make it into the homepage documentation.</p>
+<p>Welcome to the llm.rb deepdive.
+This document is a continuation of the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes you are familiar with the basics already, and focuses on features that didn’t make it into the homepage documentation.</p>
 
 <h2 id="agents">Agents</h2>
 
@@ -145,105 +144,6 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello, fellow agent"
 </code></pre>
 
-<h2 id="mcp">MCP</h2>
-
-<h4 id="stdio">stdio</h4>
-
-<p>The stdio transport connects to an MCP server that is launched as a separate process, and both its standard input and standard output streams are used for communication. It is recommended but not required to execute commands for a stdio transport over a persistent session via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> method – otherwise you could end up launching the same process multiple times.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
-agent = LLM::Agent.new(llm)
-
-mcp.session do
-  agent.talk "What's happening on forgejo?", tools: mcp.tools
-end
-</code></pre>
-
-<h4 id="http">http</h4>
-
-<p>The http transport connects to an MCP server over HTTP, and unlike the stdio transport, the MCP server does not have to be running locally. Popular services like GitHub provide their own MCP server over HTTP, and it is one of the most capable MCP servers I have used.</p>
-
-<p>Unlike the stdio transport, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> carries little benefit for the http transport and it can be omitted.  It is recommended to consider the <code>net_http_persistent</code> transport for MCP interactions that run over HTTP, otherwise you could end up tearing down and setting up the same connection multiple times.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-mcp   = LLM::MCP.http(
-  url: "https://api.githubcopilot.com/mcp/",
-  headers: {
-    "Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"
-  },
-  transport: :net_http_persistent
-)
-agent = LLM::Agent.new(llm)
-agent.talk "What's happening on GitHub?", tools: mcp.tools
-</code></pre>
-
-<h2 id="a2a">A2A</h2>
-
-<h4 id="rest">rest</h4>
-
-<p>The rest transport communicates with other agents via A2A endpoints that speak both HTTP and JSON. The skills advertised by an agent become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> that can be used by both <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> – similar to how MCP tools become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-a2a   = LLM::A2A.rest(url: "https://agent.example.com")
-agent = LLM::Agent.new(llm, tools: a2a.skills)
-agent.talk "What's happening, fellow agent?"
-</code></pre>
-
-<h4 id="jsonrpc">jsonrpc</h4>
-
-<p>The jsonrpc transport communicates with other agents via HTTP and a protocol known as jsonrpc. Sometimes an agent will implement both, or just one of each. An agent’s card, which is represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html"><code>LLM::A2A::Card</code></a>, can be used to discover available transports via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces-instance_method"><code>LLM::A2A::Card#interfaces</code></a> method.</p>
-
-<pre><code class="language-ruby">require "llm"
-llm   = LLM.deepseek(key: ENV["KEY"])
-a2a   = LLM::A2A.jsonrpc(url: "https://agent.example.com")
-agent = LLM::Agent.new(llm, tools: a2a.skills)
-agent.talk "What's happening, fellow agent?"
-</code></pre>
-
-<h2 id="transports">Transports</h2>
-
-<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html"><code>LLM::MCP</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html"><code>LLM::A2A</code></a> classes all accept a <code>transport</code> option that decides which library will be used for HTTP communication. There are three options out of the box: <a href="https://github.com/ruby/net-http"><code>net-http</code></a>, <a href="https://github.com/drbrain/net-http-persistent"><code>net-http-persistent</code></a>, and <a href="https://github.com/taf2/curb"><code>curb</code></a>.</p>
-
-<h4 id="nethttp">net/http</h4>
-
-<p>The <a href="https://github.com/ruby/net-http"><code>net/http</code></a> transport is represented by the symbol <code>:net_http</code>. <br /> It is the default transport.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm = LLM.deepseek(key: "...", transport: :net_http)
-mcp = LLM::MCP.http(url: "...", transport: :net_http)
-a2a = LLM::A2A.rest(url: "...", transport: :net_http)
-</code></pre>
-
-<h4 id="nethttppersistent">net/http/persistent</h4>
-
-<p>The <a href="https://github.com/drbrain/net-http-persistent"><code>net/http/persistent</code></a> transport is represented by the symbol <code>:net_http_persistent</code>. <br /> It maintains a connection pool so the cost of tearing down and setting up a connection repeatedly is kept low, and it is built on top of <a href="https://github.com/ruby/net-http"><code>net/http</code></a>.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm = LLM.deepseek(key: "...", transport: :net_http_persistent)
-mcp = LLM::MCP.http(url: "...", transport: :net_http_persistent)
-a2a = LLM::A2A.rest(url: "...", transport: :net_http_persistent)
-</code></pre>
-
-<h4 id="curb">curb</h4>
-
-<p>The <a href="https://github.com/taf2/curb"><code>curb</code></a> transport is represented by the symbol <code>:curb</code>. <br /> It provides bindings for libcurl – a widely used, highly portable and feature-rich HTTP library written in C.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm = LLM.deepseek(key: "...", transport: :curb)
-mcp = LLM::MCP.http(url: "...", transport: :curb)
-a2a = LLM::A2A.rest(url: "...", transport: :curb)
-</code></pre>
-
 <h2 id="stream">Stream</h2>
 
 <h4 id="io-like-object">IO-like object</h4>
@@ -285,6 +185,49 @@ agent.talk "hello world"
   def on_compaction_finish(ctx, compactor)
     # this callback is called *after* a compact happens
   end
+end
+</code></pre>
+
+<h2 id="schema">Schema</h2>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> class can be subclassed to describe the shape of a JSON object or objects that you expect the model to respond with.</p>
+
+<p>It can be useful for a wide range of use cases but the most popular might be classification, data extraction, and transferring structured data between different software rather than blobs of text that a machine cannot easily parse in a structured way.</p>
+
+<h4 id="estimation">Estimation</h4>
+
+<p>The following example asks the model to estimate the age of a person in a photo. The model provides a structured response that’s represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>.</p>
+
+<p>The object returned by <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Contract/Completion.html#content!-instance_method"><code>LLM::Response#content!</code></a> has methods that can access the age, confidence, and comments properties. This approach can also work for extracting data or an analysis from a PDF, and other file types.</p>
+
+<pre><code class="language-ruby">require "llm"
+require "pp"
+
+class Estimation &lt; LLM::Schema
+  property :age, Integer, "The estimated age of the person"
+  property :confidence, Number, "Your confidence in the estimate"
+  property :applicable, Boolean, "True when the photo contains a person"
+  property :comments, String, "Any additional comments or input"
+  required %i[age confidence applicable comments]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Estimation)
+res = agent.ask "Given this photo, provide an age estimate", with: "photo.jpg"
+
+##
+# Coerces the model's response from a JSON string
+# to an instance of LLM::Object.
+estimate = res.content!
+
+##
+# Let's print the estimate
+if estimate.applicable
+  print "The person is approx ", estimage.age, " years old", "\n"
+  print "I have a confidence rating of ", estimate.confidence.to_s, "\n"
+else
+  print "This photo is not applicable:", "\n"
+  print estimate.comments
 end
 </code></pre>
 
@@ -365,47 +308,41 @@ agent = Agent.create
 agent.talk "perform research"
 </code></pre>
 
-<h2 id="schema">Schema</h2>
+<h2 id="transports">Transports</h2>
 
-<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> class can be subclassed to describe the shape of a JSON object or objects that you expect the model to respond with.</p>
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html"><code>LLM::MCP</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html"><code>LLM::A2A</code></a> classes all accept a <code>transport</code> option that decides which library will be used for HTTP communication. There are three options out of the box: <a href="https://github.com/ruby/net-http"><code>net-http</code></a>, <a href="https://github.com/drbrain/net-http-persistent"><code>net-http-persistent</code></a>, and <a href="https://github.com/taf2/curb"><code>curb</code></a>.</p>
 
-<p>It can be useful for a wide range of use cases but the most popular might be classification, data extraction, and transferring structured data between different software rather than blobs of text that a machine cannot easily parse in a structured way.</p>
+<h4 id="nethttp">net/http</h4>
 
-<h4 id="estimation">Estimation</h4>
-
-<p>The following example asks the model to estimate the age of a person in a photo. The model provides a structured response that’s represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>.</p>
-
-<p>The object returned by <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Contract/Completion.html#content!-instance_method"><code>LLM::Response#content!</code></a> has methods that can access the age, confidence, and comments properties. This approach can also work for extracting data or an analysis from a PDF, and other file types.</p>
+<p>The <a href="https://github.com/ruby/net-http"><code>net/http</code></a> transport is represented by the symbol <code>:net_http</code>. <br /> It is the default transport.</p>
 
 <pre><code class="language-ruby">require "llm"
-require "pp"
 
-class Estimation &lt; LLM::Schema
-  property :age, Integer, "The estimated age of the person"
-  property :confidence, Number, "Your confidence in the estimate"
-  property :applicable, Boolean, "True when the photo contains a person"
-  property :comments, String, "Any additional comments or input"
-  required %i[age confidence applicable comments]
-end
+llm = LLM.deepseek(key: "...", transport: :net_http)
+mcp = LLM::MCP.http(url: "...", transport: :net_http)
+a2a = LLM::A2A.rest(url: "...", transport: :net_http)
+</code></pre>
 
-llm = LLM.openai(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, schema: Estimation)
-res = agent.ask "Given this photo, provide an age estimate", with: "photo.jpg"
+<h4 id="nethttppersistent">net/http/persistent</h4>
 
-##
-# Coerces the model's response from a JSON string
-# to an instance of LLM::Object.
-estimate = res.content!
+<p>The <a href="https://github.com/drbrain/net-http-persistent"><code>net/http/persistent</code></a> transport is represented by the symbol <code>:net_http_persistent</code>. <br /> It maintains a connection pool so the cost of tearing down and setting up a connection repeatedly is kept low, and it is built on top of <a href="https://github.com/ruby/net-http"><code>net/http</code></a>.</p>
 
-##
-# Let's print the estimate
-if estimate.applicable
-  print "The person is approx ", estimage.age, " years old", "\n"
-  print "I have a confidence rating of ", estimate.confidence.to_s, "\n"
-else
-  print "This photo is not applicable:", "\n"
-  print estimate.comments
-end
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: "...", transport: :net_http_persistent)
+mcp = LLM::MCP.http(url: "...", transport: :net_http_persistent)
+a2a = LLM::A2A.rest(url: "...", transport: :net_http_persistent)
+</code></pre>
+
+<h4 id="curb">curb</h4>
+
+<p>The <a href="https://github.com/taf2/curb"><code>curb</code></a> transport is represented by the symbol <code>:curb</code>. <br /> It provides bindings for libcurl – a widely used, highly portable and feature-rich HTTP library written in C.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: "...", transport: :curb)
+mcp = LLM::MCP.http(url: "...", transport: :curb)
+a2a = LLM::A2A.rest(url: "...", transport: :curb)
 </code></pre>
 
 <h2 id="tracer">Tracer</h2>
@@ -491,6 +428,68 @@ res = llm.images.edit(prompt: "add a mustache", image: "self.jpg")
 IO.copy_stream res.images[0], "mustache.png"
 </code></pre>
 
+<h2 id="mcp">MCP</h2>
+
+<h4 id="stdio">stdio</h4>
+
+<p>The stdio transport connects to an MCP server that is launched as a separate process, and both its standard input and standard output streams are used for communication. It is recommended but not required to execute commands for a stdio transport over a persistent session via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> method – otherwise you could end up launching the same process multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
+agent = LLM::Agent.new(llm)
+
+mcp.session do
+  agent.talk "What's happening on forgejo?", tools: mcp.tools
+end
+</code></pre>
+
+<h4 id="http">http</h4>
+
+<p>The http transport connects to an MCP server over HTTP, and unlike the stdio transport, the MCP server does not have to be running locally. Popular services like GitHub provide their own MCP server over HTTP, and it is one of the most capable MCP servers I have used.</p>
+
+<p>Unlike the stdio transport, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> carries little benefit for the http transport and it can be omitted.  It is recommended to consider the <code>net_http_persistent</code> transport for MCP interactions that run over HTTP, otherwise you could end up tearing down and setting up the same connection multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {
+    "Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"
+  },
+  transport: :net_http_persistent
+)
+agent = LLM::Agent.new(llm)
+agent.talk "What's happening on GitHub?", tools: mcp.tools
+</code></pre>
+
+<h2 id="a2a">A2A</h2>
+
+<h4 id="rest">rest</h4>
+
+<p>The rest transport communicates with other agents via A2A endpoints that speak both HTTP and JSON. The skills advertised by an agent become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> that can be used by both <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> – similar to how MCP tools become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h4 id="jsonrpc">jsonrpc</h4>
+
+<p>The jsonrpc transport communicates with other agents via HTTP and a protocol known as jsonrpc. Sometimes an agent will implement both, or just one of each. An agent’s card, which is represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html"><code>LLM::A2A::Card</code></a>, can be used to discover available transports via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces-instance_method"><code>LLM::A2A::Card#interfaces</code></a> method.</p>
+
+<pre><code class="language-ruby">require "llm"
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.jsonrpc(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
         </article>
       </div>
 
@@ -505,6 +504,52 @@ IO.copy_stream res.images[0], "mustache.png"
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
+    <script>
+      (() => {
+        const headings = [...document.querySelectorAll(".deepdive-content h2[id], .deepdive-content h4[id]")];
+        const links = new Map([...document.querySelectorAll(".deepdive-toc a[href^='#']")]
+          .map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+        const detailsItems = [...document.querySelectorAll(".deepdive-toc details")];
+        const summaries = new Map([...document.querySelectorAll(".deepdive-toc details")]
+          .map((details) => [details.querySelector("summary")?.textContent.trim().toLowerCase(), details]));
+
+        function setActive(id) {
+          document.querySelectorAll(".deepdive-toc .is-active").forEach((node) => {
+            node.classList.remove("is-active");
+          });
+          detailsItems.forEach((details) => {
+            details.open = false;
+          });
+
+          const link = links.get(id);
+          if (link) {
+            link.classList.add("is-active");
+            const details = link.closest("details");
+            if (details) {
+              details.open = true;
+              details.querySelector("summary")?.classList.add("is-active");
+            }
+            return;
+          }
+
+          const details = summaries.get(id.replaceAll("-", " "));
+          if (details) {
+            details.open = true;
+            details.querySelector("summary")?.classList.add("is-active");
+          }
+        }
+
+        function updateActive() {
+          const current = headings
+            .filter((heading) => heading.getBoundingClientRect().top <= 140)
+            .at(-1) || headings[0];
+          if (current) setActive(current.id);
+        }
+
+        updateActive();
+        document.addEventListener("scroll", updateActive, {passive: true});
+      })();
+    </script>
     <!-- Cloudflare Web Analytics -->
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b565dccbae55404faf2c00fc90b87f9a"}'></script>
     <!-- End Cloudflare Web Analytics -->
