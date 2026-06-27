@@ -45,6 +45,7 @@
             <details>
               <summary>Agents</summary>
               <a class="toc-sub" href="#as-a-subclass">As a subclass</a>
+              <a class="toc-sub" href="#as-an-object">As an object</a>
             </details>
             <details>
               <summary>Stream</summary>
@@ -95,7 +96,9 @@
         <article class="deepdive-content">
 <h2 id="welcome">Welcome</h2>
 
-<p>Welcome to the llm.rb deepdive. This document is a continuation of the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes you are familiar with the basics already, and focuses on features that didn’t make it into the homepage documentation.</p>
+<p>Welcome to the llm.rb deepdive. You are reading this document in the markdown format. Anreading experience is available at <a href="https://r.uby.dev/llm/deepdive">https://r.uby.dev/llm/deepdive</a>.</p>
+
+<p>This document is a continuation of the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes you are familiar with the basics already, and focuses on features that didn’t make it into the homepage documentation.</p>
 
 <h2 id="agents">Agents</h2>
 
@@ -131,6 +134,15 @@ end
 llm   = LLM.deepseek(key: ENV["KEY"])
 agent = Agent.new(llm).tap(&amp;:research!)
 agent.talk "How did the research go?"
+</code></pre>
+
+<h4 id="as-an-object">As an object</h4>
+
+<p>The more direct, and sometimes more convienent approach, is to create an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> directly. The same attributes can be provided as the second argument given to <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent.new</code></a>, and the same lazy evaluation rules apply. This approach can be great for prototyping quickly, and you can always turn to a subclass later if that makes more sense.</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "Hello, fellow agent"
 </code></pre>
 
 <h2 id="mcp">MCP</h2>
