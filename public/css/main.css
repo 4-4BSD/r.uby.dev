@@ -573,8 +573,27 @@ td code {
   padding: 3px 0;
 }
 
+.deepdive-toc details {
+  display: block;
+}
+
+.deepdive-toc summary {
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 3px 0;
+}
+
+.deepdive-toc summary:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 .deepdive-toc .toc-sub {
-  padding-left: 14px;
+  display: block;
+  padding-left: 18px;
   font-size: 13px;
   font-weight: 500;
 }
@@ -682,7 +701,7 @@ footer a:hover,
   .deepdive-toc {
     position: static;
     max-height: none;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     border-left: 0;
     border-bottom: 1px solid var(--line);
     padding: 0 0 22px;
