@@ -565,6 +565,25 @@ td code {
   letter-spacing: 0.08em;
 }
 
+.deepdive-toc .toc-group {
+  display: grid;
+  gap: 4px;
+  padding-top: 18px;
+}
+
+.deepdive-toc .toc-group:first-of-type {
+  padding-top: 0;
+}
+
+.deepdive-toc h3 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .deepdive-toc a {
   color: var(--muted);
   font-size: 14px;

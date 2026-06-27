@@ -36,47 +36,56 @@
       <div class="deepdive-layout">
         <aside class="deepdive-toc" aria-label="Table of contents">
           <h2>Contents</h2>
-          <a href="#welcome">Welcome</a>
-          <details>
-            <summary>MCP</summary>
-            <a class="toc-sub" href="#stdio">stdio</a>
-            <a class="toc-sub" href="#http">http</a>
-          </details>
-          <details>
-            <summary>A2A</summary>
-            <a class="toc-sub" href="#rest">rest</a>
-            <a class="toc-sub" href="#jsonrpc">jsonrpc</a>
-          </details>
-          <details>
-            <summary>Transports</summary>
-            <a class="toc-sub" href="#nethttp">net/http</a>
-            <a class="toc-sub" href="#nethttppersistent">net/http/persistent</a>
-            <a class="toc-sub" href="#curb">curb</a>
-          </details>
-          <details>
-            <summary>Stream</summary>
-            <a class="toc-sub" href="#io-like-object">IO-like object</a>
-            <a class="toc-sub" href="#llmstream">LLM::Stream</a>
-          </details>
-          <details>
-            <summary>ORM</summary>
-            <a class="toc-sub" href="#activerecord">ActiveRecord</a>
-            <a class="toc-sub" href="#sequel">Sequel</a>
-          </details>
-          <details>
-            <summary>Schema</summary>
-            <a class="toc-sub" href="#estimation">Estimation</a>
-          </details>
-          <details>
-            <summary>Tracer</summary>
-            <a class="toc-sub" href="#provider-wide-tracer">Provider-wide tracer</a>
-            <a class="toc-sub" href="#agent-local-tracer">Agent-local tracer</a>
-          </details>
-          <details>
-            <summary>Images</summary>
-            <a class="toc-sub" href="#generation">Generation</a>
-            <a class="toc-sub" href="#edits">Edits</a>
-          </details>
+          <div class="toc-group">
+            <h3>Overview</h3>
+            <a href="#welcome">Welcome</a>
+          </div>
+          <div class="toc-group">
+            <h3>Protocols</h3>
+            <details>
+              <summary>MCP</summary>
+              <a class="toc-sub" href="#stdio">stdio</a>
+              <a class="toc-sub" href="#http">http</a>
+            </details>
+            <details>
+              <summary>A2A</summary>
+              <a class="toc-sub" href="#rest">rest</a>
+              <a class="toc-sub" href="#jsonrpc">jsonrpc</a>
+            </details>
+          </div>
+          <div class="toc-group">
+            <h3>Runtime</h3>
+            <details>
+              <summary>Transports</summary>
+              <a class="toc-sub" href="#nethttp">net/http</a>
+              <a class="toc-sub" href="#nethttppersistent">net/http/persistent</a>
+              <a class="toc-sub" href="#curb">curb</a>
+            </details>
+            <details>
+              <summary>Stream</summary>
+              <a class="toc-sub" href="#io-like-object">IO-like object</a>
+              <a class="toc-sub" href="#llmstream">LLM::Stream</a>
+            </details>
+            <details>
+              <summary>ORM</summary>
+              <a class="toc-sub" href="#activerecord">ActiveRecord</a>
+              <a class="toc-sub" href="#sequel">Sequel</a>
+            </details>
+            <details>
+              <summary>Schema</summary>
+              <a class="toc-sub" href="#estimation">Estimation</a>
+            </details>
+            <details>
+              <summary>Tracer</summary>
+              <a class="toc-sub" href="#provider-wide-tracer">Provider-wide tracer</a>
+              <a class="toc-sub" href="#agent-local-tracer">Agent-local tracer</a>
+            </details>
+            <details>
+              <summary>Images</summary>
+              <a class="toc-sub" href="#generation">Generation</a>
+              <a class="toc-sub" href="#edits">Edits</a>
+            </details>
+          </div>
         </aside>
 
         <article class="deepdive-content">
@@ -322,7 +331,9 @@ require "pp"
 class Estimation &lt; LLM::Schema
   property :age, Integer, "The estimated age of the person"
   property :confidence, Number, "Your confidence in the estimate"
-  property :comments, String, "Any additional comments or context"
+  property :applicable, Boolean, "True when the photo contains a person"
+  property :comments, String, "Any additional comments or input"
+  required %i[age confidence applicable comments]
 end
 
 llm = LLM.openai(key: ENV["KEY"])
@@ -332,7 +343,17 @@ res = agent.ask "Given this photo, provide an age estimate", with: "photo.jpg"
 ##
 # Coerces the model's response from a JSON string
 # to an instance of LLM::Object.
-pp res.content!
+estimate = res.content!
+
+##
+# Let's print the estimate
+if estimate.applicable
+  print "The person is approx ", estimage.age, " years old", "\n"
+  print "I have a confidence rating of ", estimate.confidence.to_s, "\n"
+else
+  print "This photo is not applicable:", "\n"
+  print estimate.comments
+end
 </code></pre>
 
 <h2 id="tracer">Tracer</h2>
