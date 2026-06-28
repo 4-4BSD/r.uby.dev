@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, skills, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="llm.rb deep dive">
-    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, skills, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb deep dive">
-    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, skills, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -51,6 +51,11 @@
               <summary>Tools</summary>
               <a class="toc-sub" href="#llmtool">LLM::Tool</a>
               <a class="toc-sub" href="#errors">Errors</a>
+            </details>
+            <details>
+              <summary>Skills</summary>
+              <a class="toc-sub" href="#skillmd">SKILL.md</a>
+              <a class="toc-sub" href="#run-it">Run it</a>
             </details>
             <details>
               <summary>Stream</summary>
@@ -190,8 +195,7 @@ agent.talk "What files are in the current working directory?"
 
 <p>That’s because a tool call must complete with a tool response, that’s the only valid response a model expects, so even in the case of an error, something must be returned that communicates what happened.</p>
 
-<pre><code class="language-ruby">
-class Error &lt; LLM::Tool
+<pre><code class="language-ruby">class Error &lt; LLM::Tool
   name "error"
   description "demo how errors are handled"
 
@@ -202,7 +206,42 @@ class Error &lt; LLM::Tool
     raise "boom"
   end
 end
+</code></pre>
 
+<h2 id="skills">Skills</h2>
+
+<p>The skill concept is borrowed from tools like Claude and Codex, but llm.rb gives it a runtime of its own. A skill is a directory with a <code>SKILL.md</code> file. That file contains frontmatter where the skill’s name, description, and tools can be declared.</p>
+
+<h4 id="skillmd">SKILL.md</h4>
+
+<p>The <code>SKILL.md</code> file can look like this. When a skill runs, the runtime spawns a subagent with its own context window and message history. Some context is inherited from the parent agent, though.</p>
+
+<p>By default the subagent can only access the tools declared by the skill. The <code>inherit</code> directive lets it inherit the parent agent’s tools instead, including A2A and MCP tools.</p>
+
+<pre><code class="language-markdown">---
+name: git-skill
+description: reads my git history and writes a summary
+tools: ['git-log', 'git-show', 'write-file']
+---
+
+## Task
+
+Collect a log of recent history.
+Analyze each commit.
+Write a summary to summary.txt
+</code></pre>
+
+<h4 id="run-it">Run it</h4>
+
+<p>Given the skill above, llm.rb only needs the path to the directory that contains <code>SKILL.md</code>. Under the hood, a skill is represented as a tool the model can call. That means a skill can be called whenever it satisfies the user’s request – in the same way that a regular tool can.</p>
+
+<p>This feature also works with both the ActiveRecord, and Sequel integrations.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, skills: [__dir__])
+agent.talk "run the git skill"
 </code></pre>
 
 <h2 id="stream">Stream</h2>
