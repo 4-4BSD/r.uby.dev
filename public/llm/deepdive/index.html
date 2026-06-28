@@ -88,6 +88,10 @@
           <div class="toc-group">
             <h3>Persistence</h3>
             <details>
+              <summary>Serialization</summary>
+              <a class="toc-sub" href="#save-to-disk">Save to disk</a>
+            </details>
+            <details>
               <summary>ORM</summary>
               <a class="toc-sub" href="#activerecord">ActiveRecord</a>
               <a class="toc-sub" href="#sequel">Sequel</a>
@@ -455,6 +459,31 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, io: $stdout))
 # Writes to deepseek-agent.log
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek-agent.log"))
+</code></pre>
+
+<h2 id="serialization">Serialization</h2>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> class can be serialized to JSON and stored in a string or on disk. That is powerful because a context contains runtime state that can be restored later, in a different process or even on a different machine. And because an agent is implemented on top of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> this feature works for <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, too.</p>
+
+<h4 id="save-to-disk">Save to disk</h4>
+
+<p>The runtime can serialize its state to a string, a text file, or a database column. The option that fits best depends on your application and environment. Web applications might be more interested in the <a href="#orm">ORM</a> feature, which is built on top of the serialization feature.</p>
+
+<pre><code class="language-ruby">##
+# Create a provider
+llm = LLM.deepseek(key: ENV["KEY"])
+
+##
+# Save agent
+agent1 = LLM::Agent.new(llm)
+agent1.talk "remember my name is robert"
+agent1.save(path: "agent.json")
+
+##
+# Restore agent
+agent2 = LLM::Agent.new(llm, stream: $stdout)
+agent2.restore(path: "agent.json")
+agent2.talk "what's my name?"
 </code></pre>
 
 <h2 id="orm">ORM</h2>
