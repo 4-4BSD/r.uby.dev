@@ -58,6 +58,14 @@ a:hover {
   text-decoration: underline;
 }
 
+.outbound-icon {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.28em;
+  vertical-align: -0.08em;
+}
+
 h1 {
   margin: 0 0 8px;
   font-size: 32px;
