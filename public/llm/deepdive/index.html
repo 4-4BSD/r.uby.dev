@@ -99,6 +99,7 @@
               <summary>Images</summary>
               <a class="toc-sub" href="#generation">Generation</a>
               <a class="toc-sub" href="#edits">Edits</a>
+              <a class="toc-sub" href="#deepseek">DeepSeek</a>
             </details>
           </div>
           <div class="toc-group">
@@ -535,11 +536,11 @@ agent.talk "perform research"
 
 <h2 id="images">Images</h2>
 
-<p>The OpenAI, Google, xAI, and DeepInfra providers have builtin image generation capabilities. OpenAI, xAI, and DeepInfra also support image edits. Google, though, only supports image generation and not edits.</p>
+<p>The OpenAI, Google, xAI, DeepInfra, and DeepSeek providers have builtin image generation capabilities. OpenAI, xAI, and DeepInfra also support image edits. Google only supports image generation. DeepSeek supports generation and edits too, but only through SVG output rather than raster image models.</p>
 
 <h4 id="generation">Generation</h4>
 
-<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#images-instance_method"><code>LLM::Provider#images</code></a> method returns an Image object that a subset of providers implement. At the moment Google, xAI, OpenAI, and DeepInfra have image generation capabilities.</p>
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#images-instance_method"><code>LLM::Provider#images</code></a> method returns an Image object that a subset of providers implement. At the moment Google, xAI, OpenAI, DeepInfra, and DeepSeek have image generation capabilities. DeepSeek is the odd one out: it generates SVG documents rather than raster images.</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -564,7 +565,7 @@ IO.copy_stream res.images[0], "dogrocket.png"
 
 <h4 id="edits">Edits</h4>
 
-<p>OpenAI, xAI, and DeepInfra have the same interface for image edits. <br /> Google does not have edit image support. <br /></p>
+<p>OpenAI, xAI, and DeepInfra have the same interface for image edits. <br /> DeepSeek also supports edits, but only for SVG files. <br /> Google does not have edit image support. <br /></p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -574,6 +575,38 @@ IO.copy_stream res.images[0], "dogrocket.png"
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.images.edit(prompt: "add a mustache", image: "self.jpg")
 IO.copy_stream res.images[0], "mustache.png"
+</code></pre>
+
+<h4 id="deepseek">DeepSeek</h4>
+
+<p>The DeepSeek provider does not provide an image generation model but it is possible to ask a text-to-text model to produce vector graphics (SVGs), and in that limited sense, it can become a capable text-to-image model.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+##
+# Edit rocket.svg and change its color
+# Save to rocket-edited.svg
+llm = LLM.deepseek(key: ENV["KEY"])
+res = llm.images.edit(prompt: "make the rocket red", image: "rocket.svg")
+IO.copy_stream res.images[0], "rocket-edited.svg"
+</code></pre>
+
+<p>An interesting property of the DeepSeek implementation is that it can maintain a session that can perform multiple image generations or edits rather than just one-shot generations.</p>
+
+<p>It's possible because under the hood <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, is attached to the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Response.html"><code>LLM::Response</code></a> object that is returned to the caller. So the response includes an <code>agent</code> method, and it can be carried across multiple generations. It is specific to this endpoint though. It works like this:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+agent = nil
+loop do
+  print "&gt; "
+  prompt = $stdin.gets
+  res = llm.images.create(prompt:, agent:)
+  agent = res.agent
+  IO.copy_stream res.images[0], "image.svg"
+  print "ok: saved image.svg", "\n"
+end
 </code></pre>
 <h2 id="mcp">MCP</h2>
 
