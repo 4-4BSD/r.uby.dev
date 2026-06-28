@@ -257,6 +257,49 @@ agent = LLM::Agent.new(llm, skills: [__dir__])
 agent.talk "run the git skill"
 </code></pre>
 
+<h2 id="schema">Schema</h2>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> class can be subclassed to describe the shape of a JSON object or objects that you expect the model to respond with.</p>
+
+<p>It can be useful for a wide range of use cases but the most popular might be classification, data extraction, and transferring structured data between different software rather than blobs of text that a machine cannot easily parse in a structured way.</p>
+
+<h4 id="estimation">Estimation</h4>
+
+<p>The following example asks the model to estimate the age of a person in a photo. The model provides a structured response that’s represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>.</p>
+
+<p>The object returned by <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Contract/Completion.html#content!-instance_method"><code>LLM::Response#content!</code></a> has methods that can access the age, confidence, and comments properties. This approach can also work for extracting data or an analysis from a PDF, and other file types.</p>
+
+<pre><code class="language-ruby">require "llm"
+require "pp"
+
+class Estimation &lt; LLM::Schema
+  property :age, Integer, "The estimated age of the person"
+  property :confidence, Number, "Your confidence in the estimate"
+  property :applicable, Boolean, "True when the photo contains a person"
+  property :comments, String, "Any additional comments or input"
+  required %i[age confidence applicable comments]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Estimation)
+res = agent.ask "Given this photo, provide an age estimate", with: "photo.jpg"
+
+##
+# Coerces the model's response from a JSON string
+# to an instance of LLM::Object.
+estimate = res.content!
+
+##
+# Let's print the estimate
+if estimate.applicable
+  print "The person is approx ", estimage.age, " years old", "\n"
+  print "I have a confidence rating of ", estimate.confidence.to_s, "\n"
+else
+  print "This photo is not applicable:", "\n"
+  print estimate.comments
+end
+</code></pre>
+
 <h2 id="stream">Stream</h2>
 
 <h4 id="io-like-object">IO-like object</h4>
@@ -301,49 +344,6 @@ agent.talk "hello world"
 end
 </code></pre>
 
-<h2 id="schema">Schema</h2>
-
-<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> class can be subclassed to describe the shape of a JSON object or objects that you expect the model to respond with.</p>
-
-<p>It can be useful for a wide range of use cases but the most popular might be classification, data extraction, and transferring structured data between different software rather than blobs of text that a machine cannot easily parse in a structured way.</p>
-
-<h4 id="estimation">Estimation</h4>
-
-<p>The following example asks the model to estimate the age of a person in a photo. The model provides a structured response that’s represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>.</p>
-
-<p>The object returned by <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Contract/Completion.html#content!-instance_method"><code>LLM::Response#content!</code></a> has methods that can access the age, confidence, and comments properties. This approach can also work for extracting data or an analysis from a PDF, and other file types.</p>
-
-<pre><code class="language-ruby">require "llm"
-require "pp"
-
-class Estimation &lt; LLM::Schema
-  property :age, Integer, "The estimated age of the person"
-  property :confidence, Number, "Your confidence in the estimate"
-  property :applicable, Boolean, "True when the photo contains a person"
-  property :comments, String, "Any additional comments or input"
-  required %i[age confidence applicable comments]
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, schema: Estimation)
-res = agent.ask "Given this photo, provide an age estimate", with: "photo.jpg"
-
-##
-# Coerces the model's response from a JSON string
-# to an instance of LLM::Object.
-estimate = res.content!
-
-##
-# Let's print the estimate
-if estimate.applicable
-  print "The person is approx ", estimage.age, " years old", "\n"
-  print "I have a confidence rating of ", estimate.confidence.to_s, "\n"
-else
-  print "This photo is not applicable:", "\n"
-  print estimate.comments
-end
-</code></pre>
-
 <h2 id="cancellation">Cancellation</h2>
 
 <h4 id="cancel-a-request">Cancel a request</h4>
@@ -372,83 +372,6 @@ begin
 rescue LLM::Interrupt
   puts "request cancelled!"
 end
-</code></pre>
-
-<h2 id="orm">ORM</h2>
-
-<p>Both ActiveRecord, and Sequel have first-class support on the llm.rb runtime. In both cases an ActiveRecord or Sequel model can be turned into a model that has the same capabilities as <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, or <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>.</p>
-
-<p>The main difference is that the runtime persists directly into the database with no requirements beyond a single column on a single row. That means it is usually trivial to turn an existing model into an AI-aware model.</p>
-
-<h4 id="activerecord">ActiveRecord</h4>
-
-<p>The ActiveRecord interface for <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> is <a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/ActsAsAgent.html"><code>acts_as_agent</code></a>. It yields an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, and that can be used to configure the agent (eg which model, instructions, skills, tools, etc).</p>
-
-<p>An interesting option is the <code>format</code> option, by default it defaults to <code>:string</code> but it can also be changed to <code>:json</code> or <code>:jsonb</code> depending on the configuration and type of underlying column. The JSONB column type is recommended.</p>
-
-<pre><code class="language-ruby">require "active_record"
-require "llm"
-require "llm/active_record"
-
-class Agent &lt; ApplicationRecord
-  acts_as_agent(format: :jsonb) do |agent|
-    agent.model "deepseek-v4-pro"
-    agent.instructions "solve the user's query"
-    agent.tools [Research, FinalizeResearch, ActOnResearch]
-  end
-
-  private
-
-  ##
-  # By convention, this method defines the provider
-  # for a model. If neccessary, it can be renamed and
-  # configured via `provider: :your_method` instead.
-  def set_provider
-    LLM.deepseek(key: ENV["KEY"])
-  end
-
-  ##
-  # By convention, this method should return what is
-  # given as the second argument to `LLM::Context` or
-  # `LLM::Agent`.
-  #
-  # Often, there is no need to set it, so it can be left
-  # undefined or it can be reassigned in the same way as
-  # `set_provider`. For example: `context: :your_method`
-  def set_context
-    {}
-  end
-end
-
-agent = Agent.create!
-agent.talk "perform research"
-</code></pre>
-
-<h4 id="sequel">Sequel</h4>
-
-<p>The following is a Sequel equivalent to the ActiveRecord example, but to keep it interesting and informative, this example also configures a per-model tracer that logs to <code>$stdout</code>. Works the same for ActiveRecord.</p>
-
-<pre><code class="language-ruby">require "sequel"
-require "llm"
-require "llm/sequel/plugin"
-
-class Agent &lt; Sequel::Model
-  plugin(:agent, format: :jsonb) do |agent|
-    agent.model "deepseek-v4-pro"
-    agent.instructions "solve the user's query"
-    agent.tools [Research, FinalizeResearch, ActOnResearch]
-    agent.tracer { LLM::Tracer::Logger.new(llm, io: $stdout) }
-  end
-
-  private
-
-  def set_provider
-    LLM.deepseek(key: ENV["KEY"])
-  end
-end
-
-agent = Agent.create
-agent.talk "perform research"
 </code></pre>
 
 <h2 id="transports">Transports</h2>
@@ -526,6 +449,83 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, io: $stdout))
 # Writes to deepseek-agent.log
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek-agent.log"))
+</code></pre>
+
+<h2 id="orm">ORM</h2>
+
+<p>Both ActiveRecord, and Sequel have first-class support on the llm.rb runtime. In both cases an ActiveRecord or Sequel model can be turned into a model that has the same capabilities as <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, or <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>.</p>
+
+<p>The main difference is that the runtime persists directly into the database with no requirements beyond a single column on a single row. That means it is usually trivial to turn an existing model into an AI-aware model.</p>
+
+<h4 id="activerecord">ActiveRecord</h4>
+
+<p>The ActiveRecord interface for <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> is <a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord/ActsAsAgent.html"><code>acts_as_agent</code></a>. It yields an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, and that can be used to configure the agent (eg which model, instructions, skills, tools, etc).</p>
+
+<p>An interesting option is the <code>format</code> option, by default it defaults to <code>:string</code> but it can also be changed to <code>:json</code> or <code>:jsonb</code> depending on the configuration and type of underlying column. The JSONB column type is recommended.</p>
+
+<pre><code class="language-ruby">require "active_record"
+require "llm"
+require "llm/active_record"
+
+class Agent &lt; ApplicationRecord
+  acts_as_agent(format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+  end
+
+  private
+
+  ##
+  # By convention, this method defines the provider
+  # for a model. If neccessary, it can be renamed and
+  # configured via `provider: :your_method` instead.
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+
+  ##
+  # By convention, this method should return what is
+  # given as the second argument to `LLM::Context` or
+  # `LLM::Agent`.
+  #
+  # Often, there is no need to set it, so it can be left
+  # undefined or it can be reassigned in the same way as
+  # `set_provider`. For example: `context: :your_method`
+  def set_context
+    {}
+  end
+end
+
+agent = Agent.create!
+agent.talk "perform research"
+</code></pre>
+
+<h4 id="sequel">Sequel</h4>
+
+<p>The following is a Sequel equivalent to the ActiveRecord example, but to keep it interesting and informative, this example also configures a per-model tracer that logs to <code>$stdout</code>. Works the same for ActiveRecord.</p>
+
+<pre><code class="language-ruby">require "sequel"
+require "llm"
+require "llm/sequel/plugin"
+
+class Agent &lt; Sequel::Model
+  plugin(:agent, format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+    agent.tracer { LLM::Tracer::Logger.new(llm, io: $stdout) }
+  end
+
+  private
+
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+end
+
+agent = Agent.create
+agent.talk "perform research"
 </code></pre>
 
 <h2 id="images">Images</h2>
