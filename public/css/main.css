@@ -411,6 +411,12 @@ pre code.hljs {
   padding: 0;
 }
 
+.hero-ssh {
+  width: 260px;
+  margin: 0 auto 12px;
+  text-align: center;
+}
+
 /* Tables */
 table {
   width: 100%;

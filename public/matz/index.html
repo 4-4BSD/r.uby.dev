@@ -45,6 +45,7 @@
     <a class="site-logo" href="/" aria-label="r.uby.dev home">
       <img src="/images/rubydev-workmark.svg" alt="r.uby.dev">
     </a>
+    <pre class="ssh-console hero-ssh"><code>$ ssh matz@r.uby.dev</code></pre>
     <main class="logo-page">
       <section></section>
       <section>
@@ -88,28 +89,12 @@
           <div class="try-method">
             <span class="try-method-label">SSH</span>
             <p>
-              Whenever you have an mruby question, you can ask matz via SSH.
+              Anytime you have an mruby question, you can ask matz via SSH.
               <br>
               No signup required. Free to use.
             </p>
             <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
           </div>
-
-          <div class="try-method">
-            <span class="try-method-label">HTTP</span>
-            <p>
-              The same mruby reference material is also exposed through JSON
-              endpoints for scripts, terminals, and agents.
-            </p>
-            <pre><code class="sh">##
-# List mruby guides
-$ fetch -qo - 'https://r.uby.dev/api/guides/index'
-
-##
-# Search mruby source
-$ fetch -qo - 'https://r.uby.dev/api/mruby/search?q=mrb_gc'</code></pre>
-          </div>
-        </div>
       </section>
 
       <section>
