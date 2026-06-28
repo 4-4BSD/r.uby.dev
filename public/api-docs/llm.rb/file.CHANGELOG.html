@@ -148,6 +148,16 @@ review, and basically against the ethos of open source.</p></li>
 <h3 id="add">Add</h3>
 
 <ul>
+<li><p><strong>Add a new provider: LLM::DeepInfra</strong> <br>
+<a href="https://deepinfra.com">DeepInfra</a> provide OpenAI-compatible
+endpoints for a large catalog of hosted open-source and
+open-weight models. <br> Capabilities like tool calling, structured outputs, and
+reasoning can depend on the model.</p></li>
+<li><p><strong>Add new image provider: LLM::DeepInfra::Images</strong> <br>
+<a href="https://deepinfra.com">DeepInfra</a> provide access to
+diverse set of text-to-image models. <br> Learn more about the
+available models on their <a href="https://deepinfra.com/models/text-to-image">text-to-image models</a>
+page.</p></li>
 <li><p><strong>xAI: add <code>LLM::XAI::Images#edit</code></strong> <br>
 With this change it is possible to both generate images
 from a prompt, and edit an existing image with a prompt.
@@ -158,6 +168,15 @@ This method lets you map multiple property names to
 different default values. It is similar to <code>LLM::Schema.required</code>
 in the sense that it is called after the properties of
 a schema have been defined.</p></li>
+<li><p><strong>OpenAI: add local file support to the Responses API</strong> <br>
+Our responses API implementation lacked local file support. <br>
+This change fixes that by supporting both image, document,
+and other media types that OpenAI may support.</p></li>
+<li><p><strong>Add <code>LLM::Response#id</code> across all providers</strong> <br>
+This method was previously implemented via <code>method_missing</code>,
+and the field name could change depending on the provider.
+The new method is a catch-all that provides a single method
+that works across all providers.</p></li>
 </ul>
 
 <h3 id="fix">Fix</h3>
@@ -1826,7 +1845,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Fri Jun 26 20:16:19 2026 by
+  Generated on Sun Jun 28 04:45:38 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

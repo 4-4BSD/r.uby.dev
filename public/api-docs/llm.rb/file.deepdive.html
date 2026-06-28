@@ -81,10 +81,290 @@
 
 <h2 id="welcome">Welcome</h2>
 
-<p>Welcome to the llm.rb deepdive. This document is a continuation of
-the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes you
-are familiar with the basics already, and focuses on features that
-didn&#39;t make it into the homepage documentation.</p>
+<p>Welcome to the llm.rb deepdive. You are reading this document
+in the markdown format. An optimized version exists
+at <a href="https://r.uby.dev/llm/deepdive">https://r.uby.dev/llm/deepdive</a>
+and it is both easier to read and navigate.</p>
+
+<p>This document is a continuation of the <a href="https://r.uby.dev/llm">homepage documentation</a>.
+It assumes you are familiar with the basics already, and focuses on
+features that didn&#39;t make it into the homepage documentation.</p>
+
+<h2 id="table-of-contents">Table of contents</h2>
+
+<ul>
+<li><a href="#agents">Agents</a>
+
+<ul>
+<li><a href="#as-a-subclass">As a subclass</a></li>
+<li><a href="#as-an-object">As an object</a></li>
+</ul></li>
+<li><a href="#skills">Skills</a>
+
+<ul>
+<li><a href="#skillmd">SKILL.md</a></li>
+<li><a href="#run-it">Run it</a></li>
+</ul></li>
+<li><a href="#mcp">MCP</a>
+
+<ul>
+<li><a href="#stdio">stdio</a></li>
+<li><a href="#http">http</a></li>
+</ul></li>
+<li><a href="#a2a">A2A</a>
+
+<ul>
+<li><a href="#rest">rest</a></li>
+<li><a href="#jsonrpc">jsonrpc</a></li>
+</ul></li>
+<li><a href="#transports">Transports</a>
+
+<ul>
+<li><a href="#nethttp">net/http</a></li>
+<li><a href="#nethttppersistent">net/http/persistent</a></li>
+<li><a href="#curb">curb</a></li>
+</ul></li>
+<li><a href="#stream">Stream</a>
+
+<ul>
+<li><a href="#io-like-object">IO-like object</a></li>
+<li><a href="#llmstream">LLM::Stream</a></li>
+</ul></li>
+<li><a href="#orm">ORM</a>
+
+<ul>
+<li><a href="#activerecord">ActiveRecord</a></li>
+<li><a href="#sequel">Sequel</a></li>
+</ul></li>
+<li><a href="#schema">Schema</a>
+
+<ul>
+<li><a href="#estimation">Estimation</a></li>
+</ul></li>
+<li><a href="#cancellation">Cancellation</a>
+
+<ul>
+<li><a href="#cancel-a-request">Cancel a request</a></li>
+</ul></li>
+<li><a href="#tracer">Tracer</a>
+
+<ul>
+<li><a href="#provider-wide-tracer">Provider-wide tracer</a></li>
+<li><a href="#agent-local-tracer">Agent-local tracer</a></li>
+</ul></li>
+<li><a href="#images">Images</a>
+
+<ul>
+<li><a href="#generation">Generation</a></li>
+<li><a href="#edits">Edits</a></li>
+</ul></li>
+</ul>
+
+<h2 id="agents">Agents</h2>
+
+<p>An agent is represented by the
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+class, and it is built on top of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> -
+the heart of the runtime. An agent manages the tool loop automatically,
+implements a tool loop guard for misbehaving models, and
+it can use five different concurrency strategies to execute
+tools.</p>
+
+<p>An agent can be a subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>,
+or a direct
+instance of it. The subclass approach is useful when you
+want reusable agents that can attach behavior (as methods)
+to their own class.</p>
+
+<h4 id="as-a-subclass">As a subclass</h4>
+
+<p>A subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+can define its model, tools,
+and other attributes at the class-level. All of these
+attributes are optional, and they act as defaults that
+can be overriden on the instance level.</p>
+
+<p>The example uses the <code>:fork</code> concurrency model. It has
+two primary benefits: tools are run in parallel, and in
+a separate process with a separate memory address space.</p>
+
+<p>The example purposefully demonstrates how the attributes
+can be lazily defined with a block, or a Symbol that is
+evaluated as an instance method on the subclass. It is
+not strictly neccessary, though, and the example would
+be simpler without it.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Agent</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span>
+  <span class='id identifier rubyid_model'>model</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-v4-pro</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_tools'>tools</span> <span class='lbrace'>{</span> <span class='lbracket'>[</span><span class='const'>DoResearch</span><span class='comma'>,</span> <span class='const'>FinalizeResearch</span><span class='comma'>,</span> <span class='const'>ActOnResearch</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_stream'>stream</span> <span class='lbrace'>{</span> <span class='gvar'>$stdout</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_tracer'>tracer</span> <span class='symbol'>:set_tracer</span>
+  <span class='id identifier rubyid_concurrency'>concurrency</span> <span class='symbol'>:fork</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_research!'>research!</span>
+    <span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>start the research</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_private'>private</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_set_tracer'>set_tracer</span>
+    <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer/Logger.html" title="LLM::Tracer::Logger (class)">Logger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Tracer/Logger.html#initialize-instance_method" title="LLM::Tracer::Logger#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>io:</span> <span class='gvar'>$stderr</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+<span class='id identifier rubyid_llm'>llm</span>   <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'>Agent</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:research!</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>How did the research go?</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<h4 id="as-an-object">As an object</h4>
+
+<p>The more direct, and sometimes more convienent approach, is to
+create an instance of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+directly. The same attributes can be provided as the
+second argument given to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent.new</code></a>,
+and the same lazy evaluation rules apply. This approach can be
+great for prototyping quickly, and you can always turn to a
+subclass later if that makes more sense.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>stream:</span> <span class='gvar'>$stdout</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, fellow agent</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
+<h2 id="tools">Tools</h2>
+
+<p>A tool extends the capabilities of a model. <br>
+A tool is a subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+that has a name,
+a description, and an optional set of typed parameters.</p>
+
+<p>A tool also has a method associated with it, and when the
+model calls a tool it will do so through this method &ndash;
+alongside any parameters the tool might have defined.</p>
+
+<p>In other words, a tool provides a way for a model to
+call a method you have written, and it returns a value
+to the model that is considered the tool&#39;s response.
+The model then proceeds to process the tool&#39;s response,
+and then might generate its own response, or perhaps call
+another tool.</p>
+
+<h4 id="llm-tool">LLM::Tool</h4>
+
+<p>A tool can be defined by subclassing
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+with
+a name, description, and optional set of parameters. The
+tool name, and description should be informative so the
+model can understand what the tool does and how it can
+serve a user&#39;s query.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shellwords</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>Shell</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Shell</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>execute a shell command</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_parameter'>parameter</span> <span class='symbol'>:name</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>the command&#39;s name</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_parameter'>parameter</span> <span class='symbol'>:arguments</span><span class='comma'>,</span> <span class='const'>Array</span><span class='lbracket'>[</span><span class='const'>String</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>One or more arguments</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_required'>required</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>name</span><span class='tstring_end'>]</span></span>
+  <span class='id identifier rubyid_defaults'>defaults</span> <span class='label'>arguments:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='backtick'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_shellscape'>shellscape</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:shellescape</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>`</span></span>
+    <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='gvar'>$?</span><span class='period'>.</span><span class='id identifier rubyid_success'>success</span><span class='comma'>,</span> <span class='label'>out:</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='lbracket'>[</span><span class='const'>Shell</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>stream:</span> <span class='gvar'>$stdout</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What files are in the current working directory?</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<h4 id="errors">Errors</h4>
+
+<p>Exceptions that might be raised by a tool are automatically
+rescued and returned to the model as a structured error.
+Otherwise &ndash; the conversation&#39;s history could be left
+in an invalid state.</p>
+
+<p>That&#39;s because a tool call must complete with a tool response,
+that&#39;s the only valid response a model expects, so even in the
+case of an error, something must be returned that communicates
+what happened.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Error</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>error</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>demo how errors are handled</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'>##
+</span>  <span class='comment'># Returns
+</span>  <span class='comment'># {error: true, kind: &quot;RuntimeError&quot;, message: &quot;boom&quot;}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>boom</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h2 id="skills">Skills</h2>
+
+<p>The skill concept is borrowed from tools like Claude and
+Codex, but llm.rb gives it a runtime of its own. A skill
+is a directory with a <code>SKILL.md</code> file. That file contains
+frontmatter where the skill&#39;s name, description, and tools
+can be declared.</p>
+
+<h4 id="skill-md">SKILL.md</h4>
+
+<p>The <code>SKILL.md</code> file can look like this. When a skill runs,
+the runtime spawns a subagent with its own context window
+and message history. Some context is inherited from the
+parent agent, though.</p>
+
+<p>By default the subagent can only access the tools declared
+by the skill. The <code>inherit</code> directive lets it inherit the
+parent agent&#39;s tools instead, including A2A and MCP tools.</p>
+
+<pre class="code markdown"><code class="markdown">---
+name: git-skill
+description: reads my git history and writes a summary
+tools: [&#39;git-log&#39;, &#39;git-show&#39;, &#39;write-file&#39;]
+---
+
+## Task
+
+Collect a log of recent history.
+Analyze each commit.
+Write a summary to summary.txt
+</code></pre>
+
+<h4 id="run-it">Run it</h4>
+
+<p>Given the skill above, llm.rb only needs the path to the
+directory that contains <code>SKILL.md</code>. Under the hood, a skill
+is represented as a tool the model can call. That means
+a skill can be called whenever it satisfies the user&#39;s
+request &ndash; in the same way that a regular tool can.</p>
+
+<p>This feature also works with both the ActiveRecord, and
+Sequel integrations.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>skills:</span> <span class='lbracket'>[</span><span class='id identifier rubyid___dir__'>__dir__</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>run the git skill</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="mcp">MCP</h2>
 
@@ -140,6 +420,8 @@ multiple times.</p>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What&#39;s happening on GitHub?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='id identifier rubyid_mcp'>mcp</span><span class='period'>.</span><span class='id identifier rubyid_tools'>tools</span>
 </code></pre>
 
+<p><a href="#table-of-contents">Back to top</a></p>
+
 <h2 id="a2a">A2A</h2>
 
 <h4 id="rest">rest</h4>
@@ -180,6 +462,8 @@ method.</p>
 <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='id identifier rubyid_a2a'>a2a</span><span class='period'>.</span><span class='id identifier rubyid_skills'>skills</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What&#39;s happening, fellow agent?</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="transports">Transports</h2>
 
@@ -231,6 +515,8 @@ and feature-rich HTTP library written in C.</p>
 <span class='id identifier rubyid_mcp'>mcp</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/MCP.html" title="LLM::MCP (class)">MCP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="LLM/MCP.html#http-class_method" title="LLM::MCP.http (method)">http</a></span></span><span class='lparen'>(</span><span class='label'>url:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>transport:</span> <span class='symbol'>:curb</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_a2a'>a2a</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/A2A.html" title="LLM::A2A (class)">A2A</a></span></span><span class='period'>.</span><span class='id identifier rubyid_rest'><span class='object_link'><a href="LLM/A2A.html#rest-class_method" title="LLM::A2A.rest (method)">rest</a></span></span><span class='lparen'>(</span><span class='label'>url:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>transport:</span> <span class='symbol'>:curb</span><span class='rparen'>)</span>
 </code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="stream">Stream</h2>
 
@@ -290,6 +576,8 @@ scenes.</p>
 </span>  <span class='kw'>end</span>
 <span class='kw'>end</span>
 </code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="orm">ORM</h2>
 
@@ -389,6 +677,115 @@ same for ActiveRecord.</p>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>perform research</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
 
+<p><a href="#table-of-contents">Back to top</a></p>
+
+<h2 id="schema">Schema</h2>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a>
+class can be subclassed to describe
+the shape of a JSON object or objects that you expect
+the model to respond with.</p>
+
+<p>It can be useful for a wide range of use cases but the
+most popular might be classification, data extraction,
+and transferring structured data between different software
+rather than blobs of text that a machine cannot easily parse
+in a structured way.</p>
+
+<h4 id="estimation">Estimation</h4>
+
+<p>The following example asks the model to estimate the age
+of a person in a photo. The model provides a structured response
+that&#39;s represented by an instance of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>.</p>
+
+<p>The object returned by
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Contract/Completion.html#content!-instance_method"><code>LLM::Response#content!</code></a>
+has methods that can access the age, confidence, and comments
+properties.
+This approach can also work for extracting data or an analysis
+from a PDF, and other file types.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pp</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>Estimation</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Schema.html" title="LLM::Schema (class)">Schema</a></span></span>
+  <span class='id identifier rubyid_property'>property</span> <span class='symbol'>:age</span><span class='comma'>,</span> <span class='const'>Integer</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The estimated age of the person</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_property'>property</span> <span class='symbol'>:confidence</span><span class='comma'>,</span> <span class='const'>Number</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Your confidence in the estimate</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_property'>property</span> <span class='symbol'>:applicable</span><span class='comma'>,</span> <span class='const'>Boolean</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>True when the photo contains a person</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_property'>property</span> <span class='symbol'>:comments</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Any additional comments or input</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_required'>required</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>age</span><span class='words_sep'> </span><span class='tstring_content'>confidence</span><span class='words_sep'> </span><span class='tstring_content'>applicable</span><span class='words_sep'> </span><span class='tstring_content'>comments</span><span class='tstring_end'>]</span></span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_openai'><span class='object_link'><a href="LLM.html#openai-class_method" title="LLM.openai (method)">openai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>schema:</span> <span class='const'>Estimation</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_ask'>ask</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Given this photo, provide an age estimate</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>with:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>photo.jpg</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'>##
+</span><span class='comment'># Coerces the model&#39;s response from a JSON string
+</span><span class='comment'># to an instance of LLM::Object.
+</span><span class='id identifier rubyid_estimate'>estimate</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_content!'>content!</span>
+
+<span class='comment'>##
+</span><span class='comment'># Let&#39;s print the estimate
+</span><span class='kw'>if</span> <span class='id identifier rubyid_estimate'>estimate</span><span class='period'>.</span><span class='id identifier rubyid_applicable'>applicable</span>
+  <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The person is approx </span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_estimage'>estimage</span><span class='period'>.</span><span class='id identifier rubyid_age'>age</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> years old</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>I have a confidence rating of </span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_estimate'>estimate</span><span class='period'>.</span><span class='id identifier rubyid_confidence'>confidence</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>else</span>
+  <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This photo is not applicable:</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='id identifier rubyid_estimate'>estimate</span><span class='period'>.</span><span class='id identifier rubyid_comments'>comments</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
+<h2 id="cancellation">Cancellation</h2>
+
+<h4 id="cancel-a-request">Cancel a request</h4>
+
+<p>A common scenario when communicating with a model is to
+want to cancel the request mid-stream. This could be done
+for a number of different reasons, most often because the
+user made a mistake, or the model is making a mistake and
+the user wants to cancel the action.</p>
+
+<p>The runtime has built-in support for cancellation. So for
+example it is possible to cancel a request on the main
+thread from a secondary thread. A number of things happen
+when a request is cancelled. First the request is cancelled
+at the transport level, and each transport handles it a little
+differently. The net effect in every case is that the connection
+is closed.</p>
+
+<p>The runtime then notifies the rest of the system. so for example,
+if a tool was running, it will receive the <code>on_interrupt</code> / <code>on_cancel</code>
+callback that lets the tool do any necessary cleanup, or execute its own
+cancellation plan. Tools that were pending (not yet run but requetsed to
+run) are cancelled through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DEEPSEEK_SECRET</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_queue'>queue</span> <span class='op'>=</span> <span class='const'>Queue</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+<span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_cancel!'>cancel!</span>
+<span class='kw'>end</span>
+
+<span class='kw'>begin</span>
+  <span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+  <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>write me a very long poem</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>stream:</span> <span class='gvar'>$stdout</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request cancelled!</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
 <h2 id="tracer">Tracer</h2>
 
 <p>The runtime can be observed by subclasses of
@@ -408,6 +805,8 @@ can vary from an individual agent (an instance of
 or for every request a provider makes (an indirect instance of
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>).</p>
 
+<h4 id="provider-wide-tracer">Provider-wide tracer</h4>
+
 <p>The following two examples demonstrate provider-wide tracers that
 cover every request made for a single provider.</p>
 
@@ -424,8 +823,10 @@ cover every request made for a single provider.</p>
 <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer/Logger.html" title="LLM::Tracer::Logger (class)">Logger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Tracer/Logger.html#initialize-instance_method" title="LLM::Tracer::Logger#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek.log</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 </code></pre>
 
+<h4 id="agent-local-tracer">Agent-local tracer</h4>
+
 <p>The next two examples demonstrate a tracer that is local
-to an agent:</p>
+to an agent.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='comment'>##
 </span><span class='comment'># Agent-local
@@ -439,10 +840,66 @@ to an agent:</p>
 </span><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>tracer:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer/Logger.html" title="LLM::Tracer::Logger (class)">Logger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Tracer/Logger.html#initialize-instance_method" title="LLM::Tracer::Logger#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-agent.log</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
 </code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
+<h2 id="images">Images</h2>
+
+<p>The OpenAI, Google, xAI, and DeepInfra providers have builtin
+image generation capabilities. OpenAI, xAI, and DeepInfra also
+support image edits. Google, though, only supports image
+generation and not edits.</p>
+
+<h4 id="generation">Generation</h4>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#images-instance_method"><code>LLM::Provider#images</code></a>
+method returns an Image
+object that a subset of providers implement. At the
+moment Google, xAI, OpenAI, and DeepInfra have image generation
+capabilities.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'>##
+</span><span class='comment'># Store dogrocket.png
+</span><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_openai'><span class='object_link'><a href="LLM.html#openai-class_method" title="LLM.openai (method)">openai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>a dog on a rocket to the moon</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dogrocket.png</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<p>The API is the same across providers. <br>
+For example &ndash; xAI:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'>##
+</span><span class='comment'># Store dogrocket.png
+</span><span class='comment'># Same API as OpenAI
+</span><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_xai'><span class='object_link'><a href="LLM.html#xai-class_method" title="LLM.xai (method)">xai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>a dog on a rocket to the moon</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>dogrocket.png</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<h4 id="edits">Edits</h4>
+
+<p>OpenAI, xAI, and DeepInfra have the same interface for image edits. <br>
+Google does not have edit image support. <br></p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'>##
+</span><span class='comment'># Edit self.jpg and add a mustache
+</span><span class='comment'># Save to mustache.png
+</span><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_openai'><span class='object_link'><a href="LLM.html#openai-class_method" title="LLM.openai (method)">openai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_edit'>edit</span><span class='lparen'>(</span><span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>add a mustache</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>image:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>self.jpg</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mustache.png</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
 </div></div>
 
       <div id="footer">
-  Generated on Fri Jun 26 20:16:19 2026 by
+  Generated on Sun Jun 28 04:45:38 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
