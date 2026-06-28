@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, skills, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, skills, cancellation, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="llm.rb deep dive">
-    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, skills, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, skills, cancellation, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb deep dive">
-    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, skills, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, skills, cancellation, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -65,6 +65,10 @@
             <details>
               <summary>Schema</summary>
               <a class="toc-sub" href="#estimation">Estimation</a>
+            </details>
+            <details>
+              <summary>Cancellation</summary>
+              <a class="toc-sub" href="#cancel-a-request">Cancel a request</a>
             </details>
             <details>
               <summary>ORM</summary>
@@ -328,6 +332,36 @@ if estimate.applicable
 else
   print "This photo is not applicable:", "\n"
   print estimate.comments
+end
+</code></pre>
+
+<h2 id="cancellation">Cancellation</h2>
+
+<h4 id="cancel-a-request">Cancel a request</h4>
+
+<p>A common scenario when communicating with a model is to want to cancel the request mid-stream. This could be done for a number of different reasons, most often because the user made a mistake, or the model is making a mistake and the user wants to cancel the action.</p>
+
+<p>The runtime has built-in support for cancellation. So for example it is possible to cancel a request on the main thread from a secondary thread. A number of things happen when a request is cancelled. First the request is cancelled at the transport level, and each transport handles it a little differently. The net effect in every case is that the connection is closed.</p>
+
+<p>The runtime then notifies the rest of the system. so for example, if a tool was running, it will receive the <code>on_interrupt</code> / <code>on_cancel</code> callback that lets the tool do any necessary cleanup, or execute its own cancellation plan. Tools that were pending (not yet run but requetsed to run) are cancelled through <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+agent = LLM::Agent.new(llm)
+queue = Queue.new
+
+Thread.new do
+  queue.push(nil)
+  sleep(2)
+  agent.cancel!
+end
+
+begin
+  queue.pop
+  agent.talk "write me a very long poem", stream: $stdout
+rescue LLM::Interrupt
+  puts "request cancelled!"
 end
 </code></pre>
 
