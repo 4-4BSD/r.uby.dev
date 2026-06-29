@@ -318,6 +318,66 @@ agent.talk "perform research"
         </p>
       </section>
 
+      <section class="faq-section">
+        <h2>FAQ</h2>
+
+        <details class="faq-item">
+          <summary>What providers does llm.rb support?</summary>
+
+          <p class="faq-label">China-based</p>
+          <ul>
+            <li>DeepSeek</li>
+            <li>zAI</li>
+          </ul>
+
+          <p class="faq-label">US-based</p>
+          <ul>
+            <li>OpenAI</li>
+            <li>Google (Gemini)</li>
+            <li>xAI</li>
+            <li>AWS Bedrock</li>
+            <li>DeepInfra</li>
+            <li>Anthropic</li>
+          </ul>
+
+          <p class="faq-label">Open weights</p>
+          <ul>
+            <li>DeepSeek</li>
+            <li>zAI</li>
+            <li>DeepInfra</li>
+            <li>AWS Bedrock</li>
+          </ul>
+
+          <p class="faq-label">Host your own</p>
+          <ul>
+            <li>Ollama</li>
+            <li>llama.cpp</li>
+          </ul>
+        </details>
+
+        <details class="faq-item">
+          <summary>I have a limited budget. What should I do?</summary>
+
+          <p>There are a few options. The first option is to host your own model and use the Ollama or llama.cpp providers. This can be difficult though because a capable model requires hardware that can match it. If you have the ability to self-host, this would be my first option.</p>
+
+          <p>The second option is DeepSeek. The <code>deepseek-v4-flash</code> model costs pennies to use. And llm.rb has been optimized for DeepSeek. For example, DeepSeek does not have image generation capabilities but on the llm.rb runtime it does, at least for vector graphics.</p>
+
+          <p>The same is true for structured outputs. DeepSeek does not support them in the same way as OpenAI or Google, but the llm.rb runtime makes it appear as though it does through the <code>json_object</code> response type.</p>
+
+          <p>If you are on a budget, DeepSeek is hard to beat.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Can I download llm.rb via a decentralized network?</summary>
+
+          <p>You can.</p>
+          <p>We are on the <a href="https://radicle.network">radicle.network</a>.</p>
+          <p>Every commit that lands on GitHub also lands on Radicle.</p>
+          <p>Our repository ID is <code>z2PtfQ6dYwyYaW2aGrztG1sMyDmCE</code>.</p>
+          <p>Browse it on <a href="https://radicle.network/nodes/iris.radicle.network/z2PtfQ6dYwyYaW2aGrztG1sMyDmCE">the web</a>.</p>
+        </details>
+      </section>
+
       <section>
         <h2>Applications</h2>
         <p>

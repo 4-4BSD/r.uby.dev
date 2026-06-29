@@ -485,6 +485,37 @@ td code {
   max-width: 680px;
 }
 
+/* FAQ */
+.faq-section .faq-item summary {
+  cursor: pointer;
+}
+
+.faq-section .faq-item[open] summary {
+  margin-bottom: 10px;
+}
+
+.faq-section .faq-item p {
+  margin-bottom: 10px;
+}
+
+.faq-section .faq-item p:last-child,
+.faq-section .faq-item ul:last-child {
+  margin-bottom: 0;
+}
+
+.faq-section .faq-item ul {
+  margin: 0 0 12px;
+}
+
+.faq-section .faq-label {
+  margin: 12px 0 6px;
+  font-weight: 600;
+}
+
+.faq-section .faq-label:first-of-type {
+  margin-top: 0;
+}
+
 /* Showcase */
 .showcase {
   display: grid;

@@ -105,6 +105,12 @@
               <a class="toc-sub" href="#edits">Edits</a>
               <a class="toc-sub" href="#deepseek">DeepSeek</a>
             </details>
+            <details>
+              <summary>Audio</summary>
+              <a class="toc-sub" href="#text-to-speech">text-to-speech</a>
+              <a class="toc-sub" href="#speech-to-text">speech-to-text</a>
+              <a class="toc-sub" href="#translation">translation</a>
+            </details>
           </div>
           <div class="toc-group">
             <h3>Protocols</h3>
@@ -636,6 +642,51 @@ loop do
   IO.copy_stream res.images[0], "image.svg"
   print "ok: saved image.svg", "\n"
 end
+</code></pre>
+
+<h2 id="audio">Audio</h2>
+
+<p>The audio interface defined by llm.rb describes three methods, although not every provider implements all of them. Generally speaking the audio interface is for text-to-speech, and speech-to-text models.</p>
+
+<p>The following providers have audio support:</p>
+
+<ul>
+<li>OpenAI - full support</li>
+<li>Google - partial support</li>
+<li>DeepInfra - planned, but not yet supported</li>
+</ul>
+
+<h4 id="text-to-speech">text-to-speech</h4>
+
+<p>The <code>create_speech</code> method generates an audio clip based on the given input.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+res = llm.audio.create_speech(input: "Hello world")
+IO.copy_stream res.audio, "helloworld.mp3"
+</code></pre>
+
+<h4 id="speech-to-text">speech-to-text</h4>
+
+<p>The <code>create_transcription</code> method transcribes a given audio clip as text.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.google(key: ENV["KEY"])
+res = llm.audio.create_transcription(file: "helloworld.mp3")
+res.text # =&gt; "Hello world"
+</code></pre>
+
+<h4 id="translation">translation</h4>
+
+<p>The <code>create_translation</code> method translates a given audio clip, then transcribes it as text.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.google(key: ENV["KEY"])
+res = llm.audio.create_translation(file: "bomdia.mp3")
+res.text # =&gt; "Good day"
 </code></pre>
 <h2 id="mcp">MCP</h2>
 
