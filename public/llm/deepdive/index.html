@@ -653,23 +653,23 @@ end
 <ul>
 <li>OpenAI - full support</li>
 <li>Google - partial support</li>
-<li>DeepInfra - planned, but not yet supported</li>
+<li>DeepInfra - partial support</li>
 </ul>
 
 <h4 id="text-to-speech">text-to-speech</h4>
 
-<p>The <code>create_speech</code> method generates an audio clip based on the given input.</p>
+<p>The <code>create_speech</code> method generates an audio clip based on the given input. This method returns a <a href="https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html"><code>LLM::URIData</code></a> object. OpenAI, and DeepInfra support this method.</p>
 
 <pre><code class="language-ruby">require "llm"
 
 llm = LLM.openai(key: ENV["KEY"])
 res = llm.audio.create_speech(input: "Hello world")
-IO.copy_stream res.audio, "helloworld.mp3"
+IO.copy_stream res.audio.decoded, "helloworld.mp3"
 </code></pre>
 
 <h4 id="speech-to-text">speech-to-text</h4>
 
-<p>The <code>create_transcription</code> method transcribes a given audio clip as text.</p>
+<p>The <code>create_transcription</code> method transcribes a given audio clip as text. OpenAI, Google and DeepInfra support this method.</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -680,7 +680,7 @@ res.text # =&gt; "Hello world"
 
 <h4 id="translation">translation</h4>
 
-<p>The <code>create_translation</code> method translates a given audio clip, then transcribes it as text.</p>
+<p>The <code>create_translation</code> method translates a given audio clip, then transcribes it as text. OpenAI, and Google support this method.</p>
 
 <pre><code class="language-ruby">require "llm"
 
