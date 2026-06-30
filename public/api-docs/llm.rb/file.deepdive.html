@@ -158,6 +158,13 @@ features that didn&#39;t make it into the homepage documentation.</p>
 <li><a href="#generation">Generation</a></li>
 <li><a href="#edits">Edits</a></li>
 </ul></li>
+<li><a href="#audio">Audio</a>
+
+<ul>
+<li><a href="#text-to-speech">text-to-speech</a></li>
+<li><a href="#speech-to-text">speech-to-text</a></li>
+<li><a href="#translation">translation</a></li>
+</ul></li>
 </ul>
 
 <h2 id="agents">Agents</h2>
@@ -280,7 +287,7 @@ serve a user&#39;s query.</p>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='backtick'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_shellscape'>shellscape</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:shellescape</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>`</span></span>
-    <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='gvar'>$?</span><span class='period'>.</span><span class='id identifier rubyid_success'>success</span><span class='comma'>,</span> <span class='label'>out:</span><span class='rbrace'>}</span>
+    <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='gvar'>$?</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span><span class='comma'>,</span> <span class='label'>out:</span><span class='rbrace'>}</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span>
 
@@ -579,6 +586,41 @@ scenes.</p>
 
 <p><a href="#table-of-contents">Back to top</a></p>
 
+<h2 id="serialization">Serialization</h2>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+class can be serialized to JSON and stored in a string or on disk.
+That is powerful because a context contains runtime state that can
+be restored later, in a different process or even on a different
+machine. And because an agent is implemented on top of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+this feature works for <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>,
+too.</p>
+
+<h4 id="save-to-disk">Save to disk</h4>
+
+<p>The runtime can serialize its state to a string, a text file, or
+a database column. The option that fits best depends on your application
+and environment. Web applications might be more interested in the <a href="#orm">ORM</a>
+feature, which is built on top of the serialization feature.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'>##
+</span><span class='comment'># Create a provider
+</span><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+<span class='comment'>##
+</span><span class='comment'># Save agent
+</span><span class='id identifier rubyid_agent1'>agent1</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent1'>agent1</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>remember my name is robert</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_agent1'>agent1</span><span class='period'>.</span><span class='id identifier rubyid_save'>save</span><span class='lparen'>(</span><span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>agent.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+<span class='comment'>##
+</span><span class='comment'># Restore agent
+</span><span class='id identifier rubyid_agent2'>agent2</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>stream:</span> <span class='gvar'>$stdout</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent2'>agent2</span><span class='period'>.</span><span class='id identifier rubyid_restore'>restore</span><span class='lparen'>(</span><span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>agent.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent2'>agent2</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>what&#39;s my name?</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
 <h2 id="orm">ORM</h2>
 
 <p>Both ActiveRecord, and Sequel have first-class support on the
@@ -845,18 +887,20 @@ to an agent.</p>
 
 <h2 id="images">Images</h2>
 
-<p>The OpenAI, Google, xAI, and DeepInfra providers have builtin
-image generation capabilities. OpenAI, xAI, and DeepInfra also
-support image edits. Google, though, only supports image
-generation and not edits.</p>
+<p>The OpenAI, Google, xAI, DeepInfra, and DeepSeek providers have
+builtin image generation capabilities. OpenAI, xAI, and DeepInfra
+also support image edits. Google only supports image generation.
+DeepSeek supports generation and edits too, but only through SVG
+output rather than raster image models.</p>
 
 <h4 id="generation">Generation</h4>
 
 <p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#images-instance_method"><code>LLM::Provider#images</code></a>
 method returns an Image
 object that a subset of providers implement. At the
-moment Google, xAI, OpenAI, and DeepInfra have image generation
-capabilities.</p>
+moment Google, xAI, OpenAI, DeepInfra, and DeepSeek have image
+generation capabilities. DeepSeek is the odd one out: it generates
+SVG documents rather than raster images.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 
@@ -883,6 +927,7 @@ For example &ndash; xAI:</p>
 <h4 id="edits">Edits</h4>
 
 <p>OpenAI, xAI, and DeepInfra have the same interface for image edits. <br>
+DeepSeek also supports edits, but only for SVG files. <br>
 Google does not have edit image support. <br></p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
@@ -895,11 +940,107 @@ Google does not have edit image support. <br></p>
 <span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mustache.png</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
 
+<h4 id="deepseek">DeepSeek</h4>
+
+<p>The DeepSeek provider does not provide an image generation model
+but it is possible to ask a text-to-text model to produce
+vector graphics (SVGs), and in that limited sense, it can become
+a capable text-to-image model.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'>##
+</span><span class='comment'># Edit rocket.svg and change its color
+</span><span class='comment'># Save to rocket-edited.svg
+</span><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_edit'>edit</span><span class='lparen'>(</span><span class='label'>prompt:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>make the rocket red</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>image:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rocket.svg</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rocket-edited.svg</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<p>An interesting property of the DeepSeek implementation is that
+it can maintain a session that can perform multiple image generations
+or edits rather than just one-shot generations.</p>
+
+<p>It&#39;s possible because under the hood
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>,
+is attached to the
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Response.html"><code>LLM::Response</code></a>
+object that is returned to the caller. So the response includes an
+<code>agent</code> method, and it can be carried across multiple generations.
+It is specific to this endpoint though. It works like this:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DEEPSEEK_SECRET</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&gt; </span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_prompt'>prompt</span> <span class='op'>=</span> <span class='gvar'>$stdin</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='label'>prompt:</span><span class='comma'>,</span> <span class='label'>agent:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_agent'>agent</span>
+  <span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_images'>images</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>image.svg</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ok: saved image.svg</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
+<h2 id="audio">Audio</h2>
+
+<p>The audio interface defined by llm.rb describes three methods,
+although not every provider implements all of them. Generally
+speaking the audio interface is for text-to-speech, and
+speech-to-text models.</p>
+
+<p>The following providers have audio support:</p>
+
+<ul>
+<li>OpenAI - full support</li>
+<li>Google - partial support</li>
+<li>DeepInfra - planned, but not yet supported</li>
+</ul>
+
+<h4 id="text-to-speech">text-to-speech</h4>
+
+<p>The <code>create_speech</code> method generates an audio clip based
+on the given input.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_openai'><span class='object_link'><a href="LLM.html#openai-class_method" title="LLM.openai (method)">openai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_audio'>audio</span><span class='period'>.</span><span class='id identifier rubyid_create_speech'>create_speech</span><span class='lparen'>(</span><span class='label'>input:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello world</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_copy_stream'>copy_stream</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_audio'>audio</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>helloworld.mp3</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<h4 id="speech-to-text">speech-to-text</h4>
+
+<p>The <code>create_transcription</code> method transcribes a given
+audio clip as text.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_google'><span class='object_link'><a href="LLM.html#google-class_method" title="LLM.google (method)">google</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_audio'>audio</span><span class='period'>.</span><span class='id identifier rubyid_create_transcription'>create_transcription</span><span class='lparen'>(</span><span class='label'>file:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>helloworld.mp3</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span> <span class='comment'># =&gt; &quot;Hello world&quot;
+</span></code></pre>
+
+<h4 id="translation">translation</h4>
+
+<p>The <code>create_translation</code> method translates a given audio
+clip, then transcribes it as text.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_google'><span class='object_link'><a href="LLM.html#google-class_method" title="LLM.google (method)">google</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_audio'>audio</span><span class='period'>.</span><span class='id identifier rubyid_create_translation'>create_translation</span><span class='lparen'>(</span><span class='label'>file:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>bomdia.mp3</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span> <span class='comment'># =&gt; &quot;Good day&quot;
+</span></code></pre>
+
 <p><a href="#table-of-contents">Back to top</a></p>
 </div></div>
 
       <div id="footer">
-  Generated on Sun Jun 28 04:45:38 2026 by
+  Generated on Tue Jun 30 00:42:16 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

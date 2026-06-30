@@ -298,10 +298,87 @@ the <code>jsonb</code> type.</p>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>perform research</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
 
+<h2 id="faq">FAQ</h2>
+
+<details>
+<summary>What providers does llm.rb support?</summary>
+<br>
+<p>
+China-based
+
+* DeepSeek
+* zAI
+
+US-based
+
+* OpenAI
+* Google (Gemini)
+* xAI
+* AWS bedrock
+* DeepInfra
+* Anthropic
+
+Openweights
+
+* DeepSeek
+* zAI
+* DeepInfra
+* AWS bedrock
+
+Host your own
+
+* Ollama
+* Llamacpp
+</p>
+</details>
+
+<details>
+<summary>I have a limited budget. What should I do?</summary>
+<br>
+<p>
+There a few options. The first option is to host
+your own model, and use the ollama or llamacpp
+providers. This can be diffilcult though because
+a capable model requires hardware that can
+match it. If you have the ability to self-host,
+this would be my first option.
+</p>
+<p>
+The second option is DeepSeek. <br>
+The deepseek-v4-flash model costs pennies to use. <br>
+And llm.rb has been optimized for deepseek. For example,
+DeepSeek does not have image generation capabilities
+but on the llm.rb runtime it does (vector graphics only,
+though).
+</p>
+<p>
+The same is true for structured outputs. DeepSeek does
+not support structured outputs in the same way as OpenAI or
+Google, but the llm.rb runtime makes it appear as
+though it does, through the `json_object` response
+type.
+</p>
+If you're on a budget, DeepSeek is hard to beat.
+</details>
+
+<details>
+<summary>Can I download llm.rb via a decentralized network?</summary>
+<br>
+You can!
+<br>
+We are on the <a href="https://radicle.network">radicle.network</a>
+<br>
+Every commit that lands on GitHub also lands on Radicle.
+<br>
+Our repository ID is z2PtfQ6dYwyYaW2aGrztG1sMyDmCE.
+<br>
+Browse on <a href="https://radicle.network/nodes/iris.radicle.network/z2PtfQ6dYwyYaW2aGrztG1sMyDmCE">the web</a>.
+</details>
+
 <h2 id="resources">Resources</h2>
 
 <p>If you like what you read so far, check out the <a href="https://r.uby.dev/llm/deepdive/">deepdive.md</a>
-and <a href="https://r.uby.dev/api-docs/llm.rb">API docs</a> to learn more. Unfortunately it
+to learn more. Unfortunately it
 wasn&#39;t possible to cover every feature without the README becoming a small book.
 The <a href="https://r.uby.dev">r.uby.dev</a> homepage also includes more learning material
 and resources.</p>
@@ -314,7 +391,7 @@ See <a href="./LICENSE">LICENSE</a></p>
 </div></div>
 
       <div id="footer">
-  Generated on Sun Jun 28 04:45:38 2026 by
+  Generated on Tue Jun 30 00:42:16 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

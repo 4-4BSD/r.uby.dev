@@ -106,7 +106,7 @@
   <dl>
     <dt>Defined in:</dt>
     <dd>lib/llm/schema.rb<span class="defines">,<br>
-  lib/llm/schema/enum.rb,<br> lib/llm/schema/leaf.rb,<br> lib/llm/schema/null.rb,<br> lib/llm/schema/array.rb,<br> lib/llm/schema/all_of.rb,<br> lib/llm/schema/any_of.rb,<br> lib/llm/schema/number.rb,<br> lib/llm/schema/object.rb,<br> lib/llm/schema/one_of.rb,<br> lib/llm/schema/parser.rb,<br> lib/llm/schema/string.rb,<br> lib/llm/schema/boolean.rb,<br> lib/llm/schema/integer.rb,<br> lib/llm/schema/version.rb</span>
+  lib/llm/schema/enum.rb,<br> lib/llm/schema/leaf.rb,<br> lib/llm/schema/null.rb,<br> lib/llm/schema/array.rb,<br> lib/llm/schema/all_of.rb,<br> lib/llm/schema/any_of.rb,<br> lib/llm/schema/number.rb,<br> lib/llm/schema/object.rb,<br> lib/llm/schema/one_of.rb,<br> lib/llm/schema/parser.rb,<br> lib/llm/schema/string.rb,<br> lib/llm/schema/boolean.rb,<br> lib/llm/schema/integer.rb,<br> lib/llm/schema/version.rb,<br> lib/llm/schema/renderer.rb</span>
 
 </dd>
   </dl>
@@ -173,7 +173,7 @@ and generation of JSON data.</p>
 <p class="children">
   
     
-      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Schema/Parser.html" title="LLM::Schema::Parser (module)">Parser</a></span>, <span class='object_link'><a href="Schema/Utils.html" title="LLM::Schema::Utils (module)">Utils</a></span>
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Schema/Parser.html" title="LLM::Schema::Parser (module)">Parser</a></span>, <span class='object_link'><a href="Schema/Renderer.html" title="LLM::Schema::Renderer (module)">Renderer</a></span>, <span class='object_link'><a href="Schema/Utils.html" title="LLM::Schema::Utils (module)">Utils</a></span>
     
   
     
@@ -332,6 +332,29 @@ and generation of JSON data.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#to_s-class_method" title="to_s (class method)">.<strong>to_s</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Render the schema as a prompt-friendly string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#inherited-class_method" title="inherited (class method)">.<strong>inherited</strong>(klass)  </a>
     
 
@@ -365,9 +388,11 @@ and generation of JSON data.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#null-instance_method" title="#null (instance method)">#<strong>null</strong>  &#x21d2; LLM::Schema::Null </a>
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; String </a>
     
 
+    
+      (also: #inspect)
     
   </span>
   
@@ -379,7 +404,7 @@ and generation of JSON data.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Returns null.</p>
+    <span class="summary_desc"><div class='inline'><p>Render a schema leaf as a prompt-friendly string.</p>
 </div></span>
   
 </li>
@@ -592,6 +617,29 @@ and generation of JSON data.</p>
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#null-instance_method" title="#null (instance method)">#<strong>null</strong>  &#x21d2; LLM::Schema::Null </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns null.</p>
+</div></span>
+  
+</li>
+
+      
     </ul>
     
   
@@ -704,17 +752,17 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-103
 104
 105
 106
 107
 108
 109
-110</pre>
+110
+111</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 103</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 104</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_property'>property</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_description'>description</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -782,16 +830,16 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-116
 117
 118
 119
 120
 121
-122</pre>
+122
+123</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 116</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 117</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_required'>required</span><span class='lparen'>(</span><span class='id identifier rubyid_names'>names</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -857,7 +905,6 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-127
 128
 129
 130
@@ -865,10 +912,11 @@ and generation of JSON data.</p>
 132
 133
 134
-135</pre>
+135
+136</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 127</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 128</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_defaults'>defaults</span><span class='lparen'>(</span><span class='id identifier rubyid_defaults'>defaults</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -925,14 +973,14 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-140
 141
 142
 143
-144</pre>
+144
+145</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 140</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 141</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_schema'>schema</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -985,19 +1033,72 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-149
 150
 151
 152
-153</pre>
+153
+154</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 149</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 150</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_object'>object</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
     <span class='ivar'>@object</span> <span class='op'>||=</span> <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_object'>object</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-class_method">
+  
+    .<strong>to_s</strong>  &#x21d2; <tt><span class='object_link'><a href="Schema/String.html" title="LLM::Schema::String (class)">String</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Render the schema as a prompt-friendly string.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Schema/String.html" title="LLM::Schema::String (class)">String</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+159
+160
+161</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 159</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='const'><span class='object_link'><a href="Schema/Renderer.html" title="LLM::Schema::Renderer (module)">Renderer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_render'><span class='object_link'><a href="Schema/Renderer.html#render-instance_method" title="LLM::Schema::Renderer#render (method)">render</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_object'>object</span><span class='comma'>,</span> <span class='label'>root:</span> <span class='kw'>true</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1029,14 +1130,14 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-88
 89
 90
 91
-92</pre>
+92
+93</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 88</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 89</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_inherited'>inherited</span><span class='lparen'>(</span><span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_lock'><span class='object_link'><a href="../LLM.html#lock-class_method" title="LLM.lock (method)">lock</a></span></span><span class='lparen'>(</span><span class='symbol'>:inherited</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -1055,17 +1156,21 @@ and generation of JSON data.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="null-instance_method">
+  <h3 class="signature first" id="to_s-instance_method">
   
-    #<strong>null</strong>  &#x21d2; <tt><span class='object_link'><a href="Schema/Null.html" title="LLM::Schema::Null (class)">LLM::Schema::Null</a></span></tt> 
+    #<strong>to_s</strong>  &#x21d2; <tt><span class='object_link'><a href="Schema/String.html" title="LLM::Schema::String (class)">String</a></span></tt> 
   
 
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='inspect-instance_method'>inspect</span></span>
+    </span>
   
 
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Returns null</p>
+    <p>Render a schema leaf as a prompt-friendly string.</p>
 
 
   </div>
@@ -1078,7 +1183,7 @@ and generation of JSON data.</p>
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="Schema/Null.html" title="LLM::Schema::Null (class)">LLM::Schema::Null</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Schema/String.html" title="LLM::Schema::String (class)">String</a></span></tt>)</span>
       
       
       
@@ -1092,15 +1197,15 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-233
-234
-235</pre>
+249
+250
+251</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 233</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 249</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_null'>null</span>
-  <span class='const'><span class='object_link'><a href="Schema/Null.html" title="LLM::Schema::Null (class)">Null</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Leaf.html#initialize-instance_method" title="LLM::Schema::Leaf#initialize (method)">new</a></span></span>
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1164,12 +1269,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-166
-167
-168</pre>
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 175</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_object'>object</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Schema/Object.html" title="LLM::Schema::Object (class)">Object</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Object.html#initialize-instance_method" title="LLM::Schema::Object#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
@@ -1236,12 +1341,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-174
-175
-176</pre>
+183
+184
+185</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 174</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 183</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_array'>array</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_items'>items</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Schema/Array.html" title="LLM::Schema::Array (class)">Array</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Array.html#initialize-instance_method" title="LLM::Schema::Array#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_items'>items</span><span class='rparen'>)</span>
@@ -1308,12 +1413,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-182
-183
-184</pre>
+191
+192
+193</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 182</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 191</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_any_of'>any_of</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Schema/AnyOf.html" title="LLM::Schema::AnyOf (class)">AnyOf</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/AnyOf.html#initialize-instance_method" title="LLM::Schema::AnyOf#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
@@ -1380,12 +1485,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-190
-191
-192</pre>
+199
+200
+201</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 190</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 199</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_all_of'>all_of</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Schema/AllOf.html" title="LLM::Schema::AllOf (class)">AllOf</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/AllOf.html#initialize-instance_method" title="LLM::Schema::AllOf#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
@@ -1452,12 +1557,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-198
-199
-200</pre>
+207
+208
+209</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 198</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 207</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_one_of'>one_of</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Schema/OneOf.html" title="LLM::Schema::OneOf (class)">OneOf</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/OneOf.html#initialize-instance_method" title="LLM::Schema::OneOf#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
@@ -1505,12 +1610,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-205
-206
-207</pre>
+214
+215
+216</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 205</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 214</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_string'>string</span>
   <span class='const'><span class='object_link'><a href="Schema/String.html" title="LLM::Schema::String (class)">String</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Leaf.html#initialize-instance_method" title="LLM::Schema::Leaf#initialize (method)">new</a></span></span>
@@ -1562,12 +1667,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-212
-213
-214</pre>
+221
+222
+223</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 212</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 221</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_number'>number</span>
   <span class='const'><span class='object_link'><a href="Schema/Number.html" title="LLM::Schema::Number (class)">Number</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Leaf.html#initialize-instance_method" title="LLM::Schema::Leaf#initialize (method)">new</a></span></span>
@@ -1615,12 +1720,12 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-219
-220
-221</pre>
+228
+229
+230</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 219</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 228</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_integer'>integer</span>
   <span class='const'><span class='object_link'><a href="Schema/Integer.html" title="LLM::Schema::Integer (class)">Integer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Leaf.html#initialize-instance_method" title="LLM::Schema::Leaf#initialize (method)">new</a></span></span>
@@ -1668,15 +1773,68 @@ and generation of JSON data.</p>
       <pre class="lines">
 
 
-226
-227
-228</pre>
+235
+236
+237</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 226</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 235</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_boolean'>boolean</span>
   <span class='const'><span class='object_link'><a href="Schema/Boolean.html" title="LLM::Schema::Boolean (class)">Boolean</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Leaf.html#initialize-instance_method" title="LLM::Schema::Leaf#initialize (method)">new</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="null-instance_method">
+  
+    #<strong>null</strong>  &#x21d2; <tt><span class='object_link'><a href="Schema/Null.html" title="LLM::Schema::Null (class)">LLM::Schema::Null</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns null</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Schema/Null.html" title="LLM::Schema::Null (class)">LLM::Schema::Null</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+242
+243
+244</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 242</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_null'>null</span>
+  <span class='const'><span class='object_link'><a href="Schema/Null.html" title="LLM::Schema::Null (class)">Null</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Schema/Leaf.html#initialize-instance_method" title="LLM::Schema::Leaf#initialize (method)">new</a></span></span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1688,7 +1846,7 @@ and generation of JSON data.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jun 28 04:45:41 2026 by
+  Generated on Tue Jun 30 00:42:21 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

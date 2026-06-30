@@ -158,6 +158,23 @@ reasoning can depend on the model.</p></li>
 diverse set of text-to-image models. <br> Learn more about the
 available models on their <a href="https://deepinfra.com/models/text-to-image">text-to-image models</a>
 page.</p></li>
+<li><p><strong>DeepSeek: add <code>LLM::DeepSeek::Images#create</code> and <code>#edit</code></strong> <br>
+This new API can generate and edit vector graphics (SVGs). <br>
+It is an experimental approach and API.</p></li>
+</ul>
+
+<p>DeepSeek does not provide an image generation model however
+  its text-to-text models can generate SVG documents, and
+  that&#39;s the approach this feature takes. It is limited
+  to vector graphics rather than raster images.</p>
+
+<ul>
+<li><p><strong>DeepSeek: attach <code>LLM::Response#agent</code> to image responses</strong> <br>
+The DeepSeek image API is built on top of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>.
+Image responses now expose that agent via <code>res.agent</code>, which makes
+it possible to carry the same session across multiple generations
+or edits.</p></li>
 <li><p><strong>xAI: add <code>LLM::XAI::Images#edit</code></strong> <br>
 With this change it is possible to both generate images
 from a prompt, and edit an existing image with a prompt.
@@ -168,6 +185,15 @@ This method lets you map multiple property names to
 different default values. It is similar to <code>LLM::Schema.required</code>
 in the sense that it is called after the properties of
 a schema have been defined.</p></li>
+<li><p><strong>Add <code>LLM::Schema#to_s</code> and <code>LLM::Schema.to_s</code></strong> <br>
+Schemas can now be rendered as a prompt-friendly string.
+This is useful when the shape of a schema needs to be
+described in natural-language instructions rather than
+passed through a native structured output interface.</p></li>
+<li><p><strong>DeepSeek: add <code>LLM::Schema</code> support</strong> <br>
+DeepSeek can now use <code>schema:</code> for structured output.
+llm.rb handles this by setting <code>response_format: {type: &quot;json_object&quot;}</code>
+and describing the schema in a system message.</p></li>
 <li><p><strong>OpenAI: add local file support to the Responses API</strong> <br>
 Our responses API implementation lacked local file support. <br>
 This change fixes that by supporting both image, document,
@@ -177,6 +203,16 @@ This method was previously implemented via <code>method_missing</code>,
 and the field name could change depending on the provider.
 The new method is a catch-all that provides a single method
 that works across all providers.</p></li>
+<li><p><strong>OpenAI: normalize text-to-speech responses</strong> <br>
+The <code>res.audio</code> method now returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html"><code>LLM::URIData</code></a>
+object for OpenAI text-to-speech responses. The object provides
+<code>encoded</code>, <code>decoded</code>, <code>content_type</code>, and <code>encoding_type</code>.</p></li>
+<li><p><strong>DeepInfra: normalize text-to-speech responses</strong> <br>
+The <code>res.audio</code> method now returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html"><code>LLM::URIData</code></a>
+object for DeepInfra text-to-speech responses. The object provides
+<code>encoded</code>, <code>decoded</code>, <code>content_type</code>, and <code>encoding_type</code>.</p></li>
 </ul>
 
 <h3 id="fix">Fix</h3>
@@ -1845,7 +1881,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Sun Jun 28 04:45:38 2026 by
+  Generated on Tue Jun 30 00:42:16 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

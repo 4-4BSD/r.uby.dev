@@ -392,6 +392,28 @@ through its subclasses.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>  &#x21d2; Leaf </a>
     
 
@@ -536,13 +558,13 @@ through its subclasses.</p>
       <pre class="lines">
 
 
-111
-112
-113
-114</pre>
+117
+118
+119
+120</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema/leaf.rb', line 111</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema/leaf.rb', line 117</span>
 
 <span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span> <span class='op'>===</span> <span class='id identifier rubyid_other'>other</span>
@@ -1148,7 +1170,7 @@ through its subclasses.</p>
       <pre class="code"><span class="info file"># File 'lib/llm/schema/leaf.rb', line 97</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
-  <span class='lbrace'>{</span><span class='label'>description:</span> <span class='ivar'>@description</span><span class='comma'>,</span> <span class='label'>default:</span> <span class='ivar'>@default</span><span class='comma'>,</span> <span class='label'>enum:</span> <span class='ivar'>@enum</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
+  <span class='lbrace'>{</span><span class='label'>description:</span> <span class='ivar'>@description</span><span class='comma'>,</span> <span class='label'>default:</span> <span class='ivar'>@default</span><span class='comma'>,</span> <span class='label'>enum:</span> <span class='ivar'>@enum</span><span class='comma'>,</span> <span class='label'>const:</span> <span class='ivar'>@const</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1207,12 +1229,64 @@ through its subclasses.</p>
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    #<strong>to_s</strong>  &#x21d2; <tt><span class='object_link'><a href="String.html" title="LLM::Schema::String (class)">String</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="String.html" title="LLM::Schema::String (class)">String</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema/leaf.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Schema.html" title="LLM::Schema (class)">Schema</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Renderer.html" title="LLM::Schema::Renderer (module)">Renderer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_render'><span class='object_link'><a href="Renderer.html#render-instance_method" title="LLM::Schema::Renderer#render (method)">render</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Sun Jun 28 04:45:44 2026 by
+  Generated on Tue Jun 30 00:42:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

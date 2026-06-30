@@ -232,7 +232,6 @@
       <pre class="lines">
 
 
-58
 59
 60
 61
@@ -243,10 +242,11 @@
 66
 67
 68
-69</pre>
+69
+70</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 58</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 59</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_resolve'>resolve</span><span class='lparen'>(</span><span class='id identifier rubyid_schema'>schema</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Schema.html" title="LLM::Schema (class)">Schema</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Leaf.html" title="LLM::Schema::Leaf (class)">Leaf</a></span></span> <span class='op'>===</span> <span class='id identifier rubyid_type'>type</span>
@@ -293,17 +293,17 @@
       <pre class="lines">
 
 
-71
 72
 73
 74
 75
 76
 77
-78</pre>
+78
+79</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 71</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 72</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_resolve_array'>resolve_array</span><span class='lparen'>(</span><span class='id identifier rubyid_schema'>schema</span><span class='comma'>,</span> <span class='id identifier rubyid_values'>values</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_item'>item</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='int'>1</span>
@@ -346,12 +346,12 @@
       <pre class="lines">
 
 
-80
 81
-82</pre>
+82
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/schema.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_properties'>properties</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_properties'>properties</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
@@ -366,7 +366,7 @@
 </div>
 
       <div id="footer">
-  Generated on Sun Jun 28 04:45:38 2026 by
+  Generated on Tue Jun 30 00:42:16 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
