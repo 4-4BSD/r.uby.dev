@@ -203,6 +203,12 @@ This method was previously implemented via <code>method_missing</code>,
 and the field name could change depending on the provider.
 The new method is a catch-all that provides a single method
 that works across all providers.</p></li>
+<li><p><strong>Add <code>LLM::DeepInfra::Audio</code></strong> <br>
+DeepInfra implements most of the llm.rb audio interface
+with both the <code>create_speech</code> and <code>create_transcription</code>
+methods. The <code>create_translation</code> method is not implemented,
+and the available text-to-speech and speech-to-text models
+are more varied than other providers.</p></li>
 <li><p><strong>OpenAI: normalize text-to-speech responses</strong> <br>
 The <code>res.audio</code> method now returns an
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html"><code>LLM::URIData</code></a>
@@ -1881,7 +1887,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jun 30 00:42:16 2026 by
+  Generated on Tue Jun 30 03:39:33 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
