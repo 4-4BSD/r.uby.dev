@@ -357,6 +357,94 @@ header {
   color: var(--fg);
 }
 
+@media print {
+  @page {
+    margin: 10mm;
+  }
+
+  .resume-page {
+    width: auto;
+    margin: 0;
+    padding: 0;
+  }
+
+  .resume-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0 0 14px;
+  }
+
+  .resume-heading {
+    flex: 1 1 auto;
+  }
+
+  .resume-heading h1 {
+    margin-bottom: 0;
+    font-size: 24px;
+  }
+
+  .resume-contact {
+    flex: 0 0 auto;
+    gap: 1px 10px;
+    font-size: 12px;
+  }
+
+  .resume-content {
+    padding: 14px 0 0;
+  }
+
+  .resume-content h2 {
+    margin-bottom: 8px;
+    padding-top: 18px;
+    font-size: 15px;
+    break-after: avoid;
+  }
+
+  .resume-content h3 {
+    margin: 16px 0 4px;
+    font-size: 14px;
+    break-after: avoid;
+  }
+
+  .resume-content h4 + h3 {
+    margin-top: 10px;
+  }
+
+  .resume-content p,
+  .resume-content ul {
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .resume-content p {
+    margin-bottom: 8px;
+  }
+
+  .resume-content p:has(strong):not(:has(a)) {
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .resume-content ul {
+    margin-bottom: 12px;
+    padding-left: 16px;
+  }
+
+  .resume-content li {
+    margin-bottom: 4px;
+  }
+
+  .resume-content h2,
+  .resume-content h3,
+  .resume-content ul,
+  .resume-content p {
+    orphans: 3;
+    widows: 3;
+  }
+}
+
 /* Code */
 code,
 pre {
