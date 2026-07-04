@@ -55,31 +55,19 @@
         </p>
         <p>
           matz is an experiment to see how we can use AI
-          for education, and he is designed around that
-          concept. Most applications of AI today are focused
-          on automation rather than helping the user improve
+          for education. It is a console-based application designed
+          around that concept. Unlike AI applications that are focused
+          on automation, matz is focused on helping the user improve
           their own knowledge and skills.
         </p>
-      </section>
-      <section>
-        <h2>Education-focused</h2>
         <p>
-          matz is designed to educate.
-        </p>
-        <p>
-          From the outset matz has been designed to help you increase
-          your own knowledge and to solve problems without AI doing
-          it for you.  He does so by searching through the mruby
-          guide index, mrbgem index and mruby source code to answer
-          any questions you might have about <a href="https://mruby.org">mruby</a>.
-        </p>
-        <p>
-          Perhaps most interesting of all, matz is available as a
-          publically accessible SSH service that anyone can use
-          for free, without an account, and without a local installation
-          of any AI software. All you need is a SSH client, your editor,
-          and an understanding of the code you're working with. If you
-          lack the understanding, matz can help.
+          The knowledge that matz has is limited to the <a href="https://mruby.org">mruby</a>
+          programming language, so the use-case is specialized
+          to a particular topic. Questions that are not related
+          to mruby will provoke a response that is equivalent to
+          "I don't know". On-topic questions are answered by searching
+          through authorative sources like the mruby guides, mrbgem index,
+          and mruby source code.
         </p>
       </section>
 
@@ -91,7 +79,7 @@
             <p>
               Anytime you have an mruby question, you can ask matz via SSH.
               <br>
-              No signup required. Free to use.
+              This service is free to use and open to everyone.
             </p>
             <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
           </div>
@@ -101,25 +89,20 @@
         <h2>Features</h2>
         <ul>
           <li>
-            <strong>Publically accessible via SSH</strong><br>
+            <strong>AI as a SSH service</strong><br>
             matz is available for anyone to use, for free, over SSH.
           </li>
           <li>
             <strong>Designed to teach</strong><br>
-            matz is designed to help you learn. He is not designed to automate a solution.
+            matz is designed to help you learn mruby.
           </li>
           <li>
-            <strong>Focused on mruby</strong><br>
+            <strong>Authorative sources</strong><br>
             matz treats mruby guides, source code, and mrbgems as first-class
             reference material.
           </li>
           <li>
-            <strong>Grounded answers</strong><br>
-            All answers must be sourced from the available guides, source code,
-            and mrbgem metadata.
-          </li>
-          <li>
-            <strong>Terminal-native</strong><br>
+            <strong>Console app</strong><br>
             matz runs in your terminal as a small mruby-linked binary.
           </li>
           <li>
@@ -201,52 +184,11 @@
       </section>
 
       <section>
-        <h2>Under the hood</h2>
-        <ul>
-          <li>
-            <strong>mruby-llm runtime</strong><br>
-            matz is built on <a href="/mruby-llm/">mruby-llm</a>,
-            the mruby port of <a href="/llm/">llm.rb</a>.
-          </li>
-          <li>
-            <strong>Cooperative scheduler</strong><br>
-            Long-running calls execute in worker tasks while the terminal
-            interface stays responsive.
-          </li>
-          <li>
-            <strong>Guide integration</strong><br>
-            matz can list, search, and read the mruby guide repository.
-          </li>
-          <li>
-            <strong>mrbgem integration</strong><br>
-            matz can list known mrbgems and read mrbgem metadata when a
-            question involves packages or extensions.
-          </li>
-          <li>
-            <strong>Source integration</strong><br>
-            matz can list, search, and read indexed mruby source files when
-            implementation details matter.
-          </li>
-        </ul>
-      </section>
-
-      <section>
         <h2>Build from source</h2>
         <p>matz is an mruby gem built with the <a href="/mruby-llm">mruby-llm</a> runtime.</p>
-        <pre><code class="sh">$ git clone https://github.com/4-4BSD/matz.git
+        <pre><code class="sh">$ git clone https://github.com/r-uby-dev /matz.git
 $ cd matz
 $ make</code></pre>
-      </section>
-      <section>
-        <h2>FAQ</h2>
-        <p>
-        <strong>Where does the name "matz" come from?</strong>
-        </p>
-        <p>
-          matz is named in honor of the creator of (m)ruby: Yukihiro "matz" Matsumoto. <br>
-          It is an independent open source project. <br>
-          It is not affiliated with or endorsed by him.
-        </p>
       </section>
       <footer>
         <a href="/">r.uby.dev</a>

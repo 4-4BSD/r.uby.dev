@@ -31,10 +31,33 @@
     <main class="home-page">
       <div class="hero">
         <img class="hero-logo" src="/images/rubydev-workmark.svg" alt="r.uby.dev">
+             <pre class="ssh-console hero-ssh"><code>$ ssh matz@r.uby.dev</code></pre>
       </div>
 
       <div class="service">
-        <h2 class="section-title"><span class="section-icon"><img class="section-gem" src="/images/rubydev.svg" alt=""></span>AI</h2>
+        <h2 class="section-title">
+          <span class="section-icon">
+            <img class="section-gem" src="/images/rubydev.svg" alt="">
+          </span>
+          matz
+        </h2>
+        <p>
+          <a href="/matz/">matz</a> is an experiment to see how we can use AI
+          for education. <br>It is a console-based application designed
+          around that concept. <br>
+          The knowledge that matz has is limited to the <a href="https://mruby.org">mruby</a>
+          programming language
+          <br>
+        </p>
+      </div>
+
+      <div class="service">
+        <h2 class="section-title">
+          <span class="section-icon">
+            <img class="section-gem" src="/images/rubydev.svg" alt="">
+          </span>
+          AI
+        </h2>
         <p>
           r.uby.dev is the home of multiple AI runtimes that are
           centered around ruby.<br> The first runtime is <a href="/llm/">llm.rb</a>,
@@ -45,42 +68,27 @@
           mruby-llm</a>. <br> It was used to build matz, and it shares a large
           part of its code with llm.rb.
         </p>
-        <p>The last and third runtime is
+        <p>
+          The last and third runtime is
           <a href="https://github.com/r-uby-dev/wasm-llm">wasm-llm</a>,
           and it is a port of mruby-llm to the WASM runtime. <br> All three
           runtimes have a similar interface, and share a large body of
           code.
-          </p>
+        </p>
       </div>
 
       <div class="service">
-        <h2 class="section-title"><span class="section-icon"><img class="section-gem" src="/images/rubydev.svg" alt=""></span>matz</h2>
+        <h2 class="section-title">
+          <span class="section-icon">
+            <img class="section-gem" src="/images/rubydev.svg" alt="">
+          </span>
+          Services
+        </h2>
         <p>
-          <a href="/matz/">matz</a> implements a novel concept for learning with the
-          help of Artificial Intelligence (AI). <br> It is open to everyone through a
-          publically accessible ssh server that anyone can use.
-        </p>
-        <p>
-          matz combines education, AI, and mruby
-          to be able to help you improve your <a href="https://mruby.org">mruby</a>
-          knowledge and skills with an approach that focuses on using AI
-          not as a tool to automate coding tasks, but as a tool to help you
-          debug coding tasks and learn in the process.
-        </p>
-        <p>
-          When you have an mruby question, you can ask matz via SSH.
-          <br>
-          No downloads. Free to use.
-        </p>
-        <pre class="ssh-console"><code>$ ssh matz@r.uby.dev</code></pre>
-        <br>
-      </div>
-
-      <div class="service">
-        <h2 class="section-title"><span class="section-icon"><img class="section-gem" src="/images/rubydev.svg" alt=""></span>Services</h2>
         The HTTP services we provide can be used to query information from the mruby
         guide and source code index, as well as the mrbgem index. These APIs are what
         power the tools that matz uses under the hood.
+        </p>
         <table>
           <thead>
             <tr>
@@ -127,23 +135,6 @@
             </tr>
           </tbody>
         </table>
-      </div>
-      <div class="service">
-        <h2 class="section-title"><span class="section-icon"><img class="section-gem" src="/images/rubydev.svg" alt=""></span>FAQ</h2>
-        <p>
-        <strong>Where does the name "matz" come from?</strong>
-        </p>
-        <p>
-          matz is named in honor of the creator of (m)ruby: Yukihiro "matz" Matsumoto. <br>
-          It is an independent open source project. <br>
-          It is not affiliated with or endorsed by him.
-        </p>
-      </div>
-
-      <div class="footer">
-        <span>0BSD licensed</span>
-        <span>&middot;</span>
-        <a href="mailto:robert@4.4bsd.dev">Contact</a>
       </div>
     </main>
 

@@ -16,7 +16,10 @@ an open source AI runtime that became the foundation for the AI infrastructure a
 
 ### Recent
 
-For the past three years I worked on an advanced AI runtime that puts Ruby in a position to compete with heavyweights like LangChain from the Python ecosystem. It's modestly popular with 92,000 downloads on RubyGems. It started as a simple idea and grew into a highly capable runtime  with comprehensive documentation. Learn more at [r.uby.dev/llm](https://r.uby.dev/llm).
+For the past three years I worked on an AI runtime that can support advanced AI
+application development on CRuby. It's modestly popular with 92,000 downloads on
+RubyGems. It started as a simple idea and grew into a highly capable runtime with
+comprehensive documentation. Learn more at [r.uby.dev/llm](https://r.uby.dev/llm).
 
 ### History
 
