@@ -835,6 +835,28 @@ support or the Responses API on providers that expose it.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#tracer=-instance_method" title="#tracer= (instance method)">#<strong>tracer=</strong>(other)  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#stream-instance_method" title="#stream (instance method)">#<strong>stream</strong>  &#x21d2; LLM::Stream, ... </a>
     
 
@@ -1466,17 +1488,17 @@ tokens a model can consider in a single request.</p>
       <pre class="lines">
 
 
-486
-487
-488
-489
-490
-491
-492
-493</pre>
+494
+495
+496
+497
+498
+499
+500
+501</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 486</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 494</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_context_window'>context_window</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span>
@@ -3203,6 +3225,64 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="tracer=-instance_method">
+  
+    #<strong>tracer=</strong>(other)  
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>other</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Tracer.html" title="LLM::Tracer (class)">LLM::Tracer</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>A tracer, or nil.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+428
+429
+430</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 428</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tracer='>tracer=</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+  <span class='ivar'>@llm</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="stream-instance_method">
   
     #<strong>stream</strong>  &#x21d2; <tt><span class='object_link'><a href="Stream.html" title="LLM::Stream (class)">LLM::Stream</a></span></tt>, ... 
@@ -3244,12 +3324,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-427
-428
-429</pre>
+435
+436
+437</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 427</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 435</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_stream'>stream</span>
   <span class='ivar'>@stream</span> <span class='op'>||</span> <span class='ivar'>@params</span><span class='lbracket'>[</span><span class='symbol'>:stream</span><span class='rbracket'>]</span>
@@ -3297,12 +3377,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-434
-435
-436</pre>
+442
+443
+444</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 434</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 442</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_model'>model</span>
   <span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:assistant?</span><span class='rparen'>)</span><span class='op'>&amp;.</span><span class='id identifier rubyid_model'>model</span> <span class='op'>||</span> <span class='ivar'>@params</span><span class='lbracket'>[</span><span class='symbol'>:model</span><span class='rbracket'>]</span>
@@ -3349,17 +3429,17 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-440
-441
-442
-443
-444
-445
-446
-447</pre>
+448
+449
+450
+451
+452
+453
+454
+455</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 440</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 448</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
@@ -3411,12 +3491,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-451
-452
-453</pre>
+459
+460
+461</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 451</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 459</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
@@ -3483,12 +3563,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-465
-466
-467</pre>
+473
+474
+475</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 465</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 473</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_serialize'>serialize</span><span class='lparen'>(</span><span class='label'>path:</span><span class='rparen'>)</span>
   <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_binwrite'>binwrite</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='rparen'>)</span>
@@ -3542,12 +3622,12 @@ based on both the provider, and model</p>
       <pre class="lines">
 
 
-474
-475
-476</pre>
+482
+483
+484</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 474</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 482</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_cost'>cost</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Cost.html" title="LLM::Cost (class)">Cost</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from'><span class='object_link'><a href="Cost.html#from-class_method" title="LLM::Cost.from (method)">from</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -3562,7 +3642,7 @@ based on both the provider, and model</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jun 30 03:39:36 2026 by
+  Generated on Mon Jul  6 20:16:48 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

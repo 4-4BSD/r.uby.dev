@@ -82,12 +82,166 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
-<p>These changes have not yet been released. <br>
-They cover changes made since the last public
-release <code>v11.3.1</code> and will be part of the next
-major release: <code>v12.0.0</code>.</p>
+<p>Changes since <code>v12.1.0</code>.</p>
+
+<h2 id="v12-1-0">v12.1.0</h2>
+
+<p>Changes since <code>v12.0.0</code>.</p>
+
+<p>This release adds <code>LLM::Agent#repl</code> with a curses-based
+interactive read-eval-print loop. It requires the optional
+dependency <code>curses</code> and it is probably the most notable
+feature in this release.</p>
+
+<p>Multiple <em>opt-in</em> tools have been added to the <code>llm/tools/*.rb</code>
+directory. They serve as examples and as general-purpose tools
+that happen to power the repository&#39;s agents.</p>
+
+<p>The BSL license has been extended to grant additional free waivers
+for non-profits, charities and for companies with 50 or less
+employees.</p>
+
+<p>Other changes include small-ish bug fixes. <br>
+As always, see the changelog details for a thorough overview.</p>
+
+<h3 id="add">Add</h3>
+
+<ul>
+<li><p><strong>Add <code>LLM::Agent#repl</code></strong> <br>
+Add a curses-based read-eval-print loop for <code>LLM::Agent</code> that lets
+developers interact with an agent after it has been set up or has
+performed a task. It is similar to <code>binding.pry</code>: once you exit,
+you can continue with the rest of your program. It requires the
+<code>curses</code> gem.</p></li>
+<li><p><strong>Add <code>#tracer=</code> setter on Provider, Context and Agent</strong> <br>
+<code>LLM::Provider</code>, <code>LLM::Context</code> and <code>LLM::Agent</code> can now configure
+the tracer after initialization via the <code>#tracer=</code> setter. It accepts
+a subclass of <code>LLM::Tracer</code> or <code>nil</code> to disable the tracer.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Shell</code></strong> <br>
+Add a built-in shell tool that can run a command with arguments. <br>
+It must be required explicitly with <code>require &quot;llm/tools/shell&quot;</code> and
+requires the <code>test-cmd.rb</code> gem.</p></li>
+<li><p><strong>Add <code>LLM::Tool::ReadFile</code></strong> <br>
+Add a built-in tool for reading the contents of a file, with optional
+<code>start</code> and <code>stop</code> line offsets. <br>
+It must be required explicitly with <code>require &quot;llm/tools/read_file&quot;</code>.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Chdir</code></strong> <br>
+Add a built-in tool for changing the current working directory. <br>
+It must be required explicitly with <code>require &quot;llm/tools/chdir&quot;</code>.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Git</code></strong> <br>
+Add a built-in tool that can perform git actions (<code>log</code>, <code>diff</code>,
+<code>show</code>, <code>commit</code>, <code>checkout</code>, <code>branch</code>). <br>
+It must be required explicitly with <code>require &quot;llm/tools/git&quot;</code> and requires the <code>test-cmd.rb</code> gem.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Rg</code></strong> <br>
+Add a built-in tool that wraps the <code>rg</code> (ripgrep) command for
+recursively searching the current directory for patterns. <br>
+It must be required explicitly with <code>require &quot;llm/tools/rg&quot;</code> and requires the <code>test-cmd.rb</code> gem.</p></li>
+<li><p><strong>Add <code>LLM::Tool::SwapText</code></strong> <br>
+Add a built-in tool that can replace an exact snippet of text in a
+file with a new piece of text. <br>
+It must be required explicitly with <code>require &quot;llm/tools/swap_text&quot;</code>.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Pwd</code></strong> <br>
+Add a built-in tool that returns the current working directory. <br>
+It must be required explicitly with <code>require &quot;llm/tools/pwd&quot;</code>.</p></li>
+<li><p><strong>Add <code>LLM::Tool::WriteFile</code></strong> <br>
+Add a built-in tool that can write a given string to a given file
+path. <br>
+It must be required explicitly with <code>require &quot;llm/tools/write_file&quot;</code>.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Mkdir</code></strong> <br>
+Add a built-in tool that can create a tree of new directories. <br>
+It must be required explicitly with <code>require &quot;llm/tools/mkdir&quot;</code> and
+requires the <code>test-cmd.rb</code> gem.</p></li>
+</ul>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><p><strong>Extend BSL additional use grant</strong> <br>
+The Business Source License additional use grant has been extended to
+include non-profits, charities, and companies with 50 or fewer
+employees, in addition to the existing personal, education, and
+evaluation uses.</p></li>
+<li><p><strong>Change LlamaCpp default port (8080 =&gt; 8013)</strong> <br>
+The default port for the LlamaCpp provider has changed from <code>8080</code> to
+<code>8013</code> since llamacpp itself defaults to that port.</p></li>
+<li><p><strong>Change LlamaCpp default model to <code>nil</code></strong> <br>
+The default model for LlamaCpp is now <code>nil</code>, letting whatever model
+is served by the llamacpp server act as the default. Previously it
+defaulted to <code>qwen3</code>.</p></li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><p><strong>Fix <code>LLM::Agent.tools</code> Symbol resolution</strong> <br>
+When an agent defined tools via <code>tools :method_name</code>, the resolved
+symbol was incorrectly forwarded as <code>[:method_name]</code> (an array) to
+<code>LLM::Context</code>. This fix copies the same pattern used by other
+attribute resolvers (e.g., <code>skills</code>) so a single Symbol is resolved
+through the agent instance correctly.</p></li>
+<li><p><strong>Encode strings as UTF-8 in the JSON adapter</strong> <br>
+The <code>json</code> gem will reject BINARY-encoded strings from version 3 and
+beyond. The <code>LLM::JSONAdapter.dump</code> method now walks serialized data
+and encodes every string into UTF-8, using <code>String#scrub</code> to replace
+bytes that are not valid UTF-8.</p></li>
+</ul>
+
+<h2 id="v12-0-0">v12.0.0</h2>
+
+<p>Changes since <code>v11.3.1</code>.</p>
+
+<p>This release relicenses the project under the Business Source License,
+defaults OpenAI to the Responses API and gpt-image models, adds the
+DeepInfra provider with audio and image support, introduces
+DeepSeek vector-graphics generation and schema support, extends xAI
+image editing, adds <code>LLM::Schema.defaults</code> and schema string rendering,
+and makes ActiveRecord and Sequel agent wrappers yield <code>LLM::Agent</code>
+instead of polluting the model namespace.</p>
 
 <h3 id="breaking">Breaking</h3>
+
+<ul>
+<li><strong>License change</strong> <br>
+The llm.rb runtime has been developed primarily by one
+person for 3 years. That was done on my own time, and
+I haven&#39;t made a dime from that work.</li>
+</ul>
+
+<p>So when I saw a multi-million dollar company benefit from
+  the work and for it to become the backbone of their AI
+  infrastructure and then see them not contribute back or
+  offer any kind of support, I decided this is not sustainable,
+  or fair.</p>
+
+<p>I assumed good faith and for people to act in the spirit of
+  open source but sadly, that&#39;s just not the case. I
+  have to choose a license that respects my time and effort.</p>
+
+<p>For those reasons, llm.rb is being relicensed under the
+  <a href="https://mariadb.com/bsl11/">Business Source license</a>.
+  So what does that mean?</p>
+
+<p>In a nutshell:</p>
+
+<ul>
+<li>Free for personal use.</li>
+<li>Free for education.</li>
+<li>Free for evaluation, development, and testing.</li>
+<li>Commercial production use requires a commercial license.</li>
+<li>Exemptions on a case-by-case basis</li>
+</ul>
+
+<p>After 4 years, the license expires and it will become
+  available under the 0BSDL as it was before v12.0.0.
+  These 4 years apply to a specific version, and not the
+  project overall.</p>
+
+<p>Going forward, v12.0.0 will be relicensed to respect
+  my time, energy, and effort. llm.rb took an incredible
+  amount of time and effort, and continues to do so, so
+  I want to protect myself from companies who benefit
+  from my work but don&#39;t respect the time or effort that
+  was put into it.</p>
 
 <ul>
 <li><strong>OpenAI: default to the Responses API</strong> <br>
@@ -1887,7 +2041,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jun 30 03:39:33 2026 by
+  Generated on Mon Jul  6 20:16:46 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

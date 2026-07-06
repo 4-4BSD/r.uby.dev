@@ -84,6 +84,10 @@
               <a class="toc-sub" href="#provider-wide-tracer">Provider-wide tracer</a>
               <a class="toc-sub" href="#agent-local-tracer">Agent-local tracer</a>
             </details>
+            <details>
+              <summary>REPL</summary>
+              <a class="toc-sub" href="#llmagent">LLM::Agent</a>
+            </details>
           </div>
           <div class="toc-group">
             <h3>Persistence</h3>
@@ -465,6 +469,21 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, io: $stdout))
 # Writes to deepseek-agent.log
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek-agent.log"))
+</code></pre>
+
+<h2 id="repl">REPL</h2>
+
+<p>During the development and operation of agents it can often be helpful to drop into a read-eval-print loop. This gives you a simple way to confirm the work was successful, inspect anything that went wrong (for example, tool call errors), and keep talking to the same agent so you can learn about its decision-making process and make improvements for future runs. It can also be used to ask the agent to correct any errors that might have made.</p>
+
+<h4 id="llmagent">LLM::Agent</h4>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method"><code>LLM::Agent#repl</code></a> method requires the <a href="https://github.com/ruby/curses">curses</a> gem to be installed and available for require. It is an optional dependency that only becomes required when you call the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method"><code>LLM::Agent#repl</code></a> method.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl
 </code></pre>
 
 <h2 id="serialization">Serialization</h2>

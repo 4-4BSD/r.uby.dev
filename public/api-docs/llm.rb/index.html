@@ -76,7 +76,7 @@
 </p>
 
 <blockquote>
-<p>A <a href="https://r.uby.dev">r.uby.dev</a> project.</p>
+<p>A <a href="https://r.uby.dev/llm">r.uby.dev</a> project.</p>
 </blockquote>
 
 <p>Welcome to the canonical llm.rb repository.</p>
@@ -177,6 +177,23 @@ reasoning, tool calls, tool returns, and compaction.</p>
 <span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>stream:</span> <span class='const'>MyStream</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Explain Ruby fibers.</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<h4 id="llm-repl">LLM::REPL</h4>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a>
+method allows an agent to spawn a read-eval-print loop
+that can be useful during the development and operation
+of agents. It can be used to debug tool calls, confirm an
+agent has done what was expected, or improve the agent
+by asking questions about what it has done up to that point.</p>
+
+<p>This feature requires that the <a href="https://github.com/ruby/curses">curses</a>
+library is installed and available to require.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span>
 </code></pre>
 
 <h4 id="llm-mcp">LLM::MCP</h4>
@@ -385,13 +402,31 @@ and resources.</p>
 
 <h2 id="license">License</h2>
 
-<p><a href="https://choosealicense.com/licenses/0bsd/">BSD Zero Clause</a>
+<p><a href="./LICENSE">Business Source License 1.1</a>
 <br>
-See <a href="./LICENSE">LICENSE</a></p>
+Commercial production use requires a commercial license.
+<br>
+Each version converts to the <a href="https://choosealicense.com/licenses/0bsd/">BSD Zero Clause</a>
+four years after its first public release.
+<br>
+Contact <a href="mailto:robert@r.uby.dev">robert@r.uby.dev</a> for a commercial license.</p>
+
+<h3 id="waivers">Waivers</h3>
+
+<p>Waivers are automatically granted for: <br></p>
+
+<ul>
+<li>Personal use</li>
+<li>Students</li>
+<li>Teachers</li>
+<li>Evaluation, development, and testing</li>
+<li>Non-profits and charities</li>
+<li>Companies with less than or equal to 50 employees</li>
+</ul>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jun 30 03:39:33 2026 by
+  Generated on Mon Jul  6 20:16:46 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

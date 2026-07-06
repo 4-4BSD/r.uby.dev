@@ -152,6 +152,11 @@ features that didn&#39;t make it into the homepage documentation.</p>
 <li><a href="#provider-wide-tracer">Provider-wide tracer</a></li>
 <li><a href="#agent-local-tracer">Agent-local tracer</a></li>
 </ul></li>
+<li><a href="#repl">REPL</a>
+
+<ul>
+<li><a href="#llmagent">LLM::Agent</a></li>
+</ul></li>
 <li><a href="#images">Images</a>
 
 <ul>
@@ -885,6 +890,35 @@ to an agent.</p>
 
 <p><a href="#table-of-contents">Back to top</a></p>
 
+<h2 id="repl">REPL</h2>
+
+<p>During the development and operation of agents it can often
+be helpful to drop into a read-eval-print loop. This gives
+you a simple way to confirm the work was successful, inspect
+anything that went wrong (for example, tool call errors), and
+keep talking to the same agent so you can learn about its
+decision-making process and make improvements for future runs.
+It can also be used to ask the agent to correct any errors
+that might have made.</p>
+
+<h5 id="llm-agent">LLM::Agent</h5>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a>
+method requires the <a href="https://github.com/ruby/curses">curses</a>
+gem to be installed and available for require. It is an
+optional dependency that only becomes required when you
+call the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a>
+method.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
 <h2 id="images">Images</h2>
 
 <p>The OpenAI, Google, xAI, DeepInfra, and DeepSeek providers have
@@ -1044,7 +1078,7 @@ support this method.</p>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jun 30 03:39:33 2026 by
+  Generated on Mon Jul  6 20:16:46 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

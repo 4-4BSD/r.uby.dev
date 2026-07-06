@@ -125,6 +125,24 @@ ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"</code></pre>
           </div>
 
+          <div class="example">
+            <h3>LLM::REPL</h3>
+            <p>
+              The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code> method allows
+              an agent to spawn a read-eval-print loop that can be useful during
+              the development and operation of agents. It can be used to debug
+              tool calls, confirm an agent has done what was expected, or improve
+              the agent by asking questions about what it has done up to that point.
+            </p>
+            <p>
+              This feature requires that the <a href="https://github.com/ruby/curses">curses</a>
+              library is installed and available to require.
+            </p>
+            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl</code></pre>
+          </div>
+
           <div id="tools" class="example">
             <h3>LLM::Tool</h3>
             <p>
