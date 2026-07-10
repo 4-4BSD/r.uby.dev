@@ -129,10 +129,10 @@ ctx.talk "Hello world"</code></pre>
             <h3>LLM::REPL</h3>
             <p>
               The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code> method allows
-              an agent to spawn a read-eval-print loop that can be useful during
-              the development and operation of agents. It can be used to debug
-              tool calls, confirm an agent has done what was expected, or improve
-              the agent by asking questions about what it has done up to that point.
+              an agent to spawn a read-eval-print loop that can be useful while
+              developing or operating agents. It can be used to debug tool calls,
+              confirm an agent has done what was expected, or improve an agent by
+              asking questions about what it has done up to that point.
             </p>
             <p>
               This feature requires that the <a href="https://github.com/ruby/curses">curses</a>
@@ -141,6 +141,22 @@ ctx.talk "Hello world"</code></pre>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl</code></pre>
+            <p>
+              The REPL also accepts a <code>tools</code> option so you can attach extra
+              tools for the duration of the session, in addition to any tools already
+              associated with the agent.
+            </p>
+            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(tools: [Debugger])</code></pre>
+            <p>
+              By default the tracer is disabled for the session. The <code>tracer</code>
+              option can re-enable it, and setting it to <code>true</code> uses the tracer
+              already associated with the agent.
+            </p>
+            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
+agent.repl(tracer: true, tools: [Debugger])</code></pre>
           </div>
 
           <div id="tools" class="example">
