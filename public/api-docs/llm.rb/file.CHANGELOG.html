@@ -82,7 +82,87 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
+<p>Changes since <code>v12.2.0</code>.</p>
+
+<h2 id="v12-2-0">v12.2.0</h2>
+
 <p>Changes since <code>v12.1.0</code>.</p>
+
+<p>This release adds Mistral as a new provider with chat completions, streaming, tool calls,
+structured outputs, file/image attachments, and embeddings support. It introduces
+the <code>trace:</code> option to <code>LLM::Agent#repl</code> for keeping the tracer active during
+interactive sessions.</p>
+
+<p>Several fixes land for the Google provider (generationConfig parameter leakage),
+<code>LLM::Context#tracer=</code> (always assigning nil), <code>LLM::Provider#with_tracer(nil)</code>
+(nil fallback), and <code>LLM::Context#repair!</code> (dropping Struct returns).</p>
+
+<p>The default HTTP timeout has been increased from 60s to 180s to better accommodate
+reasoning models and large structured outputs, and the Anthropic default model has
+been updated to <code>claude-opus-4-8</code>. Model metadata has been refreshed across
+Anthropic, AWS Bedrock, DeepInfra, Google, and xAI, with Mistral model data added
+to the registry.</p>
+
+<h3 id="add">Add</h3>
+
+<ul>
+<li><p><strong>Add <code>trace:</code> option to <code>LLM::Agent#repl</code></strong> <br>
+<code>LLM::Agent#repl</code> now accepts a <code>trace:</code> keyword argument. By default
+the tracer is disabled for the duration of the repl session to prevent
+curses UI interference from output written to <code>$stdout</code> or <code>$stderr</code>.
+Set <code>trace: true</code> to keep the tracer active during the session, which
+is useful when the tracer writes to a file rather than the terminal.</p></li>
+<li><p><strong>Add a new provider: LLM::Mistral</strong> <br>
+<a href="https://mistral.ai">Mistral</a> is now supported through its
+OpenAI-compatible API. The provider supports chat completions,
+streaming, tool calls, structured output (schema), file/image
+attachments, and embeddings. Use <code>LLM.mistral(...)</code> to create a
+provider instance.</p></li>
+<li><p><strong>Add <code>LLM.mistral(...)</code> convenience method</strong> <br>
+A new top-level accessor (<code>LLM.mistral</code>) returns an <code>LLM::Mistral</code>
+provider instance, matching the pattern used by other providers.</p></li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><p><strong>Fix Google <code>generationConfig</code> parameter leakage</strong> <br>
+Fix a bug in the Google provider where non-generation parameters
+(<code>role</code>, <code>model</code>, <code>messages</code>, <code>stream</code>) were leaking into the
+<code>generationConfig</code> object alongside legitimate generation config
+parameters such as <code>temperature</code>. Non-config parameters are now
+filtered out before constructing <code>generationConfig</code>.</p></li>
+<li><p><strong>Fix <code>LLM::Context#tracer=</code> always assigning <code>nil</code></strong> <br>
+The <code>LLM::Context#tracer=</code> setter had a bug where it always assigned
+<code>nil</code> regardless of the tracer value passed. It now correctly assigns
+the given tracer or falls back to <code>LLM::Tracer::Null</code>.</p></li>
+<li><p><strong>Fix <code>LLM::Provider#with_tracer(nil)</code> fallback</strong> <br>
+<code>LLM::Provider#with_tracer(nil)</code> now falls back to
+<code>LLM::Tracer::Null</code> instead of setting a <code>nil</code> tracer directly.</p></li>
+<li><p><strong>Fix <code>LLM::Context#repair!</code> dropping <code>Struct</code> returns</strong> <br>
+<code>LLM::Context#repair!</code> used <code>[*prompt]</code> to wrap the prompt before
+grepping for return objects. Since <code>LLM::Function::Return</code> is a
+<code>Struct</code>, the splat operator expanded it into its member values
+instead of wrapping it, causing the grep to silently drop returns.
+The fix wraps both sources in an array before flattening.</p></li>
+</ul>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><p><strong>Increase default provider timeout from 60s to 180s</strong> <br>
+The default HTTP timeout for all providers has been increased from
+60 to 180 seconds to better accommodate long-running requests such
+as reasoning models and large structured outputs.</p></li>
+<li><p><strong>Change Anthropic default model to <code>claude-opus-4-8</code></strong> <br>
+The default Anthropic chat model has been updated from
+<code>claude-sonnet-4-20250514</code> to <code>claude-opus-4-8</code>, reflecting the
+latest model release from Anthropic.</p></li>
+<li><p><strong>Refresh model metadata</strong> <br>
+Update model listings, pricing, and capabilities for Anthropic,
+AWS Bedrock, DeepInfra, Google, and xAI. Add Mistral model data
+to the registry.</p></li>
+</ul>
 
 <h2 id="v12-1-0">v12.1.0</h2>
 
@@ -2041,7 +2121,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Mon Jul  6 20:16:46 2026 by
+  Generated on Fri Jul 10 04:05:09 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

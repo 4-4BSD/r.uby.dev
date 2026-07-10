@@ -3275,7 +3275,7 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="code"><span class="info file"># File 'lib/llm/context.rb', line 428</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tracer='>tracer=</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
-  <span class='ivar'>@llm</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@llm</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_other'>other</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tracer/Null.html" title="LLM::Tracer::Null (class)">Null</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Tracer.html#initialize-instance_method" title="LLM::Tracer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='ivar'>@llm</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -3642,7 +3642,7 @@ based on both the provider, and model</p>
 </div>
 
       <div id="footer">
-  Generated on Mon Jul  6 20:16:48 2026 by
+  Generated on Fri Jul 10 04:05:12 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

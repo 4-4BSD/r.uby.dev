@@ -67,7 +67,7 @@
         <h2>Features</h2>
         <p>
           The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
-          Gemini, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
+          Gemini, Mistral, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
           It has first-class support for streaming, tool calls,  MCP
           and A2A, embeddings, vector stores and the RAG pattern.
         <p>
@@ -208,7 +208,7 @@ agent.talk "Run the tool"
         <h3>LLM::A2A</h3>
         <p>
           The Agent 2 Agent (A2A) protocol has first-class support
-          in llm.rb. The rest and jsonrpc transports work out of the
+          in llm.rb. The http and jsonrpc transports work out of the
           box. A2A skills are translated into subclasses of
           <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> that can be used with <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>
           or <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>.
@@ -342,34 +342,47 @@ agent.talk "perform research"
         <details class="faq-item">
           <summary>What providers does llm.rb support?</summary>
 
-          <p class="faq-label">China-based</p>
-          <ul>
-            <li>DeepSeek</li>
-            <li>zAI</li>
-          </ul>
+          <p class="faq-label">Cloud</p>
+          <p>
+            The following cloud-based providers are available to choose from.
+            <br>
+            In no particular order:
+          </p>
+          <p class="faq-flags">
+            🇺🇸 OpenAI <br>
+            🇺🇸 DeepInfra <br>
+            🇺🇸 xAI <br>
+            🇺🇸 Google (Gemini) <br>
+            🇺🇸 AWS bedrock <br>
+            🇺🇸 Anthropic <br>
+            🇨🇳 DeepSeek <br>
+            🇨🇳 zAI <br>
+            🇪🇺 Mistral
+          </p>
 
-          <p class="faq-label">US-based</p>
-          <ul>
-            <li>OpenAI</li>
-            <li>Google (Gemini)</li>
-            <li>xAI</li>
-            <li>AWS Bedrock</li>
-            <li>DeepInfra</li>
-            <li>Anthropic</li>
-          </ul>
+          <p class="faq-label">Weights</p>
+          <p>
+            The following providers provide access to open-weight models.
+            <br>
+            In no particular order:
+          </p>
+          <p class="faq-flags">
+            🇺🇸 DeepInfra <br>
+            🇺🇸 AWS bedrock <br>
+            🇨🇳 DeepSeek <br>
+            🇨🇳 zAI <br>
+            🇪🇺 Mistral
+          </p>
 
-          <p class="faq-label">Open weights</p>
-          <ul>
-            <li>DeepSeek</li>
-            <li>zAI</li>
-            <li>DeepInfra</li>
-            <li>AWS Bedrock</li>
-          </ul>
-
-          <p class="faq-label">Host your own</p>
+          <p class="faq-label">Local</p>
+          <p>
+            The following providers can be run locally on your own hardware.
+            <br>
+            In no particular order:
+          </p>
           <ul>
             <li>Ollama</li>
-            <li>llama.cpp</li>
+            <li>Llamacpp</li>
           </ul>
         </details>
 

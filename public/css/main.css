@@ -632,6 +632,10 @@ td code {
   margin-top: 0;
 }
 
+.faq-section .faq-flags {
+  line-height: 1.5;
+}
+
 /* Showcase */
 .showcase {
   display: grid;
