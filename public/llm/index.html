@@ -136,19 +136,20 @@ ctx.talk "Hello world"</code></pre>
             </p>
             <p>
               This feature requires that the <a href="https://github.com/ruby/curses">curses</a>
-              library is installed and available to require.
+              and <a href="https://github.com/gettalong/kramdown">kramdown</a> libraries are
+              installed and available to require.
             </p>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl</code></pre>
             <p>
-              The REPL also accepts a <code>tools</code> option so you can attach extra
-              tools for the duration of the session, in addition to any tools already
-              associated with the agent.
+              The REPL also accepts both <code>tools</code> and <code>skills</code> options so
+              you can attach extra tools or skills for the duration of the session, in
+              addition to any tools or skills already associated with the agent.
             </p>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
-agent.repl(tools: [Debugger])</code></pre>
+agent.repl(tools: [Debugger], skills: [__dir__])</code></pre>
             <p>
               By default the tracer is disabled for the session. The <code>tracer</code>
               option can re-enable it, and setting it to <code>true</code> uses the tracer
