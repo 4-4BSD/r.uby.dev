@@ -273,6 +273,29 @@ OpenAI-compatible API.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#ocr-instance_method" title="#ocr (instance method)">#<strong>ocr</strong>(image_url: nil, document_url: nil, model: &quot;mistral-ocr-latest&quot;, **params)  &#x21d2; LLM::Response </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Runs OCR on a remote image or document URL.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#responses-instance_method" title="#responses (instance method)">#<strong>responses</strong>  &#x21d2; Object </a>
     
 
@@ -439,7 +462,7 @@ OpenAI-compatible API.</p>
   
   
   <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Provider.html" title="LLM::Provider (class)">Provider</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Provider.html#assistant_role-instance_method" title="LLM::Provider#assistant_role (method)">#assistant_role</a></span>, <span class='object_link'><a href="Provider.html#chat-instance_method" title="LLM::Provider#chat (method)">#chat</a></span>, <span class='object_link'><a href="Provider.html#complete-instance_method" title="LLM::Provider#complete (method)">#complete</a></span>, <span class='object_link'><a href="Provider.html#developer_role-instance_method" title="LLM::Provider#developer_role (method)">#developer_role</a></span>, <span class='object_link'><a href="Provider.html#inspect-instance_method" title="LLM::Provider#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="Provider.html#interrupt!-instance_method" title="LLM::Provider#interrupt! (method)">#interrupt!</a></span>, <span class='object_link'><a href="Provider.html#key%3F-instance_method" title="LLM::Provider#key? (method)">#key?</a></span>, <span class='object_link'><a href="Provider.html#models-instance_method" title="LLM::Provider#models (method)">#models</a></span>, <span class='object_link'><a href="Provider.html#request_owner-instance_method" title="LLM::Provider#request_owner (method)">#request_owner</a></span>, <span class='object_link'><a href="Provider.html#respond-instance_method" title="LLM::Provider#respond (method)">#respond</a></span>, <span class='object_link'><a href="Provider.html#schema-instance_method" title="LLM::Provider#schema (method)">#schema</a></span>, <span class='object_link'><a href="Provider.html#server_tool-instance_method" title="LLM::Provider#server_tool (method)">#server_tool</a></span>, <span class='object_link'><a href="Provider.html#server_tools-instance_method" title="LLM::Provider#server_tools (method)">#server_tools</a></span>, <span class='object_link'><a href="Provider.html#streamable%3F-instance_method" title="LLM::Provider#streamable? (method)">#streamable?</a></span>, <span class='object_link'><a href="Provider.html#system_role-instance_method" title="LLM::Provider#system_role (method)">#system_role</a></span>, <span class='object_link'><a href="Provider.html#tool_role-instance_method" title="LLM::Provider#tool_role (method)">#tool_role</a></span>, <span class='object_link'><a href="Provider.html#tracer-instance_method" title="LLM::Provider#tracer (method)">#tracer</a></span>, <span class='object_link'><a href="Provider.html#tracer=-instance_method" title="LLM::Provider#tracer= (method)">#tracer=</a></span>, <span class='object_link'><a href="Provider.html#user_role-instance_method" title="LLM::Provider#user_role (method)">#user_role</a></span>, <span class='object_link'><a href="Provider.html#web_search-instance_method" title="LLM::Provider#web_search (method)">#web_search</a></span>, <span class='object_link'><a href="Provider.html#with-instance_method" title="LLM::Provider#with (method)">#with</a></span>, <span class='object_link'><a href="Provider.html#with_tracer-instance_method" title="LLM::Provider#with_tracer (method)">#with_tracer</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Provider.html#assistant_role-instance_method" title="LLM::Provider#assistant_role (method)">#assistant_role</a></span>, <span class='object_link'><a href="Provider.html#chat-instance_method" title="LLM::Provider#chat (method)">#chat</a></span>, <span class='object_link'><a href="Provider.html#complete-instance_method" title="LLM::Provider#complete (method)">#complete</a></span>, <span class='object_link'><a href="Provider.html#developer_role-instance_method" title="LLM::Provider#developer_role (method)">#developer_role</a></span>, <span class='object_link'><a href="Provider.html#inspect-instance_method" title="LLM::Provider#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="Provider.html#interrupt!-instance_method" title="LLM::Provider#interrupt! (method)">#interrupt!</a></span>, <span class='object_link'><a href="Provider.html#key%3F-instance_method" title="LLM::Provider#key? (method)">#key?</a></span>, <span class='object_link'><a href="Provider.html#models-instance_method" title="LLM::Provider#models (method)">#models</a></span>, <span class='object_link'><a href="Provider.html#request_owner-instance_method" title="LLM::Provider#request_owner (method)">#request_owner</a></span>, <span class='object_link'><a href="Provider.html#respond-instance_method" title="LLM::Provider#respond (method)">#respond</a></span>, <span class='object_link'><a href="Provider.html#schema-instance_method" title="LLM::Provider#schema (method)">#schema</a></span>, <span class='object_link'><a href="Provider.html#server_tool-instance_method" title="LLM::Provider#server_tool (method)">#server_tool</a></span>, <span class='object_link'><a href="Provider.html#server_tools-instance_method" title="LLM::Provider#server_tools (method)">#server_tools</a></span>, <span class='object_link'><a href="Provider.html#system_role-instance_method" title="LLM::Provider#system_role (method)">#system_role</a></span>, <span class='object_link'><a href="Provider.html#tool_role-instance_method" title="LLM::Provider#tool_role (method)">#tool_role</a></span>, <span class='object_link'><a href="Provider.html#tracer-instance_method" title="LLM::Provider#tracer (method)">#tracer</a></span>, <span class='object_link'><a href="Provider.html#tracer=-instance_method" title="LLM::Provider#tracer= (method)">#tracer=</a></span>, <span class='object_link'><a href="Provider.html#user_role-instance_method" title="LLM::Provider#user_role (method)">#user_role</a></span>, <span class='object_link'><a href="Provider.html#web_search-instance_method" title="LLM::Provider#web_search (method)">#web_search</a></span>, <span class='object_link'><a href="Provider.html#with-instance_method" title="LLM::Provider#with (method)">#with</a></span>, <span class='object_link'><a href="Provider.html#with_tracer-instance_method" title="LLM::Provider#with_tracer (method)">#with_tracer</a></span></p>
 
   
   
@@ -587,12 +610,12 @@ OpenAI-compatible API.</p>
       <pre class="lines">
 
 
-92
-93
-94</pre>
+118
+119
+120</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 92</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 118</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_default_model'>default_model</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mistral-large-latest</span><span class='tstring_end'>&quot;</span></span>
@@ -829,6 +852,154 @@ OpenAI-compatible API.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="ocr-instance_method">
+  
+    #<strong>ocr</strong>(image_url: nil, document_url: nil, model: &quot;mistral-ocr-latest&quot;, **params)  &#x21d2; <tt><span class='object_link'><a href="Response.html" title="LLM::Response (class)">LLM::Response</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Runs OCR on a remote image or document URL.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>image_url</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>A remote HTTP(S) URL to the image</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>document_url</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>A remote HTTP(S) URL to the document</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>model</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&quot;mistral-ocr-latest&quot;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>The OCR model to use</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>params</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Additional OCR parameters</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Response.html" title="LLM::Response (class)">LLM::Response</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="https://docs.mistral.ai/api/endpoint/ocr#operation-ocr_v1_ocr_post" target="_parent" title="Mistral OCR docs">Mistral OCR docs</a></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ocr'>ocr</span><span class='lparen'>(</span><span class='label'>image_url:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>document_url:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>mistral-ocr-latest</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lbracket'>[</span><span class='id identifier rubyid_image_url'>image_url</span><span class='comma'>,</span> <span class='id identifier rubyid_document_url'>document_url</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_all?'>all?</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:nil?</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must provide one of: image_url, document_url</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='lbracket'>[</span><span class='id identifier rubyid_image_url'>image_url</span><span class='comma'>,</span> <span class='id identifier rubyid_document_url'>document_url</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>must provide one of: image_url, document_url</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_document'>document</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_document'>parse_document</span><span class='lparen'>(</span><span class='id identifier rubyid_image_url'>image_url</span><span class='comma'>,</span> <span class='id identifier rubyid_document_url'>document_url</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_req'>req</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Transport.html" title="LLM::Transport (class)">Transport</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Transport/Request.html" title="LLM::Transport::Request (class)">Request</a></span></span><span class='period'>.</span><span class='id identifier rubyid_post'><span class='object_link'><a href="Transport/Request.html#post-class_method" title="LLM::Transport::Request.post (method)">post</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/v1/ocr</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_headers'>headers</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_req'>req</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>model:</span><span class='comma'>,</span> <span class='label'>document:</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span><span class='comma'>,</span> <span class='op'>=</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>request:</span> <span class='id identifier rubyid_req'>req</span><span class='comma'>,</span> <span class='label'>operation:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ocr</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>model:</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Response.html" title="LLM::Response (class)">Response</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Response.html#initialize-instance_method" title="LLM::Response#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="responses-instance_method">
   
     #<strong>responses</strong>  &#x21d2; <tt><span class='object_link'><a href="Object.html" title="LLM::Object (class)">Object</a></span></tt> 
@@ -865,12 +1036,12 @@ OpenAI-compatible API.</p>
       <pre class="lines">
 
 
-61
-62
-63</pre>
+87
+88
+89</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 61</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 87</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_responses'>responses</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -930,12 +1101,12 @@ OpenAI-compatible API.</p>
       <pre class="lines">
 
 
-67
-68
-69</pre>
+93
+94
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 67</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_audio'>audio</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -982,12 +1153,12 @@ OpenAI-compatible API.</p>
       <pre class="lines">
 
 
-73
-74
-75</pre>
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 73</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_files'>files</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -1034,12 +1205,12 @@ OpenAI-compatible API.</p>
       <pre class="lines">
 
 
-79
-80
-81</pre>
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 79</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_moderations'>moderations</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -1086,12 +1257,12 @@ OpenAI-compatible API.</p>
       <pre class="lines">
 
 
-85
-86
-87</pre>
+111
+112
+113</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 85</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 111</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_vector_stores'>vector_stores</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -1106,7 +1277,7 @@ OpenAI-compatible API.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri Jul 10 05:03:34 2026 by
+  Generated on Mon Jul 13 05:12:37 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

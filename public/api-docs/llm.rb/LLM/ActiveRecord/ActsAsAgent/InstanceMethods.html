@@ -128,6 +128,28 @@
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#repl-instance_method" title="#repl (instance method)">#<strong>repl</strong>(**params)  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
     </ul>
     
   
@@ -199,12 +221,110 @@
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="repl-instance_method">
+  
+    #<strong>repl</strong>(**params)  
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'><p>This method does not persist to the database,
+but it can inspect and alter runtime state in
+a way that is temporary.</p>
+</div>
+  </div>
+
+<p class="note returns_void">This method returns an undefined value.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>tracer</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>When true, the tracer is kept alive during the
+repl session. Default is false.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>tools</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="../../Tool.html" title="LLM::Tool (class)">LLM::Tool</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Extra tools to attach for the repl session</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>skills</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Extra skills to attach for the repl session</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/active_record/acts_as_agent.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Fri Jul 10 05:03:29 2026 by
+  Generated on Mon Jul 13 05:12:32 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

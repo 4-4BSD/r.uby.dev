@@ -528,6 +528,29 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#merge!-instance_method" title="#merge! (instance method)">#<strong>merge!</strong>(other = UNDEFINED)  &#x21d2; LLM::Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns self.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#delete-instance_method" title="#delete (instance method)">#<strong>delete</strong>(k = UNDEFINED)  </a>
     
 
@@ -738,18 +761,18 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
       <pre class="lines">
 
 
-198
-199
-200
-201
-202
-203
-204
-205
-206</pre>
+211
+212
+213
+214
+215
+216
+217
+218
+219</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 198</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 211</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_m'>m</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_b'>b</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>=</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -1014,13 +1037,13 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
       <pre class="lines">
 
 
-190
-191
-192
-193</pre>
+203
+204
+205
+206</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 190</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 203</span>
 
 <span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:to_h</span><span class='rparen'>)</span>
@@ -1853,6 +1876,105 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="merge!-instance_method">
+  
+    #<strong>merge!</strong>(other = UNDEFINED)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Object (class)">LLM::Object</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns self</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>other</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>, <tt>#<span class='object_link'><a href="#to_h-instance_method" title="LLM::Object#to_h (method)">to_h</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>UNDEFINED</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>The hash to merge in place</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="LLM::Object (class)">LLM::Object</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Returns self</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'>TypeError</span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+156
+157
+158
+159
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 156</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span> <span class='op'>=</span> <span class='const'>UNDEFINED</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>SINGLETON</span><span class='period'>.</span><span class='id identifier rubyid_get'><span class='object_link'><a href="#get-class_method" title="LLM::Object.get (method)">get</a></span></span><span class='lparen'>(</span><span class='ivar'>@h</span><span class='comma'>,</span> <span class='symbol'>:merge!</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_other'>other</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'>UNDEFINED</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_other'>other</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_try_convert'>try_convert</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>TypeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_other'>other</span><span class='embexpr_end'>}</span><span class='tstring_content'> cannot be coerced into a Hash</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_other'>other</span>
+  <span class='ivar'>@h</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="delete-instance_method">
   
     #<strong>delete</strong>(k = UNDEFINED)  
@@ -1897,13 +2019,13 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
       <pre class="lines">
 
 
-155
-156
-157
-158</pre>
+168
+169
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 155</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 168</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_k'>k</span> <span class='op'>=</span> <span class='const'>UNDEFINED</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='const'>SINGLETON</span><span class='period'>.</span><span class='id identifier rubyid_get'><span class='object_link'><a href="#get-class_method" title="LLM::Object.get (method)">get</a></span></span><span class='lparen'>(</span><span class='ivar'>@h</span><span class='comma'>,</span> <span class='symbol'>:delete</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_k'>k</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'>UNDEFINED</span><span class='rparen'>)</span>
@@ -1955,12 +2077,12 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
       <pre class="lines">
 
 
-162
-163
-164</pre>
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 162</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 175</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='ivar'>@h</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -2009,12 +2131,12 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
       <pre class="lines">
 
 
-169
-170
-171</pre>
+182
+183
+184</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 169</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 182</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_each_pair'>each_pair</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='ivar'>@h</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
@@ -2061,13 +2183,13 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
       <pre class="lines">
 
 
-175
-176
-177
-178</pre>
+188
+189
+190
+191</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 175</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 188</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='const'>SINGLETON</span><span class='period'>.</span><span class='id identifier rubyid_get'><span class='object_link'><a href="#get-class_method" title="LLM::Object.get (method)">get</a></span></span><span class='lparen'>(</span><span class='ivar'>@h</span><span class='comma'>,</span> <span class='symbol'>:dig</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -2115,13 +2237,13 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
       <pre class="lines">
 
 
-182
-183
-184
-185</pre>
+195
+196
+197
+198</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 182</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/object.rb', line 195</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='const'>SINGLETON</span><span class='period'>.</span><span class='id identifier rubyid_get'><span class='object_link'><a href="#get-class_method" title="LLM::Object.get (method)">get</a></span></span><span class='lparen'>(</span><span class='ivar'>@h</span><span class='comma'>,</span> <span class='symbol'>:slice</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -2137,7 +2259,7 @@ became a bundled gem rather than a default gem in Ruby 3.5.</p>
 </div>
 
       <div id="footer">
-  Generated on Fri Jul 10 05:03:30 2026 by
+  Generated on Mon Jul 13 05:12:33 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

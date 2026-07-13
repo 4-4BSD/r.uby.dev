@@ -82,7 +82,161 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
+<p>Changes since <code>v12.3.0</code>.</p>
+
+<h2 id="v12-3-0">v12.3.0</h2>
+
 <p>Changes since <code>v12.2.0</code>.</p>
+
+<p>This release brings major improvements to the curses-based REPL
+(<code>LLM::Agent#repl</code>). The status line now shows a context-usage bar and
+running cost counter, the input field expands to three rows with
+full cursor navigation, model responses are rendered as styled markdown,
+and the UI stays responsive while the agent is working by running
+requests in a separate thread. A new <code>LLM::Stream::IO</code> and
+<code>LLM::Stream::Disabled</code> provide a uniform stream representation across
+all stream types.</p>
+
+<p>Mistral OCR support is added for extracting text from images and
+documents via the <code>/v1/ocr</code> endpoint. The <code>skills:</code> and <code>tools:</code> options
+on <code>LLM::Agent#repl</code> let you attach additional tools or skill directories
+for the duration of a session. <code>LLM::Object#merge!</code> rounds out the
+in-place merge API, and a new <code>LLM.logger</code> convenience method creates
+tracer logger instances with less verbosity.</p>
+
+<h3 id="add">Add</h3>
+
+<ul>
+<li><p><strong>Add <code>LLM.logger</code> convenience method</strong> <br>
+Add <code>LLM.logger(llm, ...)</code> as a shorter, less verbose way to create an
+<code>LLM::Tracer::Logger</code> instance. Takes a provider and optional keyword
+arguments forwarded to the logger constructor.</p></li>
+<li><p><strong>Add <code>skills:</code> option to <code>LLM::Agent#repl</code></strong> <br>
+<code>LLM::Agent#repl</code> now accepts a <code>skills:</code> keyword argument that attaches
+one or more skill directories (containing <code>SKILL.md</code>) for the duration of
+the repl session. Skills are loaded and converted to tools, combining with
+any tools already configured on the agent, and are discarded when the
+session ends.</p></li>
+<li><p><strong>Add <code>LLM::Provider#ocr</code> base method</strong> <br>
+Add a base <code>ocr(...)</code> method to <code>LLM::Provider</code> that raises <code>NotImplementedError</code>
+by default, establishing a common interface for providers that support OCR
+(Optical Character Recognition) on images and documents.</p></li>
+<li><p><strong>Add Mistral OCR endpoint support</strong> <br>
+The Mistral provider now supports OCR via its <code>/v1/ocr</code> endpoint. Call
+<code>mistral.ocr(image_url: ...)</code> for images or <code>mistral.ocr(document_url: ...)</code>
+for documents (e.g., PDFs). Returns an <code>LLM::Response</code> with extracted pages,
+markdown content, and structured block data.</p></li>
+<li><p><strong>Add <code>LLM::Object#merge!</code></strong> <br>
+Add <code>LLM::Object#merge!</code> for in-place merging of hash data into an
+<code>LLM::Object</code> instance, complementing the existing <code>#merge</code> method.</p></li>
+<li><p><strong>Add <code>LLM::Stream::IO</code> and <code>LLM::Stream::Disabled</code></strong> <br>
+<code>LLM::Stream::IO</code> wraps IO-like objects as stream targets, forwarding
+streamed content via <code>#&lt;&lt;</code>. <code>LLM::Stream::Disabled</code> represents an explicitly
+disabled stream with no-op callbacks.</p></li>
+</ul>
+
+<p>This is part of an internal refactoring that lets all stream values — IO
+  objects, <code>true</code>, <code>false</code>, <code>nil</code>, and <code>LLM::Stream</code> instances themselves —
+  be represented by the same <code>LLM::Stream</code> interface via the new
+  <code>LLM::Stream.try</code> factory method.</p>
+
+<p>Before this change the codebase had to perform ad-hoc type checks
+  (e.g. <code>if LLM::Stream === stream</code>) scattered throughout. After this
+  change all stream handling goes through a single uniform path, and
+  providers check <code>#enabled?</code> to decide whether to request streaming
+  from the API.</p>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><p><strong>repl: rename <code>trace:</code> to <code>tracer:</code></strong> <br>
+The <code>trace:</code> keyword argument in <code>LLM::Agent#repl</code> has been renamed to
+<code>tracer:</code> for consistency with the rest of the codebase. The old <code>trace:</code>
+name still works with a deprecation warning.</p></li>
+<li><p><strong>repl: add context-usage bar and cost counter to the status line</strong> <br>
+The curses-based REPL status line now shows a small progress bar that
+indicates how much of the model&#39;s context window remains as a percentage,
+alongside a running cost estimate rendered on the right side of the status
+line. The input line has been updated to show the provider name as a prefix.
+Estimates are best-effort and depend on registry pricing data (see <code>data/</code>).</p></li>
+<li><p><strong>repl: keep the UI responsive while a request is in progress</strong> <br>
+The curses-based REPL now spawns the agent request in a separate thread
+and communicates streamed output through a queue, so the curses UI stays
+responsive during model processing. Users can continue to scroll through
+the transcript while the agent is working.</p></li>
+<li><p><strong>repl: style transcript rows as structured data with bold labels</strong> <br>
+The curses-based REPL transcript now stores rows as structured data with
+style metadata instead of plain strings, enabling bold rendering of the
+<code>user:</code> and <code>agent:</code> labels for improved readability during interactive
+sessions.</p></li>
+<li><p><strong>repl: render a small subset of markdown</strong> <br>
+The curses-based REPL now renders model responses as styled markdown.
+Headers and strong text render in bold, emphasis renders in underline,
+and code spans and blocks are highlighted with inverted colors. Streaming
+content is buffered and re-rendered on each tick so the transcript reads
+cleanly as the agent responds. Requires the optional <code>kramdown</code> gem.</p></li>
+<li><p><strong>repl: add cursor LEFT/RIGHT movement to the input line</strong> <br>
+The curses-based REPL input now supports cursor movement with the left
+and right arrow keys, enabling in-place text editing before submitting
+a prompt. The cursor position is tracked visually and moves backwards
+on left-arrow and forwards on right-arrow.</p></li>
+<li><p><strong>repl: add Ctrl+A and Ctrl+E keybindings to the input line</strong> <br>
+The curses-based REPL input now supports Ctrl+A to jump the cursor to
+the start of the input line and Ctrl+E to jump it to the end, matching
+common terminal editing conventions.</p></li>
+<li><p><strong>repl: add <code>tools:</code> option to <code>LLM::Agent#repl</code></strong> <br>
+<code>LLM::Agent#repl</code> now accepts a <code>tools:</code> keyword argument that attaches
+additional tool classes or instances for the duration of the repl session.
+These tools are combined with any tools already configured on the agent,
+and are discarded when the session ends.</p></li>
+<li><p><strong>repl: add repl support to ActiveRecord and Sequel agent models</strong> <br>
+<code>acts_as_agent</code> (ActiveRecord) and <code>plugin :agent</code> (Sequel) models now
+expose a <code>repl</code> method that delegates to the underlying agent&#39;s
+read-eval-print loop. This allows interactive debugging and inspection
+of persisted agent state at runtime. Note that changes made during a
+repl session do not persist back to the database.</p></li>
+<li><p><strong>repl: add extra padding between markdown nodes</strong> <br>
+The curses-based REPL markdown renderer now adds extra vertical spacing
+between certain markdown elements — paragraphs, headers, and codeblocks —
+for improved readability of model responses.</p></li>
+<li><p><strong>repl: add a visual divider between transcript and the rows below it</strong> <br>
+The curses-based REPL now draws a horizontal divider line (using a unicode
+<code>─</code> character) to separate the transcript area from the status and input
+rows below it. A single empty buffer row is also added between the
+transcript and the divider, preventing transcript text from running too
+close to the status and input rows.</p></li>
+<li><p><strong>repl: expand input field to 3 rows</strong> <br>
+The curses-based REPL input field now spans three rows instead of one,
+wrapping text that exceeds the terminal width onto subsequent lines. A
+scrollable viewport follows the cursor so the active line stays visible,
+and common navigation commands (Ctrl+A, Ctrl+E, cursor keys) work across
+all three rows of the expanded input area.</p></li>
+<li><p><strong>Refresh OpenAI model metadata</strong> <br>
+Add new OpenAI models to the registry, including <code>gpt-5.6</code>,
+<code>gpt-5.6-luna</code>, <code>gpt-5.6-terra</code>, <code>gpt-5.6-sol</code>, and
+<code>gpt-realtime-2.1</code>, with associated pricing, capabilities, and
+limits.</p></li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><p><strong>Fix Ollama non-streaming response handling</strong> <br>
+Fix the Ollama provider to properly handle the non-streaming path. When
+the provider returns a raw NDJSON response body (instead of streaming),
+the response is now parsed and merged into a single <code>LLM::Object</code> before
+being returned to the caller. Previously the non-streaming path was
+effectively broken and would fail to produce a valid completion response.</p></li>
+<li><p><strong>repl: handle a negative context window allowance in the usage bar</strong> <br>
+Fix a crash in the curses-based REPL context-usage bar when the context
+window allowance is exceeded (used &gt; total). The negative width value that
+resulted from this edge case could cause curses errors; it now gracefully
+defaults to <code>0%</code> and zero bar width.</p></li>
+<li><p><strong>Fix YARD documentation across provider and tool files</strong> <br>
+Fix unnamed, misnamed, and missing <code>@param</code> tags in <code>LLM::Repl::Status</code>,
+<code>LLM::Tool::Git</code>, <code>LLM::Tool::Pwd</code>, <code>LLM::Tool::Rg</code>, and
+<code>LLM::Tool::SwapText</code>.</p></li>
+</ul>
 
 <h2 id="v12-2-0">v12.2.0</h2>
 
@@ -2121,7 +2275,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Fri Jul 10 05:03:28 2026 by
+  Generated on Mon Jul 13 05:12:31 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -131,33 +131,6 @@ the small status line shown at the top of the REPL.</p>
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#provider-instance_method" title="#provider (instance method)">#<strong>provider</strong>  &#x21d2; String </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  <span class="private note title">private</span>
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
       <a href="#text-instance_method" title="#text (instance method)">#<strong>text</strong>  &#x21d2; String </a>
     
 
@@ -198,7 +171,7 @@ the small status line shown at the top of the REPL.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(provider)  &#x21d2; LLM::Repl::Status </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(agent)  &#x21d2; LLM::Repl::Status </a>
     
 
     
@@ -206,6 +179,50 @@ the small status line shown at the top of the REPL.</p>
   
   
     <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  <span class="private note title">private</span>
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#context_bar-instance_method" title="#context_bar (instance method)">#<strong>context_bar</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  <span class="private note title">private</span>
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cost-instance_method" title="#cost (instance method)">#<strong>cost</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
   
   
   
@@ -229,7 +246,7 @@ the small status line shown at the top of the REPL.</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(provider)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl::Status (class)">LLM::Repl::Status</a></span></tt> 
+    #<strong>initialize</strong>(agent)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl::Status (class)">LLM::Repl::Status</a></span></tt> 
   
 
   
@@ -272,13 +289,15 @@ the small status line shown at the top of the REPL.</p>
 12
 13
 14
-15</pre>
+15
+16</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/repl/status.rb', line 12</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_provider'>provider</span><span class='rparen'>)</span>
-  <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='id identifier rubyid_provider'>provider</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_agent'>agent</span><span class='rparen'>)</span>
+  <span class='ivar'>@agent</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span>
+  <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
   <span class='ivar'>@text</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>idle</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span></pre>
     </td>
@@ -292,67 +311,9 @@ the small status line shown at the top of the REPL.</p>
     <h2>Instance Attribute Details</h2>
     
       
-      <span id=""></span>
-      <div class="method_details first">
-  <h3 class="signature first" id="provider-instance_method">
-  
-    #<strong>provider</strong>  &#x21d2; <tt>String</tt>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    <p class="note private">
-  <strong>This method is part of a private API.</strong>
-  You should avoid using this method if possible, as it may be removed or be changed in the future.
-</p>
-
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-19
-20
-21</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/status.rb', line 19</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_provider'>provider</span>
-  <span class='ivar'>@provider</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
       <span id="text=-instance_method"></span>
-      <div class="method_details ">
-  <h3 class="signature " id="text-instance_method">
+      <div class="method_details first">
+  <h3 class="signature first" id="text-instance_method">
   
     #<strong>text</strong>  &#x21d2; <tt>String</tt> 
   
@@ -396,12 +357,12 @@ the small status line shown at the top of the REPL.</p>
       <pre class="lines">
 
 
-23
-24
-25</pre>
+35
+36
+37</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/status.rb', line 23</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/status.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_text'>text</span>
   <span class='ivar'>@text</span>
@@ -414,10 +375,134 @@ the small status line shown at the top of the REPL.</p>
   </div>
 
 
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="context_bar-instance_method">
+  
+    #<strong>context_bar</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note private">
+  <strong>This method is part of a private API.</strong>
+  You should avoid using this method if possible, as it may be removed or be changed in the future.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/status.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_context_bar'>context_bar</span>
+  <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Repl.html" title="LLM::Repl (class)">Repl</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Bar.html" title="LLM::Repl::Bar (class)">Bar</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Bar.html#initialize-instance_method" title="LLM::Repl::Bar#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+    <span class='label'>used:</span> <span class='ivar'>@agent</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span><span class='period'>.</span><span class='id identifier rubyid_total_tokens'>total_tokens</span><span class='comma'>,</span>
+    <span class='label'>total:</span> <span class='ivar'>@agent</span><span class='period'>.</span><span class='id identifier rubyid_context_window'>context_window</span>
+  <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'><span class='object_link'><a href="Bar.html#to_s-instance_method" title="LLM::Repl::Bar#to_s (method)">to_s</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cost-instance_method">
+  
+    #<strong>cost</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note private">
+  <strong>This method is part of a private API.</strong>
+  You should avoid using this method if possible, as it may be removed or be changed in the future.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/status.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cost'>cost</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='ivar'>@agent</span><span class='period'>.</span><span class='id identifier rubyid_cost'>cost</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
 </div>
 
       <div id="footer">
-  Generated on Fri Jul 10 05:03:32 2026 by
+  Generated on Mon Jul 13 05:12:35 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
