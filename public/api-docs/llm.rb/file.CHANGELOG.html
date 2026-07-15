@@ -82,7 +82,174 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
+<p>Changes since <code>v12.4.0</code>.</p>
+
+<h2 id="v12-4-0">v12.4.0</h2>
+
+<p>Changes since <code>v12.3.1</code>.</p>
+
+<p>This release brings major improvements to the curses-based REPL
+(<code>LLM::Agent#repl</code>). The REPL now supports saving and restoring runtime
+state across sessions, automatic paste-mode detection for fast bulk input,
+a command system foundation with the <code>/exit</code> command, and several new
+keybindings (Ctrl+F, Ctrl+K, Ctrl+Y). Tool calls are rendered with a
+compact function-call syntax in the status bar.</p>
+
+<p>Two new built-in tools — <code>LLM::Tool::Ls</code> and <code>LLM::Tool::Which</code> — are
+available as opt-in additions for file listing and executable lookup.</p>
+
+<p>Model metadata has been refreshed across providers, the REPL loop
+internals have been refactored to use <code>catch</code>/<code>throw</code> for cleaner command
+routing, and several bugs have been fixed including a tracer restoration
+issue in the agent ensure clause and a missing cursor in the REPL input
+area.</p>
+
+<h3 id="add">Add</h3>
+
+<ul>
+<li><p><strong>repl: allow runtime state to be saved and restored</strong> <br>
+<code>LLM::Agent#repl</code> now accepts a <code>path:</code> option that serializes
+runtime state to the filesystem. When the path already exists,
+runtime state is restored when the read-eval-print loop starts.
+Otherwise the path is written after the first turn, making it
+possible to resume a session across process restarts.</p></li>
+<li><p><strong>repl: scroll to the bottom on submit</strong> <br>
+The curses-based REPL now scrolls the transcript to the bottom when
+the user submits their input, so the latest response is visible
+without needing to scroll down manually.</p></li>
+<li><p><strong>repl: add Ctrl+F to move the cursor forward</strong> <br>
+The curses-based REPL input now supports Ctrl+F to move the cursor
+forward by one column, matching common terminal editing conventions
+found in shells like <code>/bin/sh</code>.</p></li>
+<li><p><strong>repl: add Ctrl+K to erase from cursor to end of line</strong> <br>
+The curses-based REPL input now supports Ctrl+K to erase all text
+from the cursor position to the end of the input buffer, matching
+common terminal editing conventions found in shells like <code>/bin/sh</code>.</p></li>
+<li><p><strong>repl: add Ctrl+Y to paste previously killed text</strong> <br>
+The curses-based REPL input now supports Ctrl+Y to insert the most
+recently killed text (via Ctrl+K) at the current cursor position,
+matching the yank/paste convention found in shells like <code>/bin/sh</code>.
+The killed text is stored in an internal copy buffer so it can be
+pasted multiple times or at different cursor positions.</p></li>
+<li><p><strong>repl: add command system foundation</strong> <br>
+Add <code>LLM::Repl::Command</code> as a new base class for REPL commands,
+along with the first built-in command <code>LLM::Repl::Command::Exit</code>
+which exits the read-eval-print loop via <code>throw(:exit)</code>.
+Commands are identified by a name and can be looked up through
+<code>Command.find_by</code>. This is the foundation for the <code>/</code> command
+syntax used in the REPL input line.</p></li>
+<li><p><strong>repl: connect the command system to user input</strong> <br>
+The curses-based REPL now routes user input through the command
+system. Any input string beginning with <code>&quot;/&quot;</code> is matched against
+the command registry via <code>Command.find_by</code>, and the corresponding
+command is executed instead of being forwarded to the model.
+This makes built-in commands like <code>/exit</code> functional from the
+input line. Command arguments are not yet supported.</p></li>
+<li><p><strong>repl: add <code>LLM::Repl::Command.registry</code></strong> <br>
+Add <code>LLM::Repl::Command.registry</code> for auto-registering command
+subclasses. The <code>inherited</code> hook captures each new subclass and
+stores it in the registry, making it possible to enumerate all
+available commands at runtime. Built-in commands like Exit are
+automatically registered when the command file is loaded.</p></li>
+<li><p><strong>repl: detect and handle paste mode in the input line</strong> <br>
+The curses-based REPL input now detects paste operations by tracking
+the rate at which characters arrive. A paste rate of ≤50ms is
+assumed to be a burst of characters that could only be explained by
+a paste — no human types that fast. Multiline pastes are supported
+through internal refactoring of the input handling logic.</p></li>
+<li><p><strong>repl: optimize paste mode rendering</strong> <br>
+Track the paste state with an internal <code>@paste</code> variable and switch
+to a faster input path during paste operations. While in paste mode,
+the input buffer is drained via <code>Curses.getch</code>, bypassing the more
+expensive char-by-char render path used for ordinary interactive
+input. This makes pasting large amounts of text noticeably faster.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Ls</code></strong> <br>
+Add a built-in tool for listing files and directories, with optional
+glob pattern filtering to narrow results. <br>
+It must be required explicitly with <code>require &quot;llm/tools/ls&quot;</code>.</p></li>
+<li><p><strong>Add <code>LLM::Tool::Which</code></strong> <br>
+Add a built-in tool for locating an executable on the system PATH.
+This lets an agent check whether a command is available before
+attempting to run it, avoiding failed subprocess calls. <br>
+It must be required explicitly with <code>require &quot;llm/tools/which&quot;</code>.</p></li>
+<li><p><strong>repl: render tool calls in a function-call syntax</strong> <br>
+The curses-based REPL status bar now renders tool calls with a
+compact function-call syntax — <code>tool(key: value)</code> instead of
+<code>tool: name</code>. Strings are quoted and truncated, arrays show their
+first two elements, and hashes collapse to <code>{…}</code>, making it easier
+to see what arguments the model is passing. The <code>tool done</code> status
+message has been removed since the tool call itself conveys
+completion information.</p></li>
+</ul>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><p><strong>Refresh model metadata</strong> <br>
+Update model listings, pricing, and capabilities across providers.
+Fix GPT-5.6 model family names in the OpenAI registry (<code>gpt</code> to
+<code>gpt-sol</code>, <code>gpt-nano</code> to <code>gpt-luna</code>, <code>gpt-mini</code> to <code>gpt-terra</code>).
+Add OpenAI models (<code>gpt-5.6-luna</code>, <code>gpt-5.6-sol</code>, <code>gpt-5.6-terra</code>)
+to the AWS Bedrock registry. Update DeepInfra pricing for
+<code>DeepSeek-V3</code> and <code>Sky-T1-32B-Preview</code>. Fix Google model knowledge
+cutoff dates.</p></li>
+<li><p><strong>repl: control the loop with catch &amp; throw</strong> <br>
+The curses-based REPL input loop now uses <code>catch(:exit)</code> and
+<code>throw(:exit)</code> instead of returning the <code>:exit</code> symbol and
+breaking out of the loop. This enables the <code>/command</code> syntax
+without requiring an <code>:exit</code> return value to be propagated
+through a potentially deeply nested call path.</p></li>
+<li><p><strong>repl: replace Ctrl+D with shell-like delete-at-cursor</strong> <br>
+The curses-based REPL input now treats Ctrl+D as a delete action
+that removes the character at the current cursor position, matching
+the shell/Emacs convention where Ctrl+D deletes the character under
+the cursor instead of signalling end-of-file. The previous Ctrl+D
+behaviour (exiting the REPL) is superseded by the <code>/exit</code> command.</p></li>
+<li><p><strong>repl: switch to &#39;Thinking&#39; mode after tool return</strong> <br>
+The curses-based REPL status line now switches to &quot;Thinking&quot; mode
+after a tool returns, so the user can see the agent is processing
+the tool result rather than showing a stale tool-call status.</p></li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><p><strong>agent: fix a subtle typo in the ensure clause</strong> <br>
+Fix a subtle typo in <code>LLM::Agent</code> where the deprecated <code>trace</code> local
+variable was given preference over <code>tracer</code> (the preferred local name)
+in an <code>ensure</code> clause. The <code>trace</code> local was supported for backward
+compatibility but the ensure clause still referenced <code>trace</code> instead of
+<code>tracer</code>, which meant the previous tracer was never restored when the
+REPL session ended.</p></li>
+<li><p><strong>repl: restore the cursor in the input area</strong> <br>
+Remove the <code>Curses.curs_set(0)</code> call from the REPL redraw method,
+which was inadvertently hiding the cursor and making it impossible
+to see the current position in the input area. The input field is
+now always drawn at its full height so the cursor position is
+correctly maintained after each redraw.</p></li>
+</ul>
+
+<h2 id="v12-3-1">v12.3.1</h2>
+
 <p>Changes since <code>v12.3.0</code>.</p>
+
+<p>This release fixes a flickering issue in the curses-based REPL redraw.
+The full-screen clear that caused visible flickering has been replaced
+with a targeted cursor-hide approach, and stale rows from a larger
+transcript are now explicitly cleared to prevent ghost text from
+lingering when the transcript shrinks.</p>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><strong>repl: fix redraw flicker</strong> <br>
+Replace <code>Curses.clear</code> with <code>Curses.curs_set(0)</code> in the REPL redraw
+method to avoid a full screen clear that caused visible flickering
+during redraws. The drawing order is also adjusted so the status line
+is drawn before the divider, and stale rows left over from a larger
+transcript are now explicitly cleared to prevent ghost text from
+lingering when the transcript shrinks.</li>
+</ul>
 
 <h2 id="v12-3-0">v12.3.0</h2>
 
@@ -2275,7 +2442,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Mon Jul 13 05:12:31 2026 by
+  Generated on Wed Jul 15 00:10:05 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

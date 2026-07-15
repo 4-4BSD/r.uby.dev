@@ -318,6 +318,28 @@ row by overwriting its contents repeatedly.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#scroll_to_bottom-instance_method" title="#scroll_to_bottom (instance method)">#<strong>scroll_to_bottom</strong>  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>  &#x21d2; LLM::Repl::Transcript </a>
     
 
@@ -450,15 +472,15 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-81
-82
-83
-84
-85
-86</pre>
+87
+88
+89
+90
+91
+92</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 81</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 87</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_visible'>visible</span><span class='lparen'>(</span><span class='id identifier rubyid_height'>height</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_all'>all</span> <span class='op'>=</span> <span class='id identifier rubyid_rows'>rows</span>
@@ -787,12 +809,51 @@ row by overwriting its contents repeatedly.</p>
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="scroll_to_bottom-instance_method">
+  
+    #<strong>scroll_to_bottom</strong>  
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scroll_to_bottom'>scroll_to_bottom</span>
+  <span class='ivar'>@offset</span> <span class='op'>=</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Mon Jul 13 05:12:36 2026 by
+  Generated on Wed Jul 15 00:10:10 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -138,9 +138,22 @@ ctx.talk "Hello world"</code></pre>
               and <a href="https://github.com/gettalong/kramdown">kramdown</a> libraries are
               installed and available to require.
             </p>
+            <p>
+              The TUI displays a status line with a context-usage bar and cost
+              counter, a scrollable transcript with markdown rendering, and a
+              multi-line input area. The UI stays responsive while the model is
+              generating a response.
+            </p>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl</code></pre>
+            <p>
+              The <code>path:</code> option lets you resume a session across REPL runs by
+              reading and writing the agent state from a file.
+            </p>
+            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(path: "session.json")</code></pre>
             <p>
               The REPL also accepts both <code>tools</code> and <code>skills</code> options so
               you can attach extra tools or skills for the duration of the session, in
@@ -169,6 +182,10 @@ agent.repl(tools: LLM::Tool.subclasses)</code></pre>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
 agent.repl(tracer: true, tools: [Debugger])</code></pre>
+            <p>
+              The input area supports keyboard shortcuts, paste mode for multi-line
+              prompts, and slash commands such as <code>/exit</code>.
+            </p>
           </div>
 
           <div id="tools" class="example">

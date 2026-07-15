@@ -101,7 +101,7 @@
   <dl>
     <dt>Defined in:</dt>
     <dd>lib/llm/repl.rb<span class="defines">,<br>
-  lib/llm/repl/bar.rb,<br> lib/llm/repl/input.rb,<br> lib/llm/repl/status.rb,<br> lib/llm/repl/stream.rb,<br> lib/llm/repl/window.rb,<br> lib/llm/repl/markdown.rb,<br> lib/llm/repl/transcript.rb</span>
+  lib/llm/repl/bar.rb,<br> lib/llm/repl/input.rb,<br> lib/llm/repl/status.rb,<br> lib/llm/repl/stream.rb,<br> lib/llm/repl/window.rb,<br> lib/llm/repl/command.rb,<br> lib/llm/repl/markdown.rb,<br> lib/llm/repl/transcript.rb,<br> lib/llm/repl/commands/exit.rb</span>
 
 </dd>
   </dl>
@@ -132,7 +132,7 @@ mistake was made.</p>
     
   
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Repl/Bar.html" title="LLM::Repl::Bar (class)">Bar</a></span>, <span class='object_link'><a href="Repl/Input.html" title="LLM::Repl::Input (class)">Input</a></span>, <span class='object_link'><a href="Repl/Markdown.html" title="LLM::Repl::Markdown (class)">Markdown</a></span>, <span class='object_link'><a href="Repl/Status.html" title="LLM::Repl::Status (class)">Status</a></span>, <span class='object_link'><a href="Repl/Stream.html" title="LLM::Repl::Stream (class)">Stream</a></span>, <span class='object_link'><a href="Repl/Transcript.html" title="LLM::Repl::Transcript (class)">Transcript</a></span>, <span class='object_link'><a href="Repl/Window.html" title="LLM::Repl::Window (class)">Window</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Repl/Bar.html" title="LLM::Repl::Bar (class)">Bar</a></span>, <span class='object_link'><a href="Repl/Command.html" title="LLM::Repl::Command (class)">Command</a></span>, <span class='object_link'><a href="Repl/Input.html" title="LLM::Repl::Input (class)">Input</a></span>, <span class='object_link'><a href="Repl/Markdown.html" title="LLM::Repl::Markdown (class)">Markdown</a></span>, <span class='object_link'><a href="Repl/Status.html" title="LLM::Repl::Status (class)">Status</a></span>, <span class='object_link'><a href="Repl/Stream.html" title="LLM::Repl::Stream (class)">Stream</a></span>, <span class='object_link'><a href="Repl/Transcript.html" title="LLM::Repl::Transcript (class)">Transcript</a></span>, <span class='object_link'><a href="Repl/Window.html" title="LLM::Repl::Window (class)">Window</a></span>
     
   
 </p>
@@ -186,7 +186,7 @@ mistake was made.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(agent:, tools:, skills:)  &#x21d2; LLM::Repl </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(agent:, tools:, skills:, path:)  &#x21d2; LLM::Repl </a>
     
 
     
@@ -283,7 +283,7 @@ mistake was made.</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(agent:, tools:, skills:)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl (class)">LLM::Repl</a></span></tt> 
+    #<strong>initialize</strong>(agent:, tools:, skills:, path:)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl (class)">LLM::Repl</a></span></tt> 
   
 
   
@@ -307,6 +307,21 @@ mistake was made.</p>
         <span class='type'>(<tt><span class='object_link'><a href="Agent.html" title="LLM::Agent (class)">LLM::Agent</a></span></tt>)</span>
       
       
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The path where to maintain runtime state</p>
+</div>
       
     </li>
   
@@ -349,9 +364,6 @@ mistake was made.</p>
       <pre class="lines">
 
 
-33
-34
-35
 36
 37
 38
@@ -369,13 +381,18 @@ mistake was made.</p>
 50
 51
 52
-53</pre>
+53
+54
+55
+56
+57</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 36</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>agent:</span><span class='comma'>,</span> <span class='label'>tools:</span><span class='comma'>,</span> <span class='label'>skills:</span><span class='rparen'>)</span>
-  <span class='ivar'>@agent</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>agent:</span><span class='comma'>,</span> <span class='label'>tools:</span><span class='comma'>,</span> <span class='label'>skills:</span><span class='comma'>,</span> <span class='label'>path:</span><span class='rparen'>)</span>
+  <span class='ivar'>@path</span>  <span class='op'>=</span> <span class='id identifier rubyid_path'>path</span>
+  <span class='ivar'>@agent</span> <span class='op'>=</span> <span class='id identifier rubyid_configure'>configure</span><span class='lparen'>(</span><span class='label'>agent:</span><span class='comma'>,</span> <span class='label'>path:</span><span class='rparen'>)</span>
   <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
   <span class='ivar'>@status</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Repl/Status.html" title="LLM::Repl::Status (class)">Status</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Repl/Status.html#initialize-instance_method" title="LLM::Repl::Status#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='ivar'>@agent</span><span class='rparen'>)</span>
   <span class='ivar'>@transcript</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Repl/Transcript.html" title="LLM::Repl::Transcript (class)">Transcript</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Repl/Transcript.html#initialize-instance_method" title="LLM::Repl::Transcript#initialize (method)">new</a></span></span>
@@ -446,13 +463,13 @@ mistake was made.</p>
       <pre class="lines">
 
 
-93
-94
-95
-96</pre>
+99
+100
+101
+102</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 93</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_status='>status=</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_status'>status</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
@@ -494,10 +511,6 @@ mistake was made.</p>
       <pre class="lines">
 
 
-57
-58
-59
-60
 61
 62
 63
@@ -508,22 +521,30 @@ mistake was made.</p>
 68
 69
 70
-71</pre>
+71
+72
+73
+74
+75
+76
+77</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 57</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 61</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_start'>start</span>
   <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span> <span class='kw'>do</span>
-    <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
-      <span class='kw'>case</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_on_char'>on_char</span><span class='lparen'>(</span><span class='id identifier rubyid_window'>window</span><span class='comma'>,</span> <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_getch'>getch</span><span class='rparen'>)</span>
-      <span class='kw'>when</span> <span class='symbol'>:exit</span> <span class='kw'>then</span> <span class='kw'>break</span>
-      <span class='kw'>when</span> <span class='symbol'>:submit</span> <span class='kw'>then</span> <span class='id identifier rubyid_submit'>submit</span>
-      <span class='kw'>when</span> <span class='symbol'>:up</span><span class='comma'>,</span> <span class='symbol'>:down</span><span class='comma'>,</span> <span class='symbol'>:backspace</span><span class='comma'>,</span> <span class='symbol'>:char</span> <span class='kw'>then</span> <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_redraw'>redraw</span>
-      <span class='kw'>else</span>
-        <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_redraw'>redraw</span>
-        <span class='id identifier rubyid_read!'>read!</span>
-        <span class='id identifier rubyid_sleep'>sleep</span> <span class='float'>0.01</span>
+    <span class='id identifier rubyid_catch'>catch</span><span class='lparen'>(</span><span class='symbol'>:exit</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+        <span class='id identifier rubyid_now'>now</span> <span class='op'>=</span> <span class='const'>Process</span><span class='period'>.</span><span class='id identifier rubyid_clock_gettime'>clock_gettime</span><span class='lparen'>(</span><span class='const'>Process</span><span class='op'>::</span><span class='const'>CLOCK_MONOTONIC</span><span class='rparen'>)</span>
+        <span class='kw'>case</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_on_char'>on_char</span><span class='lparen'>(</span><span class='id identifier rubyid_window'>window</span><span class='comma'>,</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_paste?'>paste?</span> <span class='op'>?</span> <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_read_paste'>read_paste</span> <span class='op'>:</span> <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_getch'>getch</span><span class='comma'>,</span> <span class='id identifier rubyid_now'>now</span><span class='rparen'>)</span>
+        <span class='kw'>when</span> <span class='symbol'>:submit</span> <span class='kw'>then</span> <span class='id identifier rubyid_submit'>submit</span>
+        <span class='kw'>when</span> <span class='const'>Symbol</span> <span class='kw'>then</span> <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_redraw'>redraw</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_redraw'>redraw</span>
+          <span class='id identifier rubyid_read!'>read!</span>
+          <span class='id identifier rubyid_sleep'>sleep</span> <span class='float'>0.01</span>
+        <span class='kw'>end</span>
       <span class='kw'>end</span>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
@@ -585,13 +606,13 @@ mistake was made.</p>
       <pre class="lines">
 
 
-77
-78
-79
-80</pre>
+83
+84
+85
+86</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 77</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 83</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='comma'>,</span> <span class='id identifier rubyid_attrs'>attrs</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='comma'>,</span> <span class='id identifier rubyid_attrs'>attrs</span><span class='rparen'>)</span>
@@ -641,13 +662,13 @@ mistake was made.</p>
       <pre class="lines">
 
 
-85
-86
-87
-88</pre>
+91
+92
+93
+94</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 85</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 91</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_markdown'>markdown</span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_markdown'>markdown</span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='rparen'>)</span>
@@ -663,7 +684,7 @@ mistake was made.</p>
 </div>
 
       <div id="footer">
-  Generated on Mon Jul 13 05:12:33 2026 by
+  Generated on Wed Jul 15 00:10:07 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

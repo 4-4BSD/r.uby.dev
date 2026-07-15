@@ -225,7 +225,7 @@ curses screen for the REPL.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#rows-instance_method" title="#rows (instance method)">#<strong>rows</strong>  &#x21d2; Integer </a>
+      <a href="#scroll_to_bottom-instance_method" title="#scroll_to_bottom (instance method)">#<strong>scroll_to_bottom</strong>  </a>
     
 
     
@@ -291,14 +291,12 @@ curses screen for the REPL.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(status, transcript, input)  &#x21d2; LLM::Repl::Window </a>
+      <a href="#rows-instance_method" title="#rows (instance method)">#<strong>rows</strong>  &#x21d2; Integer </a>
     
 
     
   </span>
   
-  
-    <span class="note title constructor">constructor</span>
   
   
   
@@ -337,6 +335,29 @@ curses screen for the REPL.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#read_paste-instance_method" title="#read_paste (instance method)">#<strong>read_paste</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  <span class="private note title">private</span>
+
+  
+    <span class="summary_desc"><div class='inline'><p>Drains all available characters from the terminal input buffer without blocking.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#scroll_up-instance_method" title="#scroll_up (instance method)">#<strong>scroll_up</strong>  </a>
     
 
@@ -365,6 +386,30 @@ curses screen for the REPL.</p>
     
   </span>
   
+  
+  
+  
+  
+  
+  <span class="private note title">private</span>
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(status, transcript, input)  &#x21d2; LLM::Repl::Window </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
   
   
   
@@ -656,9 +701,9 @@ curses screen for the REPL.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="rows-instance_method">
+  <h3 class="signature first" id="scroll_to_bottom-instance_method">
   
-    #<strong>rows</strong>  &#x21d2; <tt>Integer</tt> 
+    #<strong>scroll_to_bottom</strong>  
   
 
   
@@ -670,25 +715,12 @@ curses screen for the REPL.</p>
   <strong>This method is part of a private API.</strong>
   You should avoid using this method if possible, as it may be removed or be changed in the future.
 </p>
-
+<p class="note returns_void">This method returns an undefined value.</p>
 
   </div>
 </div>
 <div class="tags">
   
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt>Integer</tt>)</span>
-      
-      
-      
-    </li>
-  
-</ul>
 
 </div><table class="source_code">
   <tr>
@@ -696,15 +728,15 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
-59
-60
-61</pre>
+100
+101
+102</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 59</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 100</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_rows'>rows</span>
-  <span class='lbracket'>[</span><span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_lines'>lines</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_height'>height</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_scroll_to_bottom'>scroll_to_bottom</span>
+  <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_scroll_to_bottom'>scroll_to_bottom</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -815,19 +847,73 @@ curses screen for the REPL.</p>
 51
 52
 53
-54
-55</pre>
+54</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 48</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_redraw'>redraw</span>
-  <span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
-  <span class='id identifier rubyid_draw_divider'>draw_divider</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='int'>5</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_draw_status'>draw_status</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_height'>height</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_draw_divider'>draw_divider</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='int'>5</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_draw_transcript'>draw_transcript</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='int'>0</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_draw_input'>draw_input</span>
   <span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_refresh'>refresh</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rows-instance_method">
+  
+    #<strong>rows</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note private">
+  <strong>This method is part of a private API.</strong>
+  You should avoid using this method if possible, as it may be removed or be changed in the future.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rows'>rows</span>
+  <span class='lbracket'>[</span><span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_lines'>lines</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_height'>height</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -875,15 +961,90 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
+64
 65
-66
-67</pre>
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 65</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 64</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_getch'>getch</span>
   <span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_getch'>getch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_paste-instance_method">
+  
+    #<strong>read_paste</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note private">
+  <strong>This method is part of a private API.</strong>
+  You should avoid using this method if possible, as it may be removed or be changed in the future.
+</p>
+<p>Drains all available characters from the terminal input
+buffer without blocking.  Used in place of <code>Curses.getstr</code>
+when the paste flag is set, so that a huge multi-line
+paste is consumed in a single shot instead of being
+processed character-by-character.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_paste'>read_paste</span>
+  <span class='id identifier rubyid_chars'>chars</span> <span class='op'>=</span> <span class='op'>+</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_ch'>ch</span> <span class='op'>=</span> <span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_getch'>getch</span>
+    <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_ch'>ch</span> <span class='kw'>and</span> <span class='id identifier rubyid_ch'>ch</span> <span class='op'>!=</span> <span class='op'>-</span><span class='int'>1</span>
+    <span class='id identifier rubyid_chars'>chars</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ch'>ch</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_paste'>paste</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_chars'>chars</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -918,12 +1079,12 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
-71
-72
-73</pre>
+88
+89
+90</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 71</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 88</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_up'>scroll_up</span>
   <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_scroll_up'>scroll_up</span><span class='lparen'>(</span><span class='id identifier rubyid_rows'>rows</span><span class='rparen'>)</span>
@@ -961,12 +1122,12 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
-77
-78
-79</pre>
+94
+95
+96</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 77</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 94</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_down'>scroll_down</span>
   <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_scroll_down'>scroll_down</span>
@@ -981,7 +1142,7 @@ curses screen for the REPL.</p>
 </div>
 
       <div id="footer">
-  Generated on Mon Jul 13 05:12:35 2026 by
+  Generated on Wed Jul 15 00:10:09 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

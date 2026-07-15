@@ -87,9 +87,12 @@
             <details>
               <summary>REPL</summary>
               <a class="toc-sub" href="#llmagent">LLM::Agent</a>
+              <a class="toc-sub" href="#state">State</a>
               <a class="toc-sub" href="#repl-tools">Tools</a>
               <a class="toc-sub" href="#repl-skills">Skills</a>
               <a class="toc-sub" href="#repl-tracer">Tracer</a>
+              <a class="toc-sub" href="#input">Input</a>
+              <a class="toc-sub" href="#commands">Commands</a>
             </details>
           </div>
           <div class="toc-group">
@@ -491,6 +494,15 @@ agent = LLM::Agent.new(llm)
 agent.repl
 </code></pre>
 
+<h4 id="state">State</h4>
+
+<p>The <code>path:</code> option accepts a file path where runtime state is read from and written to. This lets you resume a conversation across REPL sessions. When the file does not exist the agent starts fresh; when it does, the agent restores its previous state.</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(path: "session.json")
+</code></pre>
+
 <h4 id="repl-tools">Tools</h4>
 
 <p>The read-eval-print loop accepts a <code>tools</code> option that lets you attach additional tools for the duration of the session.</p>
@@ -516,6 +528,75 @@ agent.repl(skills: [__dir__])
 <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
 agent.repl(tracer: true, tools: [Debugger])
+</code></pre>
+
+<h4 id="input">Input</h4>
+
+<p>The input area supports several keyboard shortcuts:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Enter</code></td>
+      <td>Submit the current prompt</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+A</code></td>
+      <td>Jump to the start of the line</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+E</code></td>
+      <td>Jump to the end of the line</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+F</code></td>
+      <td>Move the cursor forward</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+K</code></td>
+      <td>Erase from cursor to the end of the line</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+Y</code></td>
+      <td>Paste previously killed text</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+D</code></td>
+      <td>Delete the character at the cursor</td>
+    </tr>
+    <tr>
+      <td><code>Left / Right</code></td>
+      <td>Move the cursor</td>
+    </tr>
+    <tr>
+      <td><code>Up / Down</code></td>
+      <td>Scroll the transcript</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When characters arrive faster than a threshold the REPL detects that text is being pasted rather than typed. In paste mode pressing <code>Enter</code> inserts a newline instead of submitting, allowing multi-line prompts.</p>
+
+<h4 id="commands">Commands</h4>
+
+<p>Commands are recognized by a <code>/</code> prefix on the input line. The built-in command is <code>/exit</code>, which leaves the REPL. The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a> class can be subclassed to add custom commands &ndash; any subclass that defines a <code>name</code>, <code>description</code>, and <code>call</code> method is automatically registered and available.</p>
+
+<pre><code class="language-ruby">class LLM::Repl::Command
+  class Clear &lt; self
+    name "clear"
+    description "clears the transcript"
+
+    def call
+      system("clear") || system("cls")
+    end
+  end
+end
 </code></pre>
 
 <h2 id="serialization">Serialization</h2>
