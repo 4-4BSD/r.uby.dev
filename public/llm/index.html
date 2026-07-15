@@ -42,7 +42,7 @@
             <a href="#tools">Tools</a>
             <a href="#streaming">Stream</a>
             <a href="#mcp">MCP</a>
-            <a href="#a2a">A2A</a>
+            <a href="#repl">REPL</a>
             <a href="#rag">RAG</a>
             <a href="#orm">ORM</a>
             <a href="#concurrency">Concurrency</a>
@@ -124,8 +124,9 @@ ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"</code></pre>
           </div>
 
-          <div class="example">
+          <div id="repl" class="example">
             <h3>LLM::REPL</h3>
+            <h4>REPL: Agent</h4>
             <p>
               The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code> method allows
               an agent to spawn a read-eval-print loop that can be useful while
@@ -147,6 +148,7 @@ ctx.talk "Hello world"</code></pre>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl</code></pre>
+            <h4>REPL: State</h4>
             <p>
               The <code>path:</code> option lets you resume a session across REPL runs by
               reading and writing the agent state from a file.
@@ -154,6 +156,7 @@ agent.repl</code></pre>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl(path: "session.json")</code></pre>
+            <h4>REPL: Tools And Skills</h4>
             <p>
               The REPL also accepts both <code>tools</code> and <code>skills</code> options so
               you can attach extra tools or skills for the duration of the session, in
@@ -174,6 +177,7 @@ require "lll/tools"
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl(tools: LLM::Tool.subclasses)</code></pre>
+            <h4>REPL: Tracer</h4>
             <p>
               By default the tracer is disabled for the session. The <code>tracer</code>
               option can re-enable it, and setting it to <code>true</code> uses the tracer
@@ -182,6 +186,7 @@ agent.repl(tools: LLM::Tool.subclasses)</code></pre>
             <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, tracer: LLM.logger(llm, path: "agent.log"))
 agent.repl(tracer: true, tools: [Debugger])</code></pre>
+            <h4>REPL: Input</h4>
             <p>
               The input area supports keyboard shortcuts, paste mode for multi-line
               prompts, and slash commands such as <code>/exit</code>.
