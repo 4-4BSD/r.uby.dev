@@ -300,6 +300,52 @@ tracks messages in a conversation thread.</p>
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#slice!-instance_method" title="#slice! (instance method)">#<strong>slice!</strong>  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Slice a portion of the internal buffer in-place.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pop-instance_method" title="#pop (instance method)">#<strong>pop</strong>  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Pop the last element from the tail of the buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#<<-instance_method" title="#&lt;&lt; (instance method)">#<strong>&lt;&lt;</strong>(item)  </a>
     
 
@@ -544,12 +590,12 @@ tracks messages in a conversation thread.</p>
       <pre class="lines">
 
 
-113
-114
-115</pre>
+128
+129
+130</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 128</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_empty?'>empty?</span>
   <span class='ivar'>@messages</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
@@ -950,6 +996,88 @@ tracks messages in a conversation thread.</p>
 </div>
     
       <div class="method_details ">
+  <h3 class="signature " id="slice!-instance_method">
+  
+    #<strong>slice!</strong>  
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Slice a portion of the internal buffer in-place</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
+  <span class='ivar'>@messages</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pop-instance_method">
+  
+    #<strong>pop</strong>  
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p><p>Pop the last element from the tail of the buffer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pop'>pop</span>
+  <span class='ivar'>@messages</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
   <h3 class="signature " id="<<-instance_method">
   
     #<strong>&lt;&lt;</strong>(item)  
@@ -996,13 +1124,13 @@ tracks messages in a conversation thread.</p>
       <pre class="lines">
 
 
-76
-77
-78
-79</pre>
+91
+92
+93
+94</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 91</span>
 
 <span class='kw'>def</span> <span class='op'>&lt;&lt;</span><span class='lparen'>(</span><span class='id identifier rubyid_item'>item</span><span class='rparen'>)</span>
   <span class='ivar'>@messages</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_item'>item</span>
@@ -1074,12 +1202,12 @@ tracks messages in a conversation thread.</p>
       <pre class="lines">
 
 
-87
-88
-89</pre>
+102
+103
+104</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 102</span>
 
 <span class='kw'>def</span> <span class='op'>[]</span><span class='lparen'>(</span><span class='id identifier rubyid_index'>index</span><span class='rparen'>)</span>
   <span class='ivar'>@messages</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span><span class='rbracket'>]</span>
@@ -1126,12 +1254,12 @@ tracks messages in a conversation thread.</p>
       <pre class="lines">
 
 
-93
-94
-95</pre>
+108
+109
+110</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 93</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 108</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='ivar'>@messages</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
@@ -1178,12 +1306,12 @@ tracks messages in a conversation thread.</p>
       <pre class="lines">
 
 
-99
-100
-101</pre>
+114
+115
+116</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 99</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 114</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>#&lt;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils.html" title="LLM::Utils (module)">Utils</a></span></span><span class='period'>.</span><span class='id identifier rubyid_object_id'><span class='object_link'><a href="Utils.html#object_id-instance_method" title="LLM::Utils#object_id (method)">object_id</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> message_count=</span><span class='embexpr_beg'>#{</span><span class='ivar'>@messages</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt;</span><span class='tstring_end'>&quot;</span></span>
@@ -1235,12 +1363,12 @@ tracks messages in a conversation thread.</p>
       <pre class="lines">
 
 
-106
-107
-108</pre>
+121
+122
+123</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 106</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/buffer.rb', line 121</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_size'>size</span>
   <span class='ivar'>@messages</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
@@ -1255,7 +1383,7 @@ tracks messages in a conversation thread.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 15 00:10:07 2026 by
+  Generated on Thu Jul 16 19:49:09 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

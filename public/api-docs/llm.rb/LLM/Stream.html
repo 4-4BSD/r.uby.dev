@@ -219,7 +219,7 @@ also emit lifecycle callbacks like <span class='object_link'><a href="#on_transf
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#on_tool_call-instance_method" title="#on_tool_call (instance method)">#<strong>on_tool_call</strong>(tool, error)  &#x21d2; nil </a>
+      <a href="#on_tool_call-instance_method" title="#on_tool_call (instance method)">#<strong>on_tool_call</strong>(tool)  &#x21d2; nil </a>
     
 
     
@@ -721,21 +721,21 @@ then falls back to the global function registry.</p>
       <pre class="lines">
 
 
+188
+189
+190
+191
+192
 193
 194
 195
 196
 197
 198
-199
-200
-201
-202
-203
-204</pre>
+199</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 193</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 188</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid___find__'>__find__</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_tools'>tools</span> <span class='op'>=</span> <span class='id identifier rubyid_extra'>extra</span><span class='lbracket'>[</span><span class='symbol'>:tools</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='op'>&amp;.</span><span class='id identifier rubyid_params'>params</span><span class='op'>&amp;.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='symbol'>:tools</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
@@ -1171,7 +1171,7 @@ to the actual task types already present in the queue.</p>
       <div class="method_details ">
   <h3 class="signature " id="on_tool_call-instance_method">
   
-    #<strong>on_tool_call</strong>(tool, error)  &#x21d2; <tt>nil</tt> 
+    #<strong>on_tool_call</strong>(tool)  &#x21d2; <tt>nil</tt> 
   
 
   
@@ -1187,10 +1187,7 @@ example by pushing <code>ctx.spawn(tool, :thread)</code>,
 <code>ctx.spawn(tool, :fiber)</code>, or <code>ctx.spawn(tool, :task)</code> onto <span class='object_link'><a href="#queue-instance_method" title="LLM::Stream#queue (method)">#queue</a></span>.
 Mixed strategies can also be selected per tool, such as
 <code>tool.mcp? ? ctx.spawn(tool, :task) : ctx.spawn(tool, :ractor)</code>.
-When a streamed tool cannot be resolved, <code>error</code> is passed as an
-<span class='object_link'><a href="Function/Return.html" title="LLM::Function::Return (class)">Function::Return</a></span>. It can be sent back to the model, allowing
-the tool-call path to recover and the session to continue. Streamed
-tool resolution now prefers the current request tools, so
+Streamed tool resolution now prefers the current request tools, so
 <span class='object_link'><a href="../LLM.html#function-class_method" title="LLM.function (method)">LLM.function</a></span>, MCP tools, bound tool instances, and normal
 <span class='object_link'><a href="Tool.html" title="LLM::Tool (class)">LLM::Tool</a></span> classes can all resolve through the same
 request-local path. The current <code>:ractor</code> mode is for class-based
@@ -1222,21 +1219,6 @@ tools and does not support MCP tools.</p>
       
     </li>
   
-    <li>
-      
-        <span class='name'>error</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Function/Return.html" title="LLM::Function::Return (class)">LLM::Function::Return</a></span></tt>, <tt>nil</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'><p>An in-band tool error for unresolved tool calls.</p>
-</div>
-      
-    </li>
-  
 </ul>
 
 <p class="tag_title">Returns:</p>
@@ -1259,14 +1241,14 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-130
-131
-132</pre>
+125
+126
+127</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 130</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 125</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_on_tool_call'>on_tool_call</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='comma'>,</span> <span class='id identifier rubyid_error'>error</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_on_tool_call'>on_tool_call</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1355,12 +1337,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-144
-145
-146</pre>
+139
+140
+141</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 144</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 139</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_return'>on_tool_return</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='comma'>,</span> <span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1434,12 +1416,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-153
-154
-155</pre>
+148
+149
+150</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 153</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 148</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_transform'>on_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1513,12 +1495,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-162
-163
-164</pre>
+157
+158
+159</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 162</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 157</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_transform_finish'>on_transform_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1592,12 +1574,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-171
-172
-173</pre>
+166
+167
+168</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 171</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 166</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1671,12 +1653,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-180
-181
-182</pre>
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 180</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 175</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1691,7 +1673,7 @@ tools and does not support MCP tools.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 15 00:10:07 2026 by
+  Generated on Thu Jul 16 19:49:10 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

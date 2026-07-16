@@ -313,7 +313,7 @@ the AWS Event Stream event type header.</p>
         <span class='name'>stream</span>
       
       
-        <span class='type'>(<tt>#&lt;&lt;</tt>, <tt><span class='object_link'><a href="../Stream.html" title="LLM::Stream (class)">LLM::Stream</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../Stream.html" title="LLM::Stream (class)">LLM::Stream</a></span></tt>)</span>
       
       
       
@@ -332,11 +332,7 @@ the AWS Event Stream event type header.</p>
 29
 30
 31
-32
-33
-34
-35
-36</pre>
+32</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/providers/bedrock/stream_parser.rb', line 28</span>
@@ -345,10 +341,6 @@ the AWS Event Stream event type header.</p>
   <span class='ivar'>@body</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>output</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>message</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>role</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>assistant</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>content</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
   <span class='ivar'>@stream</span> <span class='op'>=</span> <span class='id identifier rubyid_stream'>stream</span>
   <span class='ivar'>@text_markers</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
-  <span class='ivar'>@can_emit_content</span> <span class='op'>=</span> <span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:on_content</span><span class='rparen'>)</span>
-  <span class='ivar'>@can_emit_reasoning_content</span> <span class='op'>=</span> <span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:on_reasoning_content</span><span class='rparen'>)</span>
-  <span class='ivar'>@can_emit_tool_call</span> <span class='op'>=</span> <span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:on_tool_call</span><span class='rparen'>)</span>
-  <span class='ivar'>@can_push_content</span> <span class='op'>=</span> <span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:&lt;&lt;</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -507,6 +499,10 @@ the AWS Event Stream event type header.</p>
       <pre class="lines">
 
 
+38
+39
+40
+41
 42
 43
 44
@@ -524,14 +520,10 @@ the AWS Event Stream event type header.</p>
 56
 57
 58
-59
-60
-61
-62
-63</pre>
+59</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/bedrock/stream_parser.rb', line 42</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/bedrock/stream_parser.rb', line 38</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_parse!'>parse!</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='comma'>,</span> <span class='label'>event_type:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='id identifier rubyid_event_type'>event_type</span> <span class='op'>||</span> <span class='id identifier rubyid_payload'>payload</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>type</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
@@ -588,12 +580,12 @@ the AWS Event Stream event type header.</p>
       <pre class="lines">
 
 
-67
-68
-69</pre>
+63
+64
+65</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/bedrock/stream_parser.rb', line 67</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/bedrock/stream_parser.rb', line 63</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_free'>free</span>
   <span class='ivar'>@text_markers</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
@@ -608,7 +600,7 @@ the AWS Event Stream event type header.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 15 00:10:13 2026 by
+  Generated on Thu Jul 16 19:49:31 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

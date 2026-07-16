@@ -101,7 +101,7 @@
   <dl>
     <dt>Defined in:</dt>
     <dd>lib/llm/repl.rb<span class="defines">,<br>
-  lib/llm/repl/bar.rb,<br> lib/llm/repl/input.rb,<br> lib/llm/repl/status.rb,<br> lib/llm/repl/stream.rb,<br> lib/llm/repl/window.rb,<br> lib/llm/repl/command.rb,<br> lib/llm/repl/markdown.rb,<br> lib/llm/repl/transcript.rb,<br> lib/llm/repl/commands/exit.rb</span>
+  lib/llm/repl/bar.rb,<br> lib/llm/repl/input.rb,<br> lib/llm/repl/status.rb,<br> lib/llm/repl/stream.rb,<br> lib/llm/repl/window.rb,<br> lib/llm/repl/command.rb,<br> lib/llm/repl/markdown.rb,<br> lib/llm/repl/transcript.rb,<br> lib/llm/repl/commands/exit.rb,<br> lib/llm/repl/commands/help.rb</span>
 
 </dd>
   </dl>
@@ -132,7 +132,7 @@ mistake was made.</p>
     
   
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Repl/Bar.html" title="LLM::Repl::Bar (class)">Bar</a></span>, <span class='object_link'><a href="Repl/Command.html" title="LLM::Repl::Command (class)">Command</a></span>, <span class='object_link'><a href="Repl/Input.html" title="LLM::Repl::Input (class)">Input</a></span>, <span class='object_link'><a href="Repl/Markdown.html" title="LLM::Repl::Markdown (class)">Markdown</a></span>, <span class='object_link'><a href="Repl/Status.html" title="LLM::Repl::Status (class)">Status</a></span>, <span class='object_link'><a href="Repl/Stream.html" title="LLM::Repl::Stream (class)">Stream</a></span>, <span class='object_link'><a href="Repl/Transcript.html" title="LLM::Repl::Transcript (class)">Transcript</a></span>, <span class='object_link'><a href="Repl/Window.html" title="LLM::Repl::Window (class)">Window</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Repl/Bar.html" title="LLM::Repl::Bar (class)">Bar</a></span>, <span class='object_link'><a href="Repl/Command.html" title="LLM::Repl::Command (class)">Command</a></span>, <span class='object_link'><a href="Repl/Help.html" title="LLM::Repl::Help (class)">Help</a></span>, <span class='object_link'><a href="Repl/Input.html" title="LLM::Repl::Input (class)">Input</a></span>, <span class='object_link'><a href="Repl/Markdown.html" title="LLM::Repl::Markdown (class)">Markdown</a></span>, <span class='object_link'><a href="Repl/Status.html" title="LLM::Repl::Status (class)">Status</a></span>, <span class='object_link'><a href="Repl/Stream.html" title="LLM::Repl::Stream (class)">Stream</a></span>, <span class='object_link'><a href="Repl/Transcript.html" title="LLM::Repl::Transcript (class)">Transcript</a></span>, <span class='object_link'><a href="Repl/Window.html" title="LLM::Repl::Window (class)">Window</a></span>
     
   
 </p>
@@ -186,7 +186,7 @@ mistake was made.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(agent:, tools:, skills:, path:)  &#x21d2; LLM::Repl </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(agent:, tools: [], skills: [], path: nil)  &#x21d2; LLM::Repl </a>
     
 
     
@@ -273,6 +273,28 @@ mistake was made.</p>
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#thinking_text-instance_method" title="#thinking_text (instance method)">#<strong>thinking_text</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
     </ul>
     
   
@@ -283,7 +305,7 @@ mistake was made.</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(agent:, tools:, skills:, path:)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl (class)">LLM::Repl</a></span></tt> 
+    #<strong>initialize</strong>(agent:, tools: [], skills: [], path: nil)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl (class)">LLM::Repl</a></span></tt> 
   
 
   
@@ -318,6 +340,8 @@ mistake was made.</p>
         <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
       
       
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
       
         &mdash;
         <div class='inline'><p>The path where to maintain runtime state</p>
@@ -333,6 +357,8 @@ mistake was made.</p>
         <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Tool.html" title="LLM::Tool (class)">LLM::Tool</a></span>&gt;</tt>)</span>
       
       
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
       
         &mdash;
         <div class='inline'><p>Zero or more tools</p>
@@ -347,6 +373,8 @@ mistake was made.</p>
       
         <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
       
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
       
       
         &mdash;
@@ -390,7 +418,7 @@ mistake was made.</p>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 36</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>agent:</span><span class='comma'>,</span> <span class='label'>tools:</span><span class='comma'>,</span> <span class='label'>skills:</span><span class='comma'>,</span> <span class='label'>path:</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='label'>agent:</span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>skills:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='ivar'>@path</span>  <span class='op'>=</span> <span class='id identifier rubyid_path'>path</span>
   <span class='ivar'>@agent</span> <span class='op'>=</span> <span class='id identifier rubyid_configure'>configure</span><span class='lparen'>(</span><span class='label'>agent:</span><span class='comma'>,</span> <span class='label'>path:</span><span class='rparen'>)</span>
   <span class='ivar'>@provider</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
@@ -679,12 +707,64 @@ mistake was made.</p>
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="thinking_text-instance_method">
+  
+    #<strong>thinking_text</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_thinking_text'>thinking_text</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>thinking • Esc to cancel</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 15 00:10:07 2026 by
+  Generated on Thu Jul 16 19:49:06 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -227,6 +227,24 @@ the editable input line shown at the bottom of the REPL.</p>
         </dt>
         <dd><pre class="code"><span class='const'>Curses</span><span class='op'>::</span><span class='const'>Key</span><span class='op'>::</span><span class='const'>RIGHT</span></pre></dd>
       
+        <dt id="ESC-constant" class="">ESC =
+          <div class="docstring">
+  <div class="discussion">
+    <p class="note private">
+  <strong>This constant is part of a private API.</strong>
+  You should avoid using this constant if possible, as it may be removed or be changed in the future.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>27</span></pre></dd>
+      
         <dt id="ENTER-constant" class="">ENTER =
           <div class="docstring">
   <div class="discussion">
@@ -789,7 +807,6 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-44
 45
 46
 47
@@ -798,10 +815,11 @@ distinguishes a paste from manual typing.</p>
 50
 51
 52
-53</pre>
+53
+54</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 44</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 45</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_agent'>agent</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='ivar'>@agent</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span>
@@ -866,12 +884,12 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-34
 35
-36</pre>
+36
+37</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 34</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_buffer'>buffer</span>
   <span class='ivar'>@buffer</span>
@@ -926,12 +944,12 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-39
 40
-41</pre>
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 39</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_paste='>paste=</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
   <span class='ivar'>@paste</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
@@ -989,12 +1007,12 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-217
-218
-219</pre>
+220
+221
+222</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 217</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 220</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_paste?'>paste?</span>
   <span class='ivar'>@paste</span>
@@ -1071,7 +1089,6 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-59
 60
 61
 62
@@ -1121,14 +1138,19 @@ distinguishes a paste from manual typing.</p>
 106
 107
 108
-109</pre>
+109
+110
+111
+112</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 59</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 60</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_char'>on_char</span><span class='lparen'>(</span><span class='id identifier rubyid_window'>window</span><span class='comma'>,</span> <span class='id identifier rubyid_char'>char</span><span class='comma'>,</span> <span class='id identifier rubyid_now'>now</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_is_paste'>is_paste</span> <span class='op'>=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='lbrace'>{</span> <span class='ivar'>@last_char_at</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='ivar'>@last_char_at</span><span class='rparen'>)</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="#PASTE_THRESHOLD-constant" title="LLM::Repl::Input::PASTE_THRESHOLD (constant)">PASTE_THRESHOLD</a></span></span> <span class='rbrace'>}</span>
-  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#CTRL-constant" title="LLM::Repl::Input::CTRL (constant)">CTRL</a></span></span><span class='lbracket'>[</span><span class='symbol'>:D</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_char'>char</span>
+  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#ESC-constant" title="LLM::Repl::Input::ESC (constant)">ESC</a></span></span> <span class='op'>==</span> <span class='id identifier rubyid_char'>char</span>
+    <span class='ivar'>@agent</span><span class='period'>.</span><span class='id identifier rubyid_cancel!'>cancel!</span>
+  <span class='kw'>elsif</span> <span class='const'><span class='object_link'><a href="#CTRL-constant" title="LLM::Repl::Input::CTRL (constant)">CTRL</a></span></span><span class='lbracket'>[</span><span class='symbol'>:D</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_char'>char</span>
     <span class='id identifier rubyid_delete'>delete</span>
     <span class='symbol'>:ctrl_d</span>
   <span class='kw'>elsif</span> <span class='const'><span class='object_link'><a href="#CTRL-constant" title="LLM::Repl::Input::CTRL (constant)">CTRL</a></span></span><span class='lbracket'>[</span><span class='symbol'>:A</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_char'>char</span>
@@ -1223,12 +1245,12 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-113
-114
-115</pre>
+116
+117
+118</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 116</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='ivar'>@provider</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; </span><span class='embexpr_beg'>#{</span><span class='ivar'>@buffer</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
@@ -1279,12 +1301,12 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-119
-120
-121</pre>
+122
+123
+124</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 119</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 122</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_cursor'>cursor</span>
   <span class='id identifier rubyid_prompt'>prompt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='ivar'>@cursor</span>
@@ -1335,12 +1357,12 @@ distinguishes a paste from manual typing.</p>
       <pre class="lines">
 
 
-125
-126
-127</pre>
+128
+129
+130</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 125</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 128</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_height'>height</span>
   <span class='ivar'>@height</span>
@@ -1394,14 +1416,14 @@ so the cursor line is always visible.</p>
       <pre class="lines">
 
 
-134
-135
-136
 137
-138</pre>
+138
+139
+140
+141</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 134</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 137</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_lines'>lines</span>
   <span class='id identifier rubyid_scroll!'>scroll!</span>
@@ -1456,16 +1478,16 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-144
-145
-146
 147
 148
 149
-150</pre>
+150
+151
+152
+153</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 144</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 147</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_cursor_pos'>cursor_pos</span>
   <span class='id identifier rubyid_scroll!'>scroll!</span>
@@ -1507,12 +1529,12 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-154
-155
-156</pre>
+157
+158
+159</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 154</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 157</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_move_start'>move_start</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='int'>0</span>
@@ -1550,12 +1572,12 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-160
-161
-162</pre>
+163
+164
+165</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 160</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 163</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_move_end'>move_end</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='ivar'>@buffer</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
@@ -1593,12 +1615,12 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-166
-167
-168</pre>
+169
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 169</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_move_left'>move_left</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='ivar'>@cursor</span> <span class='op'>-</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
@@ -1636,12 +1658,12 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-172
-173
-174</pre>
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 172</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 175</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_move_right'>move_right</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='ivar'>@cursor</span> <span class='op'>+</span> <span class='int'>1</span><span class='comma'>,</span> <span class='ivar'>@buffer</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span>
@@ -1679,12 +1701,12 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-178
-179
-180</pre>
+181
+182
+183</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 178</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 181</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_move_forward'>move_forward</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='ivar'>@cursor</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
@@ -1722,14 +1744,14 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-184
-185
-186
 187
-188</pre>
+188
+189
+190
+191</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 184</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 187</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_kill'>kill</span>
   <span class='ivar'>@copy</span> <span class='op'>=</span> <span class='ivar'>@buffer</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='ivar'>@cursor</span><span class='comma'>,</span> <span class='ivar'>@buffer</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span>
@@ -1769,13 +1791,13 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-192
-193
-194
-195</pre>
+195
+196
+197
+198</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 192</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 195</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete'>delete</span>
   <span class='ivar'>@buffer</span><span class='lbracket'>[</span><span class='ivar'>@cursor</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
@@ -1814,14 +1836,14 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-199
-200
-201
 202
-203</pre>
+203
+204
+205
+206</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 199</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 202</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_restore'>restore</span>
   <span class='kw'>return</span> <span class='kw'>unless</span> <span class='ivar'>@copy</span>
@@ -1874,16 +1896,16 @@ the visible viewport.</p>
       <pre class="lines">
 
 
-207
-208
-209
 210
 211
 212
-213</pre>
+213
+214
+215
+216</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 207</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/input.rb', line 210</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_take'>take</span>
   <span class='ivar'>@buffer</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span>
@@ -1902,7 +1924,7 @@ the visible viewport.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 15 00:10:09 2026 by
+  Generated on Thu Jul 16 19:49:17 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
