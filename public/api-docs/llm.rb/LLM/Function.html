@@ -1684,7 +1684,7 @@ or <span class='object_link'><a href="Function/Array.html#spawn-instance_method"
     <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_require'><span class='object_link'><a href="../LLM.html#require-class_method" title="LLM.require (method)">require</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>async</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Async</span><span class='rparen'>)</span>
     <span class='const'>Async</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call!'>call!</span> <span class='rbrace'>}</span>
   <span class='kw'>when</span> <span class='symbol'>:thread</span>
-    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call!'>call!</span> <span class='rbrace'>}</span>
+    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call!'>call!</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='lbrace'>{</span> <span class='id identifier rubyid__1'>_1</span><span class='period'>.</span><span class='id identifier rubyid_report_on_exception'>report_on_exception</span> <span class='op'>=</span> <span class='kw'>false</span> <span class='rbrace'>}</span>
   <span class='kw'>when</span> <span class='symbol'>:fiber</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Fiber concurrency requires Fiber.scheduler</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'>Fiber</span><span class='period'>.</span><span class='id identifier rubyid_scheduler'>scheduler</span>
     <span class='const'>Fiber</span><span class='period'>.</span><span class='id identifier rubyid_schedule'>schedule</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call!'>call!</span> <span class='rbrace'>}</span>
@@ -2311,7 +2311,7 @@ This is cooperative and only applies to runners that implement
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:13 2026 by
+  Generated on Sun Jul 19 17:26:35 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

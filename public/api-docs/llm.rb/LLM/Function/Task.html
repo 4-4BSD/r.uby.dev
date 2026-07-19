@@ -603,13 +603,35 @@ and async tasks.</p>
 36
 37
 38
-39</pre>
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
-  <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span> <span class='kw'>if</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:interrupt!</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_task'>task</span>
+  <span class='kw'>when</span> <span class='const'>Thread</span>
+    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='const'>Fiber</span>
+    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_alive?'>alive?</span>
+  <span class='kw'>else</span>
+    <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Async</span><span class='op'>::</span><span class='const'>Task</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='op'>::</span><span class='const'>Async</span><span class='op'>::</span><span class='const'>Task</span> <span class='op'>===</span> <span class='id identifier rubyid_task'>task</span>
+      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_fiber'>fiber</span><span class='op'>&amp;.</span><span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_alive?'>alive?</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:interrupt!</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
   <span class='id identifier rubyid_function'>function</span><span class='op'>&amp;.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
@@ -659,19 +681,19 @@ and async tasks.</p>
       <pre class="lines">
 
 
-44
-45
-46
-47
-48
-49
-50
-51
-52
-53</pre>
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 44</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 55</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
   <span class='kw'>if</span> <span class='const'>Thread</span> <span class='op'>===</span> <span class='id identifier rubyid_task'>task</span>
@@ -725,16 +747,16 @@ and async tasks.</p>
       <pre class="lines">
 
 
-58
-59
-60
-61
-62
-63
-64</pre>
+69
+70
+71
+72
+73
+74
+75</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 58</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 69</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_group_class'>group_class</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_task'>task</span>
@@ -753,7 +775,7 @@ and async tasks.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:19 2026 by
+  Generated on Sun Jul 19 17:26:42 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

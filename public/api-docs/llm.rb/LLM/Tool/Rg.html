@@ -95,6 +95,11 @@
   
   
   
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Utils.html" title="LLM::Tool::Utils (module)">Utils</a></span></dd>
+  </dl>
+  
   
 
   
@@ -139,7 +144,7 @@ for one or more patterns.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(patterns:, path: Dir.getwd)  &#x21d2; Hash </a>
+      <a href="#call-instance_method" title="#call (instance method)">#<strong>call</strong>(patterns:, path: Dir.getwd, timeout: 5)  &#x21d2; Hash </a>
     
 
     
@@ -172,6 +177,18 @@ for one or more patterns.</p>
   
   
   
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Utils.html" title="LLM::Tool::Utils (module)">Utils</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Utils.html#now-instance_method" title="LLM::Tool::Utils#now (method)">#now</a></span>, <span class='object_link'><a href="Utils.html#wait-instance_method" title="LLM::Tool::Utils#wait (method)">#wait</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
   <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Tool.html" title="LLM::Tool (class)">LLM::Tool</a></span></h3>
   <p class="inherited"><span class='object_link'><a href="../Tool.html#a2a-class_method" title="LLM::Tool.a2a (method)">a2a</a></span>, <span class='object_link'><a href="../Tool.html#a2a%3F-class_method" title="LLM::Tool.a2a? (method)">a2a?</a></span>, <span class='object_link'><a href="../Tool.html#a2a%3F-instance_method" title="LLM::Tool#a2a? (method)">#a2a?</a></span>, <span class='object_link'><a href="../Tool.html#clear_registry!-class_method" title="LLM::Tool.clear_registry! (method)">clear_registry!</a></span>, <span class='object_link'><a href="../Tool.html#description-class_method" title="LLM::Tool.description (method)">description</a></span>, <span class='object_link'><a href="../Tool.html#find_by_name!-class_method" title="LLM::Tool.find_by_name! (method)">find_by_name!</a></span>, <span class='object_link'><a href="../Tool.html#function-instance_method" title="LLM::Tool#function (method)">#function</a></span>, <span class='object_link'><a href="../Tool.html#function-class_method" title="LLM::Tool.function (method)">function</a></span>, <span class='object_link'><a href="../Tool.html#inherited-class_method" title="LLM::Tool.inherited (method)">inherited</a></span>, <span class='object_link'><a href="../Tool.html#mcp-class_method" title="LLM::Tool.mcp (method)">mcp</a></span>, <span class='object_link'><a href="../Tool.html#mcp%3F-class_method" title="LLM::Tool.mcp? (method)">mcp?</a></span>, <span class='object_link'><a href="../Tool.html#mcp%3F-instance_method" title="LLM::Tool#mcp? (method)">#mcp?</a></span>, <span class='object_link'><a href="../Tool.html#name-class_method" title="LLM::Tool.name (method)">name</a></span>, <span class='object_link'><a href="../Tool.html#on_cancel-instance_method" title="LLM::Tool#on_cancel (method)">#on_cancel</a></span>, <span class='object_link'><a href="../Tool.html#on_interrupt-instance_method" title="LLM::Tool#on_interrupt (method)">#on_interrupt</a></span>, <span class='object_link'><a href="../Tool.html#params-class_method" title="LLM::Tool.params (method)">params</a></span>, <span class='object_link'><a href="../Tool.html#register-class_method" title="LLM::Tool.register (method)">register</a></span>, <span class='object_link'><a href="../Tool.html#registry-class_method" title="LLM::Tool.registry (method)">registry</a></span>, <span class='object_link'><a href="../Tool.html#skill%3F-class_method" title="LLM::Tool.skill? (method)">skill?</a></span>, <span class='object_link'><a href="../Tool.html#skill%3F-instance_method" title="LLM::Tool#skill? (method)">#skill?</a></span>, <span class='object_link'><a href="../Tool.html#unregister-class_method" title="LLM::Tool.unregister (method)">unregister</a></span></p>
 
@@ -185,7 +202,7 @@ for one or more patterns.</p>
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="Param.html" title="LLM::Tool::Param (module)">Param</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Param.html#param-instance_method" title="LLM::Tool::Param#param (method)">#param</a></span>, <span class='object_link'><a href="Param.html#required-instance_method" title="LLM::Tool::Param#required (method)">#required</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Param.html#defaults-instance_method" title="LLM::Tool::Param#defaults (method)">#defaults</a></span>, <span class='object_link'><a href="Param.html#param-instance_method" title="LLM::Tool::Param#param (method)">#param</a></span>, <span class='object_link'><a href="Param.html#required-instance_method" title="LLM::Tool::Param#required (method)">#required</a></span></p>
 
   
   
@@ -207,7 +224,7 @@ for one or more patterns.</p>
       <div class="method_details first">
   <h3 class="signature first" id="call-instance_method">
   
-    #<strong>call</strong>(patterns:, path: Dir.getwd)  &#x21d2; <tt>Hash</tt> 
+    #<strong>call</strong>(patterns:, path: Dir.getwd, timeout: 5)  &#x21d2; <tt>Hash</tt> 
   
 
   
@@ -269,18 +286,20 @@ for one or more patterns.</p>
       <pre class="lines">
 
 
-22
-23
-24
 25
-26</pre>
+26
+27
+28
+29
+30</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tools/rg.rb', line 22</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tools/rg.rb', line 25</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>patterns:</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_getwd'>getwd</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>patterns:</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_getwd'>getwd</span><span class='comma'>,</span> <span class='label'>timeout:</span> <span class='int'>5</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_validate!'>validate!</span><span class='lparen'>(</span><span class='label'>patterns:</span><span class='comma'>,</span> <span class='label'>path:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_command'>command</span> <span class='op'>=</span> <span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='label'>patterns:</span><span class='comma'>,</span> <span class='label'>path:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='label'>command:</span><span class='comma'>,</span> <span class='label'>timeout:</span><span class='rparen'>)</span>
   <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span><span class='comma'>,</span> <span class='label'>stdout:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_stdout'>stdout</span><span class='comma'>,</span> <span class='label'>stderr:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_stderr'>stderr</span><span class='rbrace'>}</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -293,7 +312,7 @@ for one or more patterns.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:15 2026 by
+  Generated on Sun Jul 19 17:26:36 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

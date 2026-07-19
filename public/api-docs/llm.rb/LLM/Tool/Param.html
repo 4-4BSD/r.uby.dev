@@ -197,6 +197,29 @@ define a parameter for simple types. For complex types, use
 </li>
 
       
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#defaults-instance_method" title="#defaults (instance method)">#<strong>defaults</strong>(defaults)  &#x21d2; LLM::Schema::Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Set default values for parameters.</p>
+</div></span>
+  
+</li>
+
+      
     </ul>
     
   
@@ -453,12 +476,88 @@ define a parameter for simple types. For complex types, use
 </table>
 </div>
     
+      <div class="method_details ">
+  <h3 class="signature " id="defaults-instance_method">
+  
+    #<strong>defaults</strong>(defaults)  &#x21d2; <tt><span class='object_link'><a href="../Schema/Object.html" title="LLM::Schema::Object (class)">LLM::Schema::Object</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Set default values for parameters.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>defaults</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Schema/Object.html" title="LLM::Schema::Object (class)">LLM::Schema::Object</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool/param.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_defaults'>defaults</span><span class='lparen'>(</span><span class='id identifier rubyid_defaults'>defaults</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_schema'>schema</span><span class='op'>|</span>
+      <span class='id identifier rubyid_defaults'>defaults</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='const'><span class='object_link'><a href="Param/Utils.html" title="LLM::Tool::Param::Utils (module)">Utils</a></span></span><span class='period'>.</span><span class='id identifier rubyid_fetch'><span class='object_link'><a href="Param/Utils.html#fetch-instance_method" title="LLM::Tool::Param::Utils#fetch (method)">fetch</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_properties'>properties</span><span class='comma'>,</span> <span class='id identifier rubyid__1'>_1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_default'>default</span><span class='lparen'>(</span><span class='id identifier rubyid__2'>_2</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
   </div>
 
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:00 2026 by
+  Generated on Sun Jul 19 17:26:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

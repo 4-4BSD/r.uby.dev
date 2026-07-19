@@ -278,13 +278,15 @@ uniformly, even when the selected strategy is direct calls.</p>
 
 15
 16
-17</pre>
+17
+18</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/call_group.rb', line 15</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_functions'>functions</span><span class='rparen'>)</span>
   <span class='ivar'>@functions</span> <span class='op'>=</span> <span class='id identifier rubyid_functions'>functions</span>
+  <span class='ivar'>@owner</span> <span class='op'>=</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -335,12 +337,12 @@ uniformly, even when the selected strategy is direct calls.</p>
       <pre class="lines">
 
 
-21
 22
-23</pre>
+23
+24</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/call_group.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/call_group.rb', line 22</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alive?'>alive?</span>
   <span class='kw'>false</span>
@@ -391,14 +393,16 @@ uniformly, even when the selected strategy is direct calls.</p>
       <pre class="lines">
 
 
-27
 28
-29</pre>
+29
+30
+31</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/call_group.rb', line 27</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/call_group.rb', line 28</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
+  <span class='ivar'>@owner</span><span class='op'>&amp;.</span><span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -447,15 +451,21 @@ uniformly, even when the selected strategy is direct calls.</p>
       <pre class="lines">
 
 
-34
-35
-36</pre>
+36
+37
+38
+39
+40
+41</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/call_group.rb', line 34</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/call_group.rb', line 36</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
+  <span class='ivar'>@owner</span> <span class='op'>=</span> <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span>
   <span class='ivar'>@functions</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:call</span><span class='rparen'>)</span>
+<span class='kw'>ensure</span>
+  <span class='ivar'>@owner</span> <span class='op'>=</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -467,7 +477,7 @@ uniformly, even when the selected strategy is direct calls.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:28 2026 by
+  Generated on Sun Jul 19 17:26:51 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

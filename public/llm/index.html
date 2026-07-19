@@ -174,7 +174,7 @@ agent.repl(tools: [Debugger])</code></pre>
               loop with all builtin tools available.
             </p>
             <pre><code class="language-ruby">require "llm"
-require "lll/tools"
+require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)

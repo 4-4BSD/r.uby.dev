@@ -464,7 +464,7 @@ false otherwise.</p>
       <pre class="code"><span class="info file"># File 'lib/llm/function/thread_group.rb', line 70</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
-  <span class='ivar'>@threads</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:interrupt!</span><span class='rparen'>)</span>
+  <span class='ivar'>@threads</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='id identifier rubyid__1'>_1</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span> <span class='rbrace'>}</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -559,7 +559,7 @@ order as the original threads.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:29 2026 by
+  Generated on Sun Jul 19 17:26:53 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

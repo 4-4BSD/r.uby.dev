@@ -183,7 +183,7 @@ a tool that can change the current working directory.</p>
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="Param.html" title="LLM::Tool::Param (module)">Param</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Param.html#param-instance_method" title="LLM::Tool::Param#param (method)">#param</a></span>, <span class='object_link'><a href="Param.html#required-instance_method" title="LLM::Tool::Param#required (method)">#required</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Param.html#defaults-instance_method" title="LLM::Tool::Param#defaults (method)">#defaults</a></span>, <span class='object_link'><a href="Param.html#param-instance_method" title="LLM::Tool::Param#param (method)">#param</a></span>, <span class='object_link'><a href="Param.html#required-instance_method" title="LLM::Tool::Param#required (method)">#required</a></span></p>
 
   
   
@@ -254,13 +254,13 @@ a tool that can change the current working directory.</p>
       <pre class="lines">
 
 
+16
+17
 18
-19
-20
-21</pre>
+19</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tools/chdir.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tools/chdir.rb', line 16</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>path:</span><span class='rparen'>)</span>
   <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_chdir'>chdir</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
@@ -276,7 +276,7 @@ a tool that can change the current working directory.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:18 2026 by
+  Generated on Sun Jul 19 17:26:39 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

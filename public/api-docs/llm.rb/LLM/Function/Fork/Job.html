@@ -296,7 +296,9 @@ writing the final result back to the parent process.</p>
 29
 30
 31
-32</pre>
+32
+33
+34</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/fork/job.rb', line 23</span>
@@ -305,6 +307,8 @@ writing the final result back to the parent process.</p>
   <span class='id identifier rubyid_runner'>runner</span> <span class='op'>=</span> <span class='ivar'>@function</span><span class='period'>.</span><span class='id identifier rubyid_runner'>runner</span>
   <span class='id identifier rubyid_controller'>controller</span> <span class='op'>=</span> <span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='id identifier rubyid_runner'>runner</span><span class='rparen'>)</span>
   <span class='ivar'>@ch</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='symbol'>:result</span><span class='comma'>,</span> <span class='id identifier rubyid_call!'>call!</span><span class='lparen'>(</span><span class='id identifier rubyid_runner'>runner</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span>
+  <span class='ivar'>@ch</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='symbol'>:interrupt</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ex'>ex</span>
   <span class='ivar'>@ch</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='symbol'>:result</span><span class='comma'>,</span> <span class='id identifier rubyid_error'>error</span><span class='lparen'>(</span><span class='id identifier rubyid_ex'>ex</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='kw'>ensure</span>
@@ -321,7 +325,7 @@ writing the final result back to the parent process.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:25 2026 by
+  Generated on Sun Jul 19 17:26:47 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

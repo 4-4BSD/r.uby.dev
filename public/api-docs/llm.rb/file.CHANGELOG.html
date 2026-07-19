@@ -82,7 +82,304 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
+<h3 id="compactor">Compactor</h3>
+
+<ul>
+<li><p><strong>add <code>Truncate</code> strategy for dropping oldest messages</strong> <br>
+<code>LLM::Compactor::Truncate</code> is a new built-in compaction strategy that
+drops the oldest messages when the conversation exceeds a configured
+size. It uses a smarter pruning approach that keeps tool call/return
+pairs intact — the algorithm never breaks in the middle of a tool call
+sequence. It is configured with <code>keep:</code> (default 64) and emits the
+standard <code>on_compaction</code> and <code>on_compaction_finish</code> stream lifecycle
+callbacks. Unlike the previous summarization approach, no LLM call is
+made — the strategy is purely lossy but fast and requires no network.</p></li>
+<li><p><strong>add <code>Null</code> strategy for no-op compaction</strong> <br>
+<code>LLM::Compactor::Null</code> is a new built-in compaction strategy that does
+nothing. It is used as the default compactor when no strategy is
+configured on a context, ensuring the compactor interface is always
+present without requiring a separate nil check.</p></li>
+<li><p><strong>accept both <code>LLM::Agent</code> and <code>LLM::Context</code></strong> <br>
+<code>LLM::Compactor#initialize</code> now accepts both <code>LLM::Agent</code> and
+<code>LLM::Context</code> instances. When given an agent, the internal context is
+unwrapped automatically, making the compactor API more flexible when
+working with agents.</p></li>
+<li><p><strong>refactor to strategy-based interface</strong> <br>
+<code>LLM::Compactor</code> has been refactored from a single class that performed
+LLM-based summarization into a strategy-based superclass. Each subclass
+implements a different compaction strategy via <code>call(**opts)</code>. The old
+summarization approach (using <code>model:</code>, <code>token_threshold:</code>,
+<code>message_threshold:</code>, and <code>retention_window:</code> options) has been removed.
+The built-in <code>LLM::Compactor::Truncate</code> strategy drops the oldest
+messages when the conversation exceeds a configured size.</p></li>
+</ul>
+
+<h4 id="context-integration">Context integration</h4>
+
+<ul>
+<li><p><strong>accept <code>compactor</code> and <code>compactor_options</code> parameters</strong> <br>
+<code>LLM::Context</code> now accepts <code>compactor:</code> (a compactor class defaulting to
+<code>LLM::Compactor::Null</code>) and <code>compactor_options:</code> (a hash of options
+forwarded to the compactor&#39;s <code>call</code> method) parameters. The compactor
+is automatically invoked at the beginning of each <code>talk</code> turn. The
+previous <code>compactor=</code> setter has been removed in favour of
+constructor-driven configuration.</p></li>
+<li><p><strong><code>on_compaction</code> and <code>on_compaction_finish</code> receive a single argument</strong> <br>
+<code>LLM::Stream#on_compaction</code> and <code>LLM::Stream#on_compaction_finish</code> now
+accept a single argument (the compactor instance) instead of two arguments
+(context and compactor). The context is still available via
+<code>LLM::Compactor#ctx</code>, so access to the context is not lost. This simplifies
+the callback interface for compaction lifecycle observers.</p></li>
+</ul>
+
+<h3 id="tools">Tools</h3>
+
+<ul>
+<li><p><strong>add <code>LLM::Tool::Utils</code> module for shared command execution logic</strong> <br>
+A new <code>LLM::Tool::Utils</code> module provides shared <code>wait(command:, timeout:)</code>
+and <code>now</code> helper methods for tools that execute commands. Tools that
+include <code>Utils</code> can wait on a running command and automatically kill it
+when it exceeds the configured timeout, using <code>Process.clock_gettime</code> with
+<code>CLOCK_MONOTONIC</code> for precise timing. The module is used by both the
+<code>Shell</code> and <code>Rg</code> tools internally.</p></li>
+<li><p><strong>shell: add <code>timeout</code> parameter for command execution deadlines</strong> <br>
+The <code>LLM::Tool::Shell</code> tool now accepts a <code>timeout</code> parameter (default 60s)
+that automatically kills commands exceeding the specified time limit,
+preventing hung processes from blocking the agent indefinitely.</p></li>
+<li><p><strong>rg: add <code>timeout</code> parameter for search execution deadlines</strong> <br>
+The <code>LLM::Tool::Rg</code> tool now accepts a <code>timeout</code> parameter (default 5s)
+that automatically kills search commands exceeding the specified time limit,
+preventing long-running searches from blocking the agent indefinitely.</p></li>
+<li><p><strong>git: add <code>timeout</code> parameter for command execution deadlines</strong> <br>
+The <code>LLM::Tool::Git</code> tool now accepts a <code>timeout</code> parameter (default 5s)
+that automatically kills git commands exceeding the specified time limit,
+preventing hung processes from blocking the agent indefinitely.</p></li>
+</ul>
+
+<h3 id="schema">Schema</h3>
+
+<ul>
+<li><p><strong>track property definition order in the <code>index</code> attribute</strong> <br>
+<code>LLM::Schema::Leaf</code> now has an <code>index</code> accessor that tracks the order
+in which properties are defined. Each property receives an incrementing
+index as it is added to the schema, matching the same convention used
+by <code>LLM::Command::Parameter</code>.</p></li>
+<li><p><strong>store <code>@properties</code> as an <code>LLM::Object</code></strong> <br>
+<code>LLM::Schema::Object</code> now stores its <code>@properties</code> hash as an
+<code>LLM::Object</code> instead of a plain <code>Hash</code>, enabling indifferent-access
+lookups with both string and symbol keys.</p></li>
+</ul>
+
+<h3 id="buffer">Buffer</h3>
+
+<ul>
+<li><p><strong>add Array-like query and mutation methods</strong> <br>
+<code>LLM::Buffer</code> now exposes <code>first</code>, <code>reject!</code>, <code>select!</code>, <code>shift</code>,
+<code>clear</code>, <code>drop</code>, and <code>take</code> methods, making it easier to query and
+mutate <code>LLM::Context#messages</code> like an ordinary Array. <code>reject!</code> is
+also aliased as <code>delete_if</code> for familiarity.</p></li>
+<li><p><strong>distinguish <code>nil</code> from <code>undefined</code> in <code>last</code></strong> <br>
+<code>LLM::Buffer#last</code> now uses an internal <code>UNDEFINED</code> sentinel to
+distinguish between calling <code>last</code> with no argument (returns the
+last message) and <code>last(nil)</code> (an error). Previously, <code>nil</code> was
+indistinguishable from no argument, causing <code>last(nil)</code> to
+incorrectly return the last message.</p></li>
+</ul>
+
+<h3 id="repl">REPL</h3>
+
+<ul>
+<li><p><strong>add <code>name:</code> parameter to identify the agent</strong> <br>
+<code>LLM::Agent#repl</code> and <code>LLM::Repl.new</code> now accept a <code>name:</code> parameter
+(defaulting to <code>&quot;agent&quot;</code>) that customises the input prompt to
+<code>provider(name)&gt;</code> and the transcript label from the hardcoded
+<code>agent:</code> to the given name. This makes it easier to distinguish
+multiple REPL sessions or give the agent a recognisable identity
+in the curses-based UI.</p></li>
+<li><p><strong>add <code>compact</code> command for context window compaction</strong> <br>
+The curses-based REPL now has a <code>/compact</code> command that frees space
+in the context window using the <code>LLM::Compactor::Truncate</code> strategy.
+Typing <code>/compact</code> invokes the compactor, drops the oldest messages,
+and displays <code>compact in progress</code> / <code>compact complete</code> feedback in
+the transcript. An optional <code>n</code> argument specifies how many messages
+to keep — for example, <code>/compact 32</code> keeps the most recent 32 messages,
+while <code>/compact</code> with no argument defaults to keeping the last 128.</p></li>
+<li><p><strong>add <code>LLM::Command.complete</code> for command name completion</strong> <br>
+<code>LLM::Repl::Command.complete(str)</code> (also available as <code>LLM::Command.complete</code>)
+returns an array of command names whose names start with the given input
+string, providing the foundation for tab-completion of command names in
+the REPL.</p></li>
+<li><p><strong>implement tab-complete for command names</strong> <br>
+The curses-based REPL input now supports tab-completion for <code>/</code> commands.
+Pressing the Tab key while the input begins with <code>/</code> matches the typed
+prefix against the command registry and fills in the first matching command
+name. This provides quick access to commands like <code>/compact</code>, <code>/help</code>,
+<code>/exit</code>, and <code>/quit</code> without typing the full name.</p></li>
+<li><p><strong>cycle through tab-complete matches on repeated Tab presses</strong> <br>
+Pressing Tab again after an autocomplete cycles through the remaining
+matching commands. Each subsequent Tab advances to the next candidate,
+making it easy to reach any command without typing the full name.</p></li>
+<li><p><strong>expose <code>agent</code> and <code>repl</code> readers on Command</strong> <br>
+<code>LLM::Repl::Command</code> now exposes <code>agent</code> (the active <code>LLM::Agent</code>)
+and <code>repl</code> (the active <code>LLM::Repl</code>) as public readers, making it
+easy for custom commands to access the agent and the repl interface
+without reaching through internal references.</p></li>
+<li><p><strong>allow commands to set parameter defaults</strong> <br>
+Commands can now set default values for their parameters directly in
+their <code>call</code> method signature. When a user provides fewer arguments
+than declared parameters, the default value from the signature is
+used instead of passing <code>nil</code>. This enables commands like <code>/compact</code>
+to define defaults such as <code>def call(n: 128)</code> and have those defaults
+apply when no argument is given.</p></li>
+<li><p><strong>sort tool arguments by parameter definition order</strong> <br>
+The curses-based REPL now sorts tool parameters by their definition
+order (using the new <code>index</code> attribute) when displaying tool arguments
+in the status bar and when assigning argument values to parameters.
+This ensures consistent display regardless of the order in which the
+model returns the arguments.</p></li>
+<li><p><strong>aliases inherit parent description and parameters</strong> <br>
+<code>LLM::Command</code> subclasses that alias another command (e.g.,
+<code>class Quit &lt; Command::Exit</code>) now inherit the parent&#39;s description
+and parameter definitions. Previously, an alias had neither a
+description nor parameters; now they are copied from the parent
+command so <code>/quit</code> behaves identically to <code>/exit</code> in all respects
+except its name.</p></li>
+<li><p><strong>expand markdown coverage to lists, blockquotes, horizontal rules, links, and images</strong> <br>
+The curses-based REPL markdown renderer now handles additional node
+types, including ordered and unordered lists (<code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>),
+blockquotes (<code>&lt;blockquote&gt;</code>), horizontal rules (<code>&lt;hr&gt;</code>), hyperlinks
+(<code>&lt;a&gt;</code> rendered with underline), and images (<code>&lt;img&gt;</code> rendered as
+<code>[image: alt text]</code>). This provides richer rendering of model
+responses in the interactive session.</p></li>
+</ul>
+
+<h3 id="object">Object</h3>
+
+<ul>
+<li><strong>preserve the original key name in <code>KeyError</code> messages</strong> <br>
+<code>LLM::Object#fetch</code> now preserves the original key name when a key
+is not found, instead of raising <code>KeyError</code> with <code>key not found: nil</code>.
+The previous behavior occurred when the given key was not found in
+the stored hash, causing internal lookup to return <code>nil</code> and lose
+the original key reference.</li>
+</ul>
+
+<h3 id="registry">Registry</h3>
+
+<ul>
+<li><strong>mark deprecated models in DeepInfra registry</strong> <br>
+Update <code>data/deepinfra.json</code> to mark several models as <code>&quot;status&quot;:
+&quot;deprecated&quot;</code>, including <code>meta-llama/Meta-Llama-3.1-8B-Instruct</code>,
+<code>Qwen/Qwen1.5-110B-Chat</code>, and <code>mistralai/Mixtral-8x7B-Instruct-v0.1</code>.</li>
+</ul>
+
+<h2 id="v12-6-0">v12.6.0</h2>
+
+<p>Changes since <code>v12.5.1</code>.</p>
+
+<p>This release adds bulk defaults for tools and agents — <code>LLM::Tool.defaults</code>
+for setting parameter defaults and <code>LLM::Agent.set</code> for mass-assigning
+class-level defaults, both mirrored on ActiveRecord and Sequel agent models.</p>
+
+<p>It also makes <code>LLM::Interrupt</code> reliable across every concurrency strategy
+(:thread, :call, :fiber, :task, :fork, and :ractor) so tool cancellation
+works consistently regardless of execution backend, and fixes a stale fiber
+reference in <code>LLM::Context#talk</code> that could prevent interruption after a
+prior call.</p>
+
+<h3 id="add">Add</h3>
+
+<ul>
+<li><p><strong>tool: add <code>defaults</code> method for setting parameter defaults</strong> <br>
+Add <code>LLM::Tool.defaults(properties)</code> for bulk-setting default values
+on tool parameters, matching the same interface as <code>LLM::Schema.defaults</code>.
+Each key maps to a parameter name; unknown keys raise <code>KeyError</code>.</p></li>
+<li><p><strong>agent: add <code>set</code> method for bulk-assigning class-level defaults</strong> <br>
+Add <code>LLM::Agent.set(properties)</code> for mass-assigning agent defaults
+from a Hash. Each key maps to a class-level accessor; unknown keys
+raise <code>KeyError</code>.</p></li>
+<li><p><strong>active_record: expose <code>set</code> on <code>acts_as_agent</code> models</strong> <br>
+ActiveRecord models using <code>acts_as_agent</code> can call <code>set</code> to
+bulk-assign agent class-level defaults.</p></li>
+<li><p><strong>sequel: expose <code>set</code> on <code>plugin :agent</code> models</strong> <br>
+Sequel models using <code>plugin :agent</code> can call <code>set</code> to bulk-assign
+agent class-level defaults.</p></li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><p><strong>function: raise <code>LLM::Interrupt</code> on thread where tool is running</strong> <br>
+On cancel, <code>LLM::Interrupt</code> is now raised on the thread that is
+running a tool. The tool can rescue <code>LLM::Interrupt</code> and gracefully
+terminate (e.g., clean up resources). The previous approach used
+<code>Thread#interrupt</code> which was less reliable — it did not interrupt a
+sleeping thread.</p></li>
+<li><p><strong>function: suppress thread exception reporting in <code>:thread</code> concurrency</strong> <br>
+Threads spawned by the <code>:thread</code> concurrency strategy now have
+<code>report_on_exception</code> set to <code>false</code>, preventing noisy exception
+messages from appearing on stderr when a thread is interrupted
+during tool execution.</p></li>
+<li><p><strong>context: clear <code>@owner</code> after <code>talk</code> completes</strong> <br>
+<code>LLM::Context#talk</code> now clears the <code>@owner</code> reference in an
+<code>ensure</code> block after the method completes, so <code>interrupt!</code> does
+not attempt to interrupt a stale fiber reference from a prior
+call.</p></li>
+<li><p><strong>function: raise <code>LLM::Interrupt</code> on thread waiting in <code>CallGroup#wait</code></strong> <br>
+When using <code>ctx.wait(:call)</code>, <code>LLM::Interrupt</code> is now raised on the
+thread executing the sequential tool wait. <code>CallGroup#wait</code> tracks the
+active thread and <code>interrupt!</code> raises <code>LLM::Interrupt</code> on it, enabling
+interruption of the <code>:call</code> concurrency strategy just like the existing
+<code>:thread</code> strategy.</p></li>
+<li><p><strong>function: raise <code>LLM::Interrupt</code> on fiber-backed tool tasks</strong> <br>
+<code>LLM::Interrupt</code> is now raised on the active fiber via <code>Fiber#raise</code>
+when interrupting <code>:fiber</code>-concurrency tools.
+<br><br>
+<code>Task#interrupt!</code> now dispatches by task type — <code>Thread#raise</code> for
+threads, <code>Fiber#raise</code> for fibers — making interruption reliable
+across all concurrency strategies.</p></li>
+<li><p><strong>function: raise <code>LLM::Interrupt</code> on fork-backed tool tasks</strong> <br>
+<code>LLM::Interrupt</code> is now raised on the main thread of a fork child
+process via <code>Thread.main.raise(LLM::Interrupt)</code> when interrupting
+<code>:fork</code>-concurrency tools, and the fork <code>Task#wait</code> re-raises the
+interrupt on the parent side — making interruption reliable across
+all concurrency strategies including <code>:fork</code>.</p></li>
+<li><p><strong>function: raise <code>LLM::Interrupt</code> on <code>Async::Task</code>-backed tool tasks</strong> <br>
+<code>LLM::Interrupt</code> is now raised on the underlying fiber of an
+<code>Async::Task</code> via <code>Fiber#raise</code> when interrupting <code>:task</code>-concurrency
+tools. <code>Task#interrupt!</code> now detects <code>Async::Task</code> instances and
+dispatches to <code>Fiber#raise</code>, extending reliable interruption to the
+<code>:task</code> concurrency strategy under the Async runtime.</p></li>
+<li><p><strong>function: raise <code>LLM::Interrupt</code> on ractor-backed tool tasks</strong> <br>
+<code>LLM::Interrupt</code> is now raised on the main thread inside a ractor
+via <code>Thread.main.raise(LLM::Interrupt)</code> when interrupting
+<code>:ractor</code>-concurrency tools. A listener thread inside the tool
+ractor waits for an interrupt message via <code>Ractor.receive</code> and
+raises <code>LLM::Interrupt</code> on the ractor&#39;s main thread.
+<br><br>
+<code>Task#interrupt!</code> delegates to the mailbox to send the interrupt
+message — extending reliable interruption to the <code>:ractor</code>
+concurrency strategy.</p></li>
+</ul>
+
+<h2 id="v12-5-1">v12.5.1</h2>
+
 <p>Changes since <code>v12.5.0</code>.</p>
+
+<p>This release reverts the global <code>LLM::Function</code> registry fallback for tool
+resolution that was added in v12.5.0.</p>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><strong>function: remove the global registry fallback for tool resolution</strong> <br>
+Remove the <code>LLM::Function.find_by_name</code> fallback that was added in
+v12.5.0 as an intermediate step between available-tools lookup and
+raising <code>LLM::NoSuchToolError</code>. Tool calls not found in the available
+tools list now go directly to <code>function_missing</code> (which raises
+<code>LLM::NoSuchToolError</code>) without first checking the global
+<code>LLM::Function</code> registry.</li>
+</ul>
 
 <h2 id="v12-5-0">v12.5.0</h2>
 
@@ -2692,7 +2989,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:48:58 2026 by
+  Generated on Sun Jul 19 17:26:21 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -177,7 +177,9 @@ an LLM function (or tool) in order to add tracing support.</p>
 14
 15
 16
-17</pre>
+17
+18
+19</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/tracing.rb', line 8</span>
@@ -188,6 +190,8 @@ an LLM function (or tool) in order to add tracing support.</p>
   <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='kw'>super</span>
   <span class='ivar'>@tracer</span><span class='period'>.</span><span class='id identifier rubyid_on_tool_finish'>on_tool_finish</span><span class='lparen'>(</span><span class='label'>result:</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span>
+  <span class='id identifier rubyid_raise'>raise</span>
 <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ex'>ex</span>
   <span class='ivar'>@tracer</span><span class='period'>.</span><span class='id identifier rubyid_on_tool_error'>on_tool_error</span><span class='lparen'>(</span><span class='label'>ex:</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='id identifier rubyid_ex'>ex</span><span class='rparen'>)</span>
@@ -202,7 +206,7 @@ an LLM function (or tool) in order to add tracing support.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:01 2026 by
+  Generated on Sun Jul 19 17:26:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

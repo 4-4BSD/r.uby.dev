@@ -137,9 +137,20 @@ features that didn&#39;t make it into the homepage documentation.</p>
 </details>
 
 <details>
+<summary>Context Compaction</summary>
+
+- [Configuration](#configuration)
+- [Standalone usage](#standalone-usage)
+- [Strategies](#strategies)
+- [Manual compaction](#manual-compaction)
+- [Lifecycle callbacks](#lifecycle-callbacks)
+</details>
+
+<details>
 <summary>Cancellation</summary>
 
 - [Cancel a request](#cancel-a-request)
+- [Tool interrupts](#tool-interrupts)
 </details>
 
 <details>
@@ -256,11 +267,11 @@ not strictly neccessary, though, and the example would
 be simpler without it.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Agent</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span>
-  <span class='id identifier rubyid_model'>model</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-v4-pro</span><span class='tstring_end'>&quot;</span></span>
-  <span class='id identifier rubyid_tools'>tools</span> <span class='lbrace'>{</span> <span class='lbracket'>[</span><span class='const'>DoResearch</span><span class='comma'>,</span> <span class='const'>FinalizeResearch</span><span class='comma'>,</span> <span class='const'>ActOnResearch</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
-  <span class='id identifier rubyid_stream'>stream</span> <span class='lbrace'>{</span> <span class='gvar'>$stdout</span> <span class='rbrace'>}</span>
-  <span class='id identifier rubyid_tracer'>tracer</span> <span class='symbol'>:set_tracer</span>
-  <span class='id identifier rubyid_concurrency'>concurrency</span> <span class='symbol'>:fork</span>
+  <span class='id identifier rubyid_set'>set</span> <span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-v4-pro</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='label'>tools:</span> <span class='lbracket'>[</span><span class='const'>DoResearch</span><span class='comma'>,</span> <span class='const'>FinalizeResearch</span><span class='comma'>,</span> <span class='const'>ActOnResearch</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>stream:</span> <span class='tlambda'>-&gt;</span> <span class='tlambeg'>{</span> <span class='gvar'>$stdout</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+      <span class='label'>tracer:</span> <span class='symbol'>:set_tracer</span><span class='comma'>,</span>
+      <span class='label'>concurrency:</span> <span class='symbol'>:fork</span>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_research!'>research!</span>
     <span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>start the research</span><span class='tstring_end'>&quot;</span></span>
@@ -625,15 +636,116 @@ scenes.</p>
   <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_return'>on_tool_return</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='comma'>,</span> <span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
 
-  <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
+  <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
     <span class='comment'># this callback is called *before* a compact happens
 </span>  <span class='kw'>end</span>
 
-  <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
+  <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
     <span class='comment'># this callback is called *after* a compact happens
 </span>  <span class='kw'>end</span>
 <span class='kw'>end</span>
 </code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
+<h2 id="context-compaction">Context Compaction</h2>
+
+<p>Long-running conversations consume tokens. Without intervention, every turn
+pushes toward the model&#39;s context window limit, at which point the provider
+rejects the request.</p>
+
+<p>llm.rb provides compaction through pluggable strategies. All strategies
+inherit from <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html"><code>LLM::Compactor</code></a>
+and are invoked automatically before each <code>ctx.talk(...)</code> call.</p>
+
+<h3 id="configuration">Configuration</h3>
+
+<p>Pass a compactor class and options when creating a context or agent:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span>
+  <span class='label'>compactor:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor.html" title="LLM::Compactor (class)">Compactor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor/Truncate.html" title="LLM::Compactor::Truncate (class)">Truncate</a></span></span><span class='comma'>,</span>
+  <span class='label'>compactor_options:</span> <span class='lbrace'>{</span><span class='label'>keep:</span> <span class='int'>64</span><span class='rbrace'>}</span>
+<span class='rparen'>)</span>
+
+<span class='comment'># LLM::Agent accepts the same options
+</span><span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span>
+  <span class='label'>compactor:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor.html" title="LLM::Compactor (class)">Compactor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor/Truncate.html" title="LLM::Compactor::Truncate (class)">Truncate</a></span></span><span class='comma'>,</span>
+  <span class='label'>compactor_options:</span> <span class='lbrace'>{</span><span class='label'>keep:</span> <span class='int'>128</span><span class='rbrace'>}</span>
+<span class='rparen'>)</span>
+</code></pre>
+
+<p>The compactor runs automatically before every <code>talk</code> call. This keeps the
+conversation constantly alive — there is no chance of exhausting the context
+window because old messages are dropped before they accumulate. The trade-off
+is that dropped messages are gone, so information may be lost. Set <code>keep</code> to
+a higher number to retain more context at the cost of slower accumulation.</p>
+
+<p>The default is <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a>
+— compaction is disabled unless you opt in.</p>
+
+<h3 id="standalone-usage">Standalone usage</h3>
+
+<p>A compactor can be used independently of a context or agent:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_compactor'>compactor</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor.html" title="LLM::Compactor (class)">Compactor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor/Truncate.html" title="LLM::Compactor::Truncate (class)">Truncate</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Compactor.html#initialize-instance_method" title="LLM::Compactor#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_agent'>agent</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_compactor'>compactor</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>keep:</span> <span class='int'>200</span><span class='rparen'>)</span>   <span class='comment'># or ctx, agent, etc.
+</span></code></pre>
+
+<p>This is useful for one-off compaction outside the automatic per-turn cycle,
+or when you want to compact on a different schedule.</p>
+
+<h3 id="strategies">Strategies</h3>
+
+<p><strong><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a></strong>
+— the default. Does nothing.</p>
+
+<p><strong><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html"><code>LLM::Compactor::Truncate</code></a></strong>
+— drops the oldest messages, keeping only the N most recent.</p>
+
+<ul>
+<li><strong>Fast</strong> — no network call, no LLM overhead. Operates entirely in memory
+with a single pass over the message list.</li>
+<li><strong>No dependencies</strong> — works offline, has no model or API requirements, and
+introduces no additional cost.</li>
+<li><strong>Tool-loop safe</strong> — when a tool result (return) falls at the truncation
+boundary, the corresponding tool call is kept. Without this, the
+conversation would contain an orphaned result with no matching call,
+causing API-level errors on the next turn.</li>
+</ul>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span>
+  <span class='label'>compactor:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor.html" title="LLM::Compactor (class)">Compactor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor/Truncate.html" title="LLM::Compactor::Truncate (class)">Truncate</a></span></span><span class='comma'>,</span>
+  <span class='label'>compactor_options:</span> <span class='lbrace'>{</span><span class='label'>keep:</span> <span class='int'>128</span><span class='rbrace'>}</span>
+<span class='rparen'>)</span>
+</code></pre>
+
+<h3 id="manual-compaction">Manual compaction</h3>
+
+<p>The REPL provides a <code>/compact</code> command that invokes Truncate on the current
+agent&#39;s context:</p>
+
+<pre class="code ruby"><code class="ruby">/compact        # keep last 128 messages
+/compact 50     # keep last 50 messages
+</code></pre>
+
+<h3 id="lifecycle-callbacks">Lifecycle callbacks</h3>
+
+<p>Both strategies call stream hooks so the UI can show progress:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
+  <span class='comment'># called before compaction begins
+</span><span class='kw'>end</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
+  <span class='comment'># called after compaction completes
+</span><span class='kw'>end</span>
+</code></pre>
+
+<p>The context&#39;s <code>compacted?</code> flag is <code>true</code> between compaction and the next
+model response.</p>
 
 <p><a href="#table-of-contents">Back to top</a></p>
 
@@ -876,6 +988,52 @@ run) are cancelled through
   <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request cancelled!</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span>
 </code></pre>
+
+<h4 id="tool-interrupts">Tool interrupts</h4>
+
+<p>When a running tool is interrupted &ndash; for example the user presses
+ESC in the <a href="#repl">REPL</a> &ndash; the runtime raises
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+on the tool&#39;s execution context. This behavior is uniform across
+all six concurrency strategies (<code>:call</code>, <code>:thread</code>, <code>:fiber</code>,
+<code>:task</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
+
+<p>A tool has two choices:</p>
+
+<p><strong>Re-raise</strong> <code>LLM::Interrupt</code> to cancel the entire turn. The
+exception propagates out of the tool loop and the request is
+aborted. This is the default when you don&#39;t rescue the exception.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
+  <span class='comment'># ... do work ...
+</span><span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span>
+  <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='id identifier rubyid_raise'>raise</span>   <span class='comment'># cancel the turn
+</span><span class='kw'>end</span>
+</code></pre>
+
+<p><strong>Return a value</strong> to continue the tool loop. The model receives
+the result and decides what to do next, aware that the tool was
+interrupted.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
+  <span class='comment'># ... do work ...
+</span><span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span>
+  <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>interrupted</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>  <span class='comment'># continue the loop
+</span><span class='kw'>end</span>
+</code></pre>
+
+<p>The right choice depends on the situation. A hard cancel aborts
+the request outright &ndash; useful when continuing would produce
+garbage. Returning a value lets the model adapt, which can be
+helpful when the interrupt is temporary (e.g. a timeout).</p>
+
+<p>The <code>:ractor</code> strategy is cooperative by nature &ndash; the ractor
+must check for a cancel message at safe points in its execution.
+The <code>:fork</code> strategy delivers the interrupt via a signal, which
+interrupts blocking syscalls immediately. All other strategies
+raise the exception directly on the executing thread or fiber.</p>
 
 <p><a href="#table-of-contents">Back to top</a></p>
 
@@ -1252,7 +1410,7 @@ support this method.</p>
 </div></div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:48:59 2026 by
+  Generated on Sun Jul 19 17:26:21 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

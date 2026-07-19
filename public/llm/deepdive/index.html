@@ -70,8 +70,17 @@
               <a class="toc-sub" href="#llmstream">LLM::Stream</a>
             </details>
             <details>
+              <summary>Context Compaction</summary>
+              <a class="toc-sub" href="#configuration">Configuration</a>
+              <a class="toc-sub" href="#standalone-usage">Standalone usage</a>
+              <a class="toc-sub" href="#strategies">Strategies</a>
+              <a class="toc-sub" href="#manual-compaction">Manual compaction</a>
+              <a class="toc-sub" href="#lifecycle-callbacks">Lifecycle callbacks</a>
+            </details>
+            <details>
               <summary>Cancellation</summary>
               <a class="toc-sub" href="#cancel-a-request">Cancel a request</a>
+              <a class="toc-sub" href="#tool-interrupts">Tool interrupts</a>
             </details>
             <details>
               <summary>Transports</summary>
@@ -352,7 +361,7 @@ agent.talk "hello world"
     puts content
   end
 
-  def on_tool_call(tool, error)
+  def on_tool_call(tool)
     # this callback can be used to either log a tool call,
     # or execute a tool call during a stream.
   end
@@ -360,15 +369,95 @@ agent.talk "hello world"
   def on_tool_return(tool, result)
   end
 
-  def on_compaction(ctx, compactor)
+  def on_compaction(compactor)
     # this callback is called *before* a compact happens
   end
 
-  def on_compaction_finish(ctx, compactor)
+  def on_compaction_finish(compactor)
     # this callback is called *after* a compact happens
   end
 end
 </code></pre>
+
+<h2 id="context-compaction">Context Compaction</h2>
+
+<p>Long-running conversations consume tokens. Without intervention, every turn pushes toward the model’s context window limit, at which point the provider rejects the request.</p>
+
+<p>llm.rb provides compaction through pluggable strategies. All strategies inherit from <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html"><code>LLM::Compactor</code></a> and are invoked automatically before each <code>ctx.talk(...)</code> call.</p>
+
+<h4 id="configuration">Configuration</h4>
+
+<p>Pass a compactor class and options when creating a context or agent:</p>
+
+<pre><code class="language-ruby">ctx = LLM::Context.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 64}
+)
+
+# LLM::Agent accepts the same options
+agent = LLM::Agent.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 128}
+)
+</code></pre>
+
+<p>The compactor runs automatically before every <code>talk</code> call. This keeps the conversation constantly alive; there is no chance of exhausting the context window because old messages are dropped before they accumulate. The trade-off is that dropped messages are gone, so information may be lost. Set <code>keep</code> to a higher number to retain more context at the cost of slower accumulation.</p>
+
+<p>The default is <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a>; compaction is disabled unless you opt in.</p>
+
+<h4 id="standalone-usage">Standalone usage</h4>
+
+<p>A compactor can be used independently of a context or agent:</p>
+
+<pre><code class="language-ruby">compactor = LLM::Compactor::Truncate.new(agent)
+compactor.call(keep: 200)   # or ctx, agent, etc.
+</code></pre>
+
+<p>This is useful for one-off compaction outside the automatic per-turn cycle, or when you want to compact on a different schedule.</p>
+
+<h4 id="strategies">Strategies</h4>
+
+<p><strong><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a></strong> is the default. It does nothing.</p>
+
+<p><strong><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html"><code>LLM::Compactor::Truncate</code></a></strong> drops the oldest messages, keeping only the N most recent.</p>
+
+<ul>
+  <li><strong>Fast</strong> - no network call, no LLM overhead. Operates entirely in memory with a single pass over the message list.</li>
+  <li><strong>No dependencies</strong> - works offline, has no model or API requirements, and introduces no additional cost.</li>
+  <li><strong>Tool-loop safe</strong> - when a tool result falls at the truncation boundary, the corresponding tool call is kept. Without this, the conversation would contain an orphaned result with no matching call, causing API-level errors on the next turn.</li>
+</ul>
+
+<pre><code class="language-ruby">ctx = LLM::Context.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 128}
+)
+</code></pre>
+
+<h4 id="manual-compaction">Manual compaction</h4>
+
+<p>The REPL provides a <code>/compact</code> command that invokes Truncate on the current agent’s context:</p>
+
+<pre><code>/compact        # keep last 128 messages
+/compact 50     # keep last 50 messages
+</code></pre>
+
+<h4 id="lifecycle-callbacks">Lifecycle callbacks</h4>
+
+<p>Both strategies call stream hooks so the UI can show progress:</p>
+
+<pre><code class="language-ruby">def on_compaction(compactor)
+  # called before compaction begins
+end
+
+def on_compaction_finish(compactor)
+  # called after compaction completes
+end
+</code></pre>
+
+<p>The context’s <code>compacted?</code> flag is <code>true</code> between compaction and the next model response.</p>
 
 <h2 id="cancellation">Cancellation</h2>
 
@@ -399,6 +488,36 @@ rescue LLM::Interrupt
   puts "request cancelled!"
 end
 </code></pre>
+
+<h4 id="tool-interrupts">Tool interrupts</h4>
+
+<p>When a running tool is interrupted &ndash; for example the user presses ESC in the <a href="#repl">REPL</a> &ndash; the runtime raises <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a> on the tool’s execution context. This behavior is uniform across all six concurrency strategies (<code>:call</code>, <code>:thread</code>, <code>:fiber</code>, <code>:task</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
+
+<p>A tool has two choices:</p>
+
+<p><strong>Re-raise</strong> <code>LLM::Interrupt</code> to cancel the entire turn. The exception propagates out of the tool loop and the request is aborted. This is the default when you don’t rescue the exception.</p>
+
+<pre><code class="language-ruby">def call
+  # ... do work ...
+rescue LLM::Interrupt
+  cleanup
+  raise   # cancel the turn
+end
+</code></pre>
+
+<p><strong>Return a value</strong> to continue the tool loop. The model receives the result and decides what to do next, aware that the tool was interrupted.</p>
+
+<pre><code class="language-ruby">def call
+  # ... do work ...
+rescue LLM::Interrupt
+  cleanup
+  {ok: false, reason: "interrupted"}  # continue the loop
+end
+</code></pre>
+
+<p>The right choice depends on the situation. A hard cancel aborts the request outright; useful when continuing would produce garbage. Returning a value lets the model adapt, which can be helpful when the interrupt is temporary (e.g. a timeout).</p>
+
+<p>The <code>:ractor</code> strategy is cooperative by nature; the ractor must check for a cancel message at safe points in its execution. The <code>:fork</code> strategy delivers the interrupt via a signal, which interrupts blocking syscalls immediately. All other strategies raise the exception directly on the executing thread or fiber.</p>
 
 <h2 id="transports">Transports</h2>
 

@@ -183,7 +183,7 @@ a tool that can reveal the current working directory.</p>
   
   
   <h3 class="inherited">Methods included from <span class='object_link'><a href="Param.html" title="LLM::Tool::Param (module)">Param</a></span></h3>
-  <p class="inherited"><span class='object_link'><a href="Param.html#param-instance_method" title="LLM::Tool::Param#param (method)">#param</a></span>, <span class='object_link'><a href="Param.html#required-instance_method" title="LLM::Tool::Param#required (method)">#required</a></span></p>
+  <p class="inherited"><span class='object_link'><a href="Param.html#defaults-instance_method" title="LLM::Tool::Param#defaults (method)">#defaults</a></span>, <span class='object_link'><a href="Param.html#param-instance_method" title="LLM::Tool::Param#param (method)">#param</a></span>, <span class='object_link'><a href="Param.html#required-instance_method" title="LLM::Tool::Param#required (method)">#required</a></span></p>
 
   
   
@@ -239,12 +239,12 @@ a tool that can reveal the current working directory.</p>
       <pre class="lines">
 
 
-15
-16
-17</pre>
+13
+14
+15</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tools/pwd.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tools/pwd.rb', line 13</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
   <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>cwd:</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_getwd'>getwd</span><span class='rbrace'>}</span>
@@ -259,7 +259,7 @@ a tool that can reveal the current working directory.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:16 2026 by
+  Generated on Sun Jul 19 17:26:36 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

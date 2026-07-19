@@ -116,8 +116,7 @@ the current runtime state and return a warning string when pending tool work
 should be blocked before the loop keeps going.</p>
 
 <p><span class='object_link'><a href="" title="LLM::LoopGuard (class)">LLM::LoopGuard</a></span> detects when a context is repeating the same
-tool-call pattern instead of making progress. It is directly inspired by
-General Intelligence Systems and its doom-loop detection approach.</p>
+tool-call pattern instead of making progress.</p>
 
 <p>The public interface is intentionally small:</p>
 
@@ -344,12 +343,12 @@ sequence before the guard returns a warning.</p>
       <pre class="lines">
 
 
+40
 41
-42
-43</pre>
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/loop_guard.rb', line 41</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/loop_guard.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='ivar'>@threshold</span> <span class='op'>=</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:threshold</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#DEFAULT_THRESHOLD-constant" title="LLM::LoopGuard::DEFAULT_THRESHOLD (constant)">DEFAULT_THRESHOLD</a></span></span><span class='rparen'>)</span>
@@ -404,12 +403,12 @@ sequence before the guard returns a warning.</p>
       <pre class="lines">
 
 
+33
 34
-35
-36</pre>
+35</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/loop_guard.rb', line 34</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/loop_guard.rb', line 33</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_threshold'>threshold</span>
   <span class='ivar'>@threshold</span>
@@ -488,13 +487,13 @@ or <code>nil</code> when execution should continue.</p>
       <pre class="lines">
 
 
+55
 56
 57
-58
-59</pre>
+58</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/loop_guard.rb', line 56</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/loop_guard.rb', line 55</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_repetitions'>repetitions</span> <span class='op'>=</span> <span class='id identifier rubyid_detect'>detect</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='rparen'>)</span>
@@ -510,7 +509,7 @@ or <code>nil</code> when execution should continue.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:16 2026 by
+  Generated on Sun Jul 19 17:26:37 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

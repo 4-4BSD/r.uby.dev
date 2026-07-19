@@ -311,7 +311,7 @@ also emit lifecycle callbacks like <span class='object_link'><a href="#on_transf
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#on_compaction-instance_method" title="#on_compaction (instance method)">#<strong>on_compaction</strong>(ctx, compactor)  &#x21d2; nil </a>
+      <a href="#on_compaction-instance_method" title="#on_compaction (instance method)">#<strong>on_compaction</strong>(compactor)  &#x21d2; nil </a>
     
 
     
@@ -334,7 +334,7 @@ also emit lifecycle callbacks like <span class='object_link'><a href="#on_transf
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#on_compaction_finish-instance_method" title="#on_compaction_finish (instance method)">#<strong>on_compaction_finish</strong>(ctx, compactor)  &#x21d2; nil </a>
+      <a href="#on_compaction_finish-instance_method" title="#on_compaction_finish (instance method)">#<strong>on_compaction_finish</strong>(compactor)  &#x21d2; nil </a>
     
 
     
@@ -721,6 +721,8 @@ then falls back to the global function registry.</p>
       <pre class="lines">
 
 
+186
+187
 188
 189
 190
@@ -730,12 +732,10 @@ then falls back to the global function registry.</p>
 194
 195
 196
-197
-198
-199</pre>
+197</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 188</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 186</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid___find__'>__find__</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_tools'>tools</span> <span class='op'>=</span> <span class='id identifier rubyid_extra'>extra</span><span class='lbracket'>[</span><span class='symbol'>:tools</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='op'>&amp;.</span><span class='id identifier rubyid_params'>params</span><span class='op'>&amp;.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='symbol'>:tools</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
@@ -1513,7 +1513,7 @@ tools and does not support MCP tools.</p>
       <div class="method_details ">
   <h3 class="signature " id="on_compaction-instance_method">
   
-    #<strong>on_compaction</strong>(ctx, compactor)  &#x21d2; <tt>nil</tt> 
+    #<strong>on_compaction</strong>(compactor)  &#x21d2; <tt>nil</tt> 
   
 
   
@@ -1532,17 +1532,6 @@ tools and does not support MCP tools.</p>
   
     <li>
       
-        <span class='name'>ctx</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Context.html" title="LLM::Context (class)">LLM::Context</a></span></tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
         <span class='name'>compactor</span>
       
       
@@ -1574,14 +1563,14 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
+165
 166
-167
-168</pre>
+167</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 165</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1592,7 +1581,7 @@ tools and does not support MCP tools.</p>
       <div class="method_details ">
   <h3 class="signature " id="on_compaction_finish-instance_method">
   
-    #<strong>on_compaction_finish</strong>(ctx, compactor)  &#x21d2; <tt>nil</tt> 
+    #<strong>on_compaction_finish</strong>(compactor)  &#x21d2; <tt>nil</tt> 
   
 
   
@@ -1611,17 +1600,6 @@ tools and does not support MCP tools.</p>
   
     <li>
       
-        <span class='name'>ctx</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Context.html" title="LLM::Context (class)">LLM::Context</a></span></tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
         <span class='name'>compactor</span>
       
       
@@ -1653,14 +1631,14 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-175
-176
-177</pre>
+173
+174
+175</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 175</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 173</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1673,7 +1651,7 @@ tools and does not support MCP tools.</p>
 </div>
 
       <div id="footer">
-  Generated on Thu Jul 16 19:49:10 2026 by
+  Generated on Sun Jul 19 17:26:32 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
