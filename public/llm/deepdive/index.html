@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, skills, cancellation, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="llm.rb deep dive">
-    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, skills, cancellation, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb deep dive">
-    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, skills, cancellation, MCP, A2A, transports, streaming, ORM integrations, schemas, tracing, and images.">
+    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -51,6 +51,7 @@
               <summary>Tools</summary>
               <a class="toc-sub" href="#llmtool">LLM::Tool</a>
               <a class="toc-sub" href="#errors">Errors</a>
+              <a class="toc-sub" href="#confirmation">Confirmation</a>
             </details>
             <details>
               <summary>Skills</summary>
@@ -96,12 +97,16 @@
             <details>
               <summary>REPL</summary>
               <a class="toc-sub" href="#llmagent">LLM::Agent</a>
-              <a class="toc-sub" href="#state">State</a>
+              <a class="toc-sub" href="#persistence">Persistence</a>
               <a class="toc-sub" href="#repl-tools">Tools</a>
               <a class="toc-sub" href="#repl-skills">Skills</a>
               <a class="toc-sub" href="#repl-tracer">Tracer</a>
               <a class="toc-sub" href="#input">Input</a>
               <a class="toc-sub" href="#commands">Commands</a>
+              <a class="toc-sub" href="#parameters">Parameters</a>
+              <a class="toc-sub" href="#output">Output</a>
+              <a class="toc-sub" href="#help">Help</a>
+              <a class="toc-sub" href="#aliases">Aliases</a>
             </details>
           </div>
           <div class="toc-group">
@@ -129,6 +134,10 @@
               <a class="toc-sub" href="#text-to-speech">text-to-speech</a>
               <a class="toc-sub" href="#speech-to-text">speech-to-text</a>
               <a class="toc-sub" href="#translation">translation</a>
+            </details>
+            <details>
+              <summary>OCR</summary>
+              <a class="toc-sub" href="#mistral">Mistral</a>
             </details>
           </div>
           <div class="toc-group">
@@ -228,7 +237,7 @@ class Shell &lt; LLM::Shell
 
   def call(name:, arguments:)
     out = `#{name.shellscape} #{arguments.map(&amp;:shellescape).join(" ")}`
-    {ok: $?.success, out:}
+    {ok: $?.success?, out:}
   end
 end
 
@@ -252,6 +261,36 @@ agent.talk "What files are in the current working directory?"
   # {error: true, kind: "RuntimeError", message: "boom"}
   def call
     raise "boom"
+  end
+end
+</code></pre>
+
+<h4 id="confirmation">Confirmation</h4>
+
+<p>Tools that perform destructive actions can be gated behind explicit confirmation. List their names in <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm-class_method"><code>LLM::Agent.confirm</code></a> to block execution until you override <code>on_tool_confirmation</code>.</p>
+
+<p>The default handler cancels the tool. Override it per-agent to prompt the user, log the decision, or auto-approve certain tools.</p>
+
+<pre><code class="language-ruby">class AdminAgent &lt; LLM::Agent
+  set confirm: %w[delete destroy shutdown]
+
+  def on_tool_confirmation(fn, strategy)
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    $stdin.gets&amp;.match?(/\Ay\z/i) ? wait(strategy) : fn.cancel
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = AdminAgent.new(llm)
+</code></pre>
+
+<p>Confirmation also accepts a Symbol for lazy resolution, which allows the list of confirmed tools to change per-instance:</p>
+
+<pre><code class="language-ruby">class AdaptiveAgent &lt; LLM::Agent
+  set confirm: :tools_that_need_confirmation
+
+  def tools_that_need_confirmation
+    some_condition ? %w[delete destroy] : %w[delete]
   end
 end
 </code></pre>
@@ -429,6 +468,8 @@ compactor.call(keep: 200)   # or ctx, agent, etc.
   <li><strong>Tool-loop safe</strong> - when a tool result falls at the truncation boundary, the corresponding tool call is kept. Without this, the conversation would contain an orphaned result with no matching call, causing API-level errors on the next turn.</li>
 </ul>
 
+<p>The <code>keep:</code> parameter accepts either an integer count or a percentage string like <code>"80%"</code>, which keeps approximately 80% of the most recent messages. This is useful when you want to trim proportionally rather than to an absolute number.</p>
+
 <pre><code class="language-ruby">ctx = LLM::Context.new(
   llm,
   compactor: LLM::Compactor::Truncate,
@@ -442,6 +483,7 @@ compactor.call(keep: 200)   # or ctx, agent, etc.
 
 <pre><code>/compact        # keep last 128 messages
 /compact 50     # keep last 50 messages
+/compact 75%    # keep approximately 75% of messages
 </code></pre>
 
 <h4 id="lifecycle-callbacks">Lifecycle callbacks</h4>
@@ -609,11 +651,13 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek
 <pre><code class="language-ruby">require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
 </code></pre>
 
-<h4 id="state">State</h4>
+<p>The <code>name:</code> option labels the agent throughout the TUI &mdash; useful when working with multiple agents. The <code>path:</code> option persists state across sessions. The <code>tools:</code> option attaches extra tools for the duration of the session.</p>
+
+<h4 id="persistence">Persistence</h4>
 
 <p>The <code>path:</code> option accepts a file path where runtime state is read from and written to. This lets you resume a conversation across REPL sessions. When the file does not exist the agent starts fresh; when it does, the agent restores its previous state.</p>
 
@@ -629,6 +673,15 @@ agent.repl(path: "session.json")
 <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm)
 agent.repl(tools: [Debugger])
+</code></pre>
+
+<p>Load every built-in tool with <code>LLM::Tool.subclasses</code>:</p>
+
+<pre><code class="language-ruby">require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(tools: LLM::Tool.subclasses)
 </code></pre>
 
 <h4 id="repl-skills">Skills</h4>
@@ -651,7 +704,7 @@ agent.repl(tracer: true, tools: [Debugger])
 
 <h4 id="input">Input</h4>
 
-<p>The input area supports several keyboard shortcuts:</p>
+<p>The input area supports several keyboard shortcuts. When characters arrive faster than a threshold the REPL detects that text is being pasted rather than typed. In paste mode pressing <code>Enter</code> inserts a newline instead of submitting, allowing multi-line prompts.</p>
 
 <table>
   <thead>
@@ -695,26 +748,85 @@ agent.repl(tracer: true, tools: [Debugger])
     </tr>
     <tr>
       <td><code>Up / Down</code></td>
-      <td>Scroll the transcript</td>
+      <td>Scroll the transcript one line</td>
+    </tr>
+    <tr>
+      <td><code>PgUp</code> / <code>PgDn</code></td>
+      <td>Scroll the transcript by one page</td>
+    </tr>
+    <tr>
+      <td><code>Tab</code></td>
+      <td>Complete <code>/command</code> names</td>
+    </tr>
+    <tr>
+      <td><code>Esc</code></td>
+      <td>Cancel the current request</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+P</code></td>
+      <td>Recall the previous user message</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+N</code></td>
+      <td>Recall the next user message</td>
     </tr>
   </tbody>
 </table>
 
-<p>When characters arrive faster than a threshold the REPL detects that text is being pasted rather than typed. In paste mode pressing <code>Enter</code> inserts a newline instead of submitting, allowing multi-line prompts.</p>
-
 <h4 id="commands">Commands</h4>
 
-<p>Commands are recognized by a <code>/</code> prefix on the input line. The built-in command is <code>/exit</code>, which leaves the REPL. The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a> class can be subclassed to add custom commands &ndash; any subclass that defines a <code>name</code>, <code>description</code>, and <code>call</code> method is automatically registered and available.</p>
+<p>Commands are recognized by a <code>/</code> prefix on the input line. Type <code>/compact</code> to free context window space by dropping the oldest messages. Type <code>/exit</code> to leave the REPL.</p>
 
-<pre><code class="language-ruby">class LLM::Repl::Command
-  class Clear &lt; self
-    name "clear"
-    description "clears the transcript"
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a> class is intentionally similar to <a href="#llmtool"><code>LLM::Tool</code></a> and <a href="#schema"><code>LLM::Schema</code></a> in its interface &ndash; you declare a name, description, and parameters with the same vocabulary. A subclass is automatically registered and available as <code>/name</code>.</p>
 
-    def call
-      system("clear") || system("cls")
-    end
+<h5 id="parameters">Parameters</h5>
+
+<p>Parameters are declared with <code>parameter :name, Type, "description"</code> and marked required with <code>required %i[name]</code>. The <code>call</code> method receives them as keyword arguments matching the parameter names. Parameters without a user-supplied value fall back to the method signature’s default.</p>
+
+<pre><code class="language-ruby">class Greeter &lt; LLM::Command
+  name "greet"
+  description "Greets the given name"
+  parameter :name, String, "The person's name"
+  required %i[name]
+
+  def call(name:)
+    write "Welcome #{name}!\n"
   end
+end
+</code></pre>
+
+<h5 id="output">Output</h5>
+
+<p>A command writes to the transcript with <code>write(str, who:)</code>. The <code>who:</code> label is rendered in bold. It defaults to <code>command(name): </code> where <code>name</code> is the command’s registered name.</p>
+
+<pre><code class="language-ruby">def call(name:)
+  write("Greetings #{name}!\n")
+end
+</code></pre>
+
+<h5 id="help">Help</h5>
+
+<p>The built-in <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html#help-class_method"><code>help</code></a> class method formats the name, description, and parameter list automatically. Use it from inside a command or via <code>/help</code>.</p>
+
+<pre><code class="language-ruby">class Greeter &lt; LLM::Command
+  name "greet"
+  # ...
+end
+
+# /help greet displays:
+#   Command: greet
+#   Description: Greets the given name
+#
+#   Parameters:
+#     name [String] - The person's name (required)
+</code></pre>
+
+<h5 id="aliases">Aliases</h5>
+
+<p>Subclassing an existing command inherits its name, description, and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>:</p>
+
+<pre><code class="language-ruby">class Quit &lt; LLM::Repl::Command::Exit
+  name "quit"
 end
 </code></pre>
 
@@ -939,6 +1051,29 @@ llm = LLM.google(key: ENV["KEY"])
 res = llm.audio.create_translation(file: "bomdia.mp3")
 res.text # =&gt; "Good day"
 </code></pre>
+
+<h2 id="ocr">OCR</h2>
+
+<p>Optical Character Recognition extracts text from images and documents.</p>
+
+<h4 id="mistral">Mistral</h4>
+
+<p>Mistral is the only provider that currently supports OCR through its dedicated API endpoint. The <code>ocr</code> method accepts either an <code>image_url:</code> or a <code>document_url:</code> parameter. Document URLs can point to PDFs. The response exposes pages through <code>res.pages</code>, where each page has a <code>markdown</code> field containing the extracted text.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.mistral(key: ENV["KEY"])
+
+##
+# Extract text from an image
+res = llm.ocr(image_url: "https://example.com/photo.png")
+res.pages.each { |page| puts page.markdown }
+
+##
+# Extract text from a PDF
+res = llm.ocr(document_url: "https://example.com/report.pdf")
+res.pages.each { |page| puts page.markdown }
+</code></pre>
 <h2 id="mcp">MCP</h2>
 
 <h4 id="stdio">stdio</h4>
@@ -1018,7 +1153,7 @@ agent.talk "What's happening, fellow agent?"
     <script>hljs.highlightAll();</script>
     <script>
       (() => {
-        const headings = [...document.querySelectorAll(".deepdive-content h2[id], .deepdive-content h4[id]")];
+        const headings = [...document.querySelectorAll(".deepdive-content h2[id], .deepdive-content h4[id], .deepdive-content h5[id]")];
         const links = new Map([...document.querySelectorAll(".deepdive-toc a[href^='#']")]
           .map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
         const detailsItems = [...document.querySelectorAll(".deepdive-toc details")];

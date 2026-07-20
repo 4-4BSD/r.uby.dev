@@ -658,8 +658,8 @@ td code {
 
 /* llm.rb Page */
 .quick-links {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   justify-content: center;
   gap: 10px;
   margin-top: 16px;
@@ -677,6 +677,12 @@ td code {
 .quick-links a:hover {
   border-color: var(--accent);
   text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .quick-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .examples {

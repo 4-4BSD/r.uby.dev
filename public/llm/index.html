@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="Ruby's capable AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
+    <meta name="description" content="Ruby's capable AI runtime for providers, agents, tools, skills, schemas, MCP, A2A, RAG, OCR, streaming, and context compaction.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="Ruby's capable AI runtime">
-    <meta property="og:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
+    <meta property="og:description" content="Ruby's AI runtime for providers, agents, tools, skills, schemas, MCP, A2A, RAG, OCR, streaming, and context compaction.">
     <meta property="og:url" content="https://r.uby.dev/llm/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb">
-    <meta name="twitter:description" content="Ruby's AI runtime for providers, agents, tools, skills, MCP, A2A, RAG, streaming, files, and persisted state.">
+    <meta name="twitter:description" content="Ruby's AI runtime for providers, agents, tools, skills, schemas, MCP, A2A, RAG, OCR, streaming, and context compaction.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -41,6 +41,7 @@
             <a href="/llm/deepdive/">Deep dive</a>
             <a href="#tools">Tools</a>
             <a href="#streaming">Stream</a>
+            <a href="#schema">Schema</a>
             <a href="#mcp">MCP</a>
             <a href="#repl">REPL</a>
             <a href="#rag">RAG</a>
@@ -68,7 +69,8 @@
           The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
           Gemini, Mistral, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
           It has first-class support for streaming, tool calls,  MCP
-          and A2A, embeddings, vector stores and the RAG pattern.
+          and A2A, embeddings, vector stores, OCR, context compaction,
+          and the RAG pattern.
         <p>
           There are multiple HTTP backends to choose from, tools can be run concurrently
           or in parallel via threads, async tasks, fibers, ractors, and fork, and it is
@@ -78,6 +80,10 @@
           so once you learn the fundamentals, everything else falls into place naturally. And once
           you learn llm.rb, you will also be able to use <a href="/mruby-llm">mruby-llm</a> and
           <a href="/wasm-llm">wasm-llm</a> because the API is pretty much identical.
+        </p>
+        <p>
+          For detailed explanations, configuration, and advanced patterns, see the
+          <a href="/llm/deepdive/">deepdive</a>.
         </p>
       </section>
 
@@ -124,110 +130,51 @@ ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"</code></pre>
           </div>
 
+          <div id="schema" class="example">
+            <h3>LLM::Schema</h3>
+            <p>
+              <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code> subclasses produce typed, structured
+              output from any model call. Pass a schema to <code>LLM::Context#talk</code>,
+              <code>LLM::Agent#talk</code>, or <code>LLM::Provider#complete</code> to receive validated
+              JSON instead of free text. Schemas work alongside tools and streams.
+            </p>
+            <p>
+              <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code> can define objects, arrays, enums,
+              nested schemas, and more. It is also used internally by
+              <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> for parameter definitions.
+            </p>
+            <pre><code class="language-ruby">class Weather < LLM::Schema
+  property :city, String, "The city name"
+  property :temperature, Float, "Current temperature"
+  property :conditions, String, "Weather conditions"
+  required %i[city temperature conditions]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Weather)
+res = agent.talk "Weather in Paris?"
+res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}</code></pre>
+          </div>
+
           <div id="repl" class="example">
             <h3>LLM::REPL</h3>
             <h4>REPL: Agent</h4>
             <p>
-              The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code> method allows
-              an agent to spawn a read-eval-print loop that can be useful while
-              developing or operating agents. It can be used to debug tool calls,
-              confirm an agent has done what was expected, or improve an agent by
-              asking questions about what it has done up to that point.
-            </p>
-            <p>
-              This feature requires that the <a href="https://github.com/ruby/curses">curses</a>
-              and <a href="https://github.com/gettalong/kramdown">kramdown</a> libraries are
-              installed and available to require.
-            </p>
-            <p>
-              The TUI displays a status line with a context-usage bar and cost
-              counter, a scrollable transcript with markdown rendering, and a
-              multi-line input area. The UI stays responsive while the model is
-              generating a response.
-            </p>
-            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl</code></pre>
-            <h4>REPL: State</h4>
-            <p>
-              The <code>path:</code> option lets you resume a session across REPL runs by
-              reading and writing the agent state from a file.
-            </p>
-            <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(path: "session.json")</code></pre>
-            <h4>REPL: Tools</h4>
-            <p>
-              The <code>tools</code> option lets you attach additional tools for the
-              duration of the session. This is in addition to any tools that might
-              already be associated with an agent.
-            </p>
-            <pre><code class="language-ruby">require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(tools: [Debugger])</code></pre>
-            <p>
-              A number of optional tools are distributed as part of llm.rb. They
-              power the agents in the <code>agents/</code> directory, so they're optimized
-              for developer tasks. The following example starts a read-eval-print
-              loop with all builtin tools available.
+              The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code>
+              method drops you into a curses-based TUI for talking to an
+              agent interactively. The <code>path:</code> option saves and restores
+              runtime state across sessions. The <code>tools:</code> option attaches
+              extra tools for the duration of the session. It is like
+              <code>binding.pry</code> but for agents. For the full reference see the
+              <a href="/llm/deepdive/#repl">REPL section</a> in the
+              deepdive.
             </p>
             <pre><code class="language-ruby">require "llm"
 require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(tools: LLM::Tool.subclasses)</code></pre>
-            <h4>REPL: Skills</h4>
-            <p>
-              The <code>skills</code> option lets you load extra skill directories
-              without attaching them to an agent permanently.
-            </p>
-            <pre><code class="language-ruby">require "llm"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm)
-agent.repl(skills: [__dir__])</code></pre>
-            <h4>REPL: Tracer</h4>
-            <p>
-              By default the tracer is disabled for the session. The <code>tracer</code>
-              option can re-enable it, and setting it to <code>true</code> uses the tracer
-              already associated with the agent.
-            </p>
-            <pre><code class="language-ruby">require "llm"
-
-llm    = LLM.deepseek(key: ENV["KEY"])
-tracer = LLM.logger(llm, path: "agent.log")
-agent  = LLM::Agent.new(llm, tracer:)
-agent.repl(tracer: true, tools: [Debugger])</code></pre>
-            <h4>REPL: Commands</h4>
-            <p>
-              Commands are recognized by a <code>/</code> prefix and are backed by
-              <code><a href="/api-docs/llm.rb/LLM/Repl/Command.html">LLM::Repl::Command</a></code>,
-              which can be subclassed to add custom commands. Once you create a
-              subclass, it is automatically added to the repl. A command can have
-              zero or more parameters, and all parameters are presumed to be a
-              String, at least for now.
-            </p>
-            <pre><code class="language-ruby">require "llm"
-require "llm/repl"
-
-class Greeter &lt; LLM::Command
-  name "greet"
-  description "Greets the given name"
-  parameter :name, String, "The person's name"
-  required %i[name]
-
-  def call(name:)
-    write("Welcome #{name}!\n")
-  end
-end</code></pre>
-            <h4>REPL: Input</h4>
-            <p>
-              The input area supports keyboard shortcuts, paste mode for multi-line
-              prompts, and slash commands such as <code>/exit</code>.
-            </p>
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "agent.json", tools: LLM::Tool.subclasses)</code></pre>
           </div>
 
           <div id="tools" class="example">
@@ -376,11 +323,11 @@ require "llm"
 require "llm/active_record"
 
 class Agent < ApplicationRecord
-  acts_as_agent do |agent|
-    agent.model "deepseek-v4-pro"
-    agent.instructions "solve the user's query"
-    agent.tools [Research, FinalizeResearch, ActOnResearch]
-  end
+  acts_as_agent
+  set name: "my-agent",
+      instructions: "solve the user's query",
+      model: "deepseek-v4-pro",
+      tools: [Research, FinalizeResearch, ActOnResearch]
 
   private
 
