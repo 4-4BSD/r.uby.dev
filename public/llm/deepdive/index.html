@@ -52,6 +52,11 @@
               <a class="toc-sub" href="#llmtool">LLM::Tool</a>
               <a class="toc-sub" href="#errors">Errors</a>
               <a class="toc-sub" href="#confirmation">Confirmation</a>
+              <a class="toc-sub" href="#manual-tool-loop">Manual tool loop</a>
+              <a class="toc-sub" href="#executing">Executing</a>
+              <a class="toc-sub" href="#per-tool-confirmation">Per-tool confirmation</a>
+              <a class="toc-sub" href="#full-loop">Full loop</a>
+              <a class="toc-sub" href="#trade-offs">Trade-offs</a>
             </details>
             <details>
               <summary>Skills</summary>
@@ -326,6 +331,95 @@ agent = AdminAgent.new(llm)
   end
 end
 </code></pre>
+
+<h2 id="manual-tool-loop">Manual tool loop</h2>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> manages the tool loop automatically &mdash; it calls the model, checks for tool calls, executes them, sends results back, and repeats until the model responds with text. You can bypass this and drive the loop yourself for finer control.</p>
+
+<p>Start with a bare <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> (no agent):</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+</code></pre>
+
+<p>Send a message and check whether the model wants to call tools:</p>
+
+<pre><code class="language-ruby">res = ctx.talk "What's the weather in Tokyo?"
+
+if ctx.pending_functions?
+  puts "Model requested #{ctx.pending_functions.size} tool(s)"
+else
+  puts res.text
+end
+</code></pre>
+
+<h4 id="executing">Executing</h4>
+
+<p>When the model asks to call tools, call <code>ctx.wait(:strategy)</code> to run them. <code>ctx.wait</code> picks up pending functions, spawns them, waits for results, and records them back in the context. Every strategy is supported: <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+ctx.talk("What's the weather in Tokyo?")
+ctx.talk ctx.wait(:thread)
+</code></pre>
+
+<h4 id="per-tool-confirmation">Per-tool confirmation</h4>
+
+<p>Because <code>pending_functions</code> returns a regular array, you can inspect each function before execution. Call <code>ctx.wait(:thread)</code> to execute all pending tools &mdash; but you can also selectively exclude functions or run individual ones through <code>fn.task(:thread).wait</code> for ad-hoc execution that bypasses guards and streaming hooks:</p>
+
+<pre><code class="language-ruby">results = ctx.pending_functions.map do |fn|
+  print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+  if $stdin.gets&amp;.match?(/\Ay\z/i)
+    fn.task(:thread).wait
+  else
+    fn.cancel(reason: "user declined")
+  end
+end
+ctx.talk(results)
+</code></pre>
+
+<p>This pattern is what <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>'s built-in confirmation feature uses internally, but doing it manually gives you full control &mdash; route the decision through a web socket, a background job, or a multi-user approval flow.</p>
+
+<h4 id="full-loop">Full loop</h4>
+
+<p>A complete manual tool loop looks like this:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+res = nil
+
+loop do
+  res = ctx.talk("What's the weather in Tokyo?")
+  break unless ctx.pending_functions?
+
+  results = ctx.wait(:thread)
+  ctx.talk(results)
+end
+
+puts res.content
+</code></pre>
+
+<p>The loop exits when the model responds with text rather than tool calls. You can extend it with timeouts, user confirmation gates, or custom error handling for each tool.</p>
+
+<h4 id="trade-offs">Trade-offs</h4>
+
+<p>Manual control is more code but gives you:</p>
+
+<ul>
+  <li><strong>Arbitrary pre-execution checks</strong> &mdash; inspect, rewrite, or skip tool calls before they run.</li>
+  <li><strong>Custom confirmation flows</strong> &mdash; async approval over HTTP, Slack, or email instead of the built-in terminal prompt.</li>
+  <li><strong>Different strategies per tool</strong> &mdash; run one tool on a thread and another in a forked process within the same turn.</li>
+  <li><strong>Fine-grained error recovery</strong> &mdash; rescue per-tool failures and decide which results to feed back.</li>
+</ul>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> handles all of this automatically and is the right choice for most applications. Drop down to the manual loop when you need control that the agent abstraction doesn't expose.</p>
 
 <h2 id="skills">Skills</h2>
 
