@@ -400,12 +400,12 @@ synthesize a tool return before sending it back to the model.</p>
       <pre class="lines">
 
 
-76
-77
-78</pre>
+82
+83
+84</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 82</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_id'>id</span>
   <span class='ivar'>@id</span>
@@ -459,12 +459,12 @@ synthesize a tool return before sending it back to the model.</p>
       <pre class="lines">
 
 
-76
-77
-78</pre>
+82
+83
+84</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 82</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
   <span class='ivar'>@name</span>
@@ -518,12 +518,12 @@ synthesize a tool return before sending it back to the model.</p>
       <pre class="lines">
 
 
-76
-77
-78</pre>
+82
+83
+84</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 76</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 82</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_value'>value</span>
   <span class='ivar'>@value</span>
@@ -578,12 +578,12 @@ synthesize a tool return before sending it back to the model.</p>
       <pre class="lines">
 
 
-80
-81
-82</pre>
+86
+87
+88</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 86</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_error?'>error?</span>
   <span class='const'>Hash</span> <span class='op'>===</span> <span class='id identifier rubyid_value'>value</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='symbol'>:error</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span>
@@ -631,12 +631,12 @@ synthesize a tool return before sending it back to the model.</p>
       <pre class="lines">
 
 
-87
-88
-89</pre>
+93
+94
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span><span class='label'>id:</span><span class='comma'>,</span> <span class='label'>name:</span><span class='comma'>,</span> <span class='label'>value:</span><span class='rbrace'>}</span>
@@ -683,12 +683,12 @@ synthesize a tool return before sending it back to the model.</p>
       <pre class="lines">
 
 
-93
-94
-95</pre>
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 93</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
@@ -739,12 +739,12 @@ synthesize a tool return before sending it back to the model.</p>
       <pre class="lines">
 
 
-99
-100
-101</pre>
+105
+106
+107</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 99</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 105</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='kw'>nil</span>
@@ -759,7 +759,7 @@ synthesize a tool return before sending it back to the model.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:35 2026 by
+  Generated on Tue Jul 21 04:07:35 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

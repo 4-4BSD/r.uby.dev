@@ -111,7 +111,7 @@
   <dl>
     <dt>Defined in:</dt>
     <dd>lib/llm/function.rb<span class="defines">,<br>
-  lib/llm/function/fork.rb,<br> lib/llm/function/task.rb,<br> lib/llm/function/array.rb,<br> lib/llm/function/ractor.rb,<br> lib/llm/function/tracing.rb,<br> lib/llm/function/fork/job.rb,<br> lib/llm/function/registry.rb,<br> lib/llm/function/call_task.rb,<br> lib/llm/function/fork/task.rb,<br> lib/llm/function/call_group.rb,<br> lib/llm/function/fork_group.rb,<br> lib/llm/function/ractor/job.rb,<br> lib/llm/function/task_group.rb,<br> lib/llm/function/fiber_group.rb,<br> lib/llm/function/ractor/task.rb,<br> lib/llm/function/ractor_group.rb,<br> lib/llm/function/thread_group.rb,<br> lib/llm/function/ractor/mailbox.rb</span>
+  lib/llm/function/fork.rb,<br> lib/llm/function/task.rb,<br> lib/llm/function/array.rb,<br> lib/llm/function/group.rb,<br> lib/llm/function/ractor.rb,<br> lib/llm/function/tracing.rb,<br> lib/llm/function/fork/job.rb,<br> lib/llm/function/registry.rb,<br> lib/llm/function/fork/task.rb,<br> lib/llm/function/ractor/job.rb,<br> lib/llm/function/ractor/task.rb,<br> lib/llm/function/ractor/mailbox.rb</span>
 
 </dd>
   </dl>
@@ -121,7 +121,9 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     <p>The <span class='object_link'><a href="" title="LLM::Function (class)">LLM::Function</a></span> class represents a local
-function that can be called by an LLM.</p>
+function that can be called by an LLM. Most users should define
+tools as subclasses of <span class='object_link'><a href="Tool.html" title="LLM::Tool (class)">Tool</a></span> instead — Function is the
+lower-level building block that Tool wraps.</p>
 
 
   </div>
@@ -132,32 +134,31 @@ function that can be called by an LLM.</p>
     <h4 class="tag_title">Examples:</h4>
     
       
-        <h5 class="example_title"><div class='inline'><p>example #1</p>
+        <h5 class="example_title"><div class='inline'><p>Tool subclass (preferred for most users)</p>
 </div></h5>
       
-      <pre class="example code"><code><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_function'><span class='object_link'><a href="../LLM.html#function-class_method" title="LLM.function (method)">function</a></span></span><span class='lparen'>(</span><span class='symbol'>:system</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span>
-  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>system</span><span class='tstring_end'>&quot;</span></span>
-  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Runs system commands</span><span class='tstring_end'>&quot;</span></span>
-  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_schema'>schema</span><span class='op'>|</span>
-    <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_object'>object</span><span class='lparen'>(</span><span class='label'>command:</span> <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_string'>string</span><span class='period'>.</span><span class='id identifier rubyid_required'>required</span><span class='rparen'>)</span>
-  <span class='kw'>end</span>
-  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_define'>define</span> <span class='kw'>do</span> <span class='op'>|</span><span class='label'>command:</span><span class='op'>|</span>
-    <span class='lbrace'>{</span><span class='label'>success:</span> <span class='const'>Kernel</span><span class='period'>.</span><span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='id identifier rubyid_command'>command</span><span class='rparen'>)</span><span class='rbrace'>}</span>
+      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>ReadFile</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tool.html" title="LLM::Tool (class)">Tool</a></span></span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>read-file</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Read a file from disk</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_parameter'>parameter</span> <span class='symbol'>:path</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The filename or path</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_required'>required</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>path</span><span class='tstring_end'>]</span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>path:</span><span class='rparen'>)</span>
+    <span class='lbrace'>{</span><span class='label'>contents:</span> <span class='const'><span class='object_link'><a href="File.html" title="LLM::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='rbrace'>}</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></code></pre>
     
       
-        <h5 class="example_title"><div class='inline'><p>example #2</p>
+        <h5 class="example_title"><div class='inline'><p>Inline function (block-form DSL)</p>
 </div></h5>
       
-      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>System</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tool.html" title="LLM::Tool (class)">Tool</a></span></span>
-  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>system</span><span class='tstring_end'>&quot;</span></span>
-  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Runs system commands</span><span class='tstring_end'>&quot;</span></span>
-  <span class='id identifier rubyid_params'>params</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_schema'>schema</span><span class='op'>|</span>
+      <pre class="example code"><code><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_function'><span class='object_link'><a href="../LLM.html#function-class_method" title="LLM.function (method)">function</a></span></span><span class='lparen'>(</span><span class='symbol'>:run_command</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span>
+  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>run-command</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Runs a shell command</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_schema'>schema</span><span class='op'>|</span>
     <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_object'>object</span><span class='lparen'>(</span><span class='label'>command:</span> <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_string'>string</span><span class='period'>.</span><span class='id identifier rubyid_required'>required</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
-
-  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>command:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_define'>define</span> <span class='kw'>do</span> <span class='op'>|</span><span class='label'>command:</span><span class='op'>|</span>
     <span class='lbrace'>{</span><span class='label'>success:</span> <span class='const'>Kernel</span><span class='period'>.</span><span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='id identifier rubyid_command'>command</span><span class='rparen'>)</span><span class='rbrace'>}</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></code></pre>
@@ -169,11 +170,11 @@ function that can be called by an LLM.</p>
 <p class="children">
   
     
-      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Function/Array.html" title="LLM::Function::Array (module)">Array</a></span>, <span class='object_link'><a href="Function/Fork.html" title="LLM::Function::Fork (module)">Fork</a></span>, <span class='object_link'><a href="Function/Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span>, <span class='object_link'><a href="Function/Registry.html" title="LLM::Function::Registry (module)">Registry</a></span>, <span class='object_link'><a href="Function/Tracing.html" title="LLM::Function::Tracing (module)">Tracing</a></span>
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Function/Array.html" title="LLM::Function::Array (module)">Array</a></span>, <span class='object_link'><a href="Function/Async.html" title="LLM::Function::Async (module)">Async</a></span>, <span class='object_link'><a href="Function/Fiber.html" title="LLM::Function::Fiber (module)">Fiber</a></span>, <span class='object_link'><a href="Function/Fork.html" title="LLM::Function::Fork (module)">Fork</a></span>, <span class='object_link'><a href="Function/Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span>, <span class='object_link'><a href="Function/Registry.html" title="LLM::Function::Registry (module)">Registry</a></span>, <span class='object_link'><a href="Function/Sequential.html" title="LLM::Function::Sequential (module)">Sequential</a></span>, <span class='object_link'><a href="Function/Thread.html" title="LLM::Function::Thread (module)">Thread</a></span>, <span class='object_link'><a href="Function/Tracing.html" title="LLM::Function::Tracing (module)">Tracing</a></span>
     
   
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Function/CallGroup.html" title="LLM::Function::CallGroup (class)">CallGroup</a></span>, <span class='object_link'><a href="Function/CallTask.html" title="LLM::Function::CallTask (class)">CallTask</a></span>, <span class='object_link'><a href="Function/FiberGroup.html" title="LLM::Function::FiberGroup (class)">FiberGroup</a></span>, <span class='object_link'><a href="Function/Return.html" title="LLM::Function::Return (class)">Return</a></span>, <span class='object_link'><a href="Function/Task.html" title="LLM::Function::Task (class)">Task</a></span>, <span class='object_link'><a href="Function/TaskGroup.html" title="LLM::Function::TaskGroup (class)">TaskGroup</a></span>, <span class='object_link'><a href="Function/ThreadGroup.html" title="LLM::Function::ThreadGroup (class)">ThreadGroup</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Function/Group.html" title="LLM::Function::Group (class)">Group</a></span>, <span class='object_link'><a href="Function/Return.html" title="LLM::Function::Return (class)">Return</a></span>, <span class='object_link'><a href="Function/Task.html" title="LLM::Function::Task (class)">Task</a></span>
     
   
 </p>
@@ -492,7 +493,7 @@ function that can be called by an LLM.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#spawn-instance_method" title="#spawn (instance method)">#<strong>spawn</strong>(strategy)  &#x21d2; LLM::Function::Task </a>
+      <a href="#task-instance_method" title="#task (instance method)">#<strong>task</strong>(strategy, options = {})  &#x21d2; LLM::Function::Task </a>
     
 
     
@@ -506,7 +507,7 @@ function that can be called by an LLM.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Calls the function concurrently.</p>
+    <span class="summary_desc"><div class='inline'><p>Returns a function as a <span class='object_link'><a href="Function/Task.html" title="LLM::Function::Task (class)">LLM::Function::Task</a></span>.</p>
 </div></span>
   
 </li>
@@ -834,16 +835,16 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-155
-156
-157
-158
-159
-160
-161</pre>
+161
+162
+163
+164
+165
+166
+167</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 155</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 161</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_b'>b</span><span class='rparen'>)</span>
   <span class='ivar'>@name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
@@ -902,12 +903,12 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-108
-109
-110</pre>
+114
+115
+116</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 108</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 114</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_id'>id</span>
   <span class='ivar'>@id</span>
@@ -957,12 +958,12 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-113
-114
-115</pre>
+119
+120
+121</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 119</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_arguments'>arguments</span>
   <span class='ivar'>@arguments</span>
@@ -1012,12 +1013,12 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-145
-146
-147</pre>
+151
+152
+153</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 145</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 151</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tracer'>tracer</span>
   <span class='ivar'>@tracer</span>
@@ -1067,12 +1068,12 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-150
-151
-152</pre>
+156
+157
+158</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 150</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 156</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_model'>model</span>
   <span class='ivar'>@model</span>
@@ -1127,14 +1128,14 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-367
-368
-369
-370
-371</pre>
+363
+364
+365
+366
+367</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 367</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 363</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_runner'>runner</span>
   <span class='id identifier rubyid_runner'>runner</span> <span class='op'>=</span> <span class='const'>Class</span> <span class='op'>===</span> <span class='ivar'>@runner</span> <span class='op'>?</span> <span class='ivar'>@runner</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='op'>:</span> <span class='ivar'>@runner</span>
@@ -1184,12 +1185,12 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-138
-139
-140</pre>
+144
+145
+146</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 138</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 144</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_hash'>hash</span>
   <span class='id identifier rubyid_id'>id</span> <span class='op'>?</span> <span class='id identifier rubyid_id'>id</span><span class='period'>.</span><span class='id identifier rubyid_hash'>hash</span> <span class='op'>:</span> <span class='id identifier rubyid_object_id'>object_id</span><span class='period'>.</span><span class='id identifier rubyid_hash'>hash</span>
@@ -1245,16 +1246,16 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-167
-168
-169
-170
-171
-172
-173</pre>
+173
+174
+175
+176
+177
+178
+179</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 167</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 173</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_name'>name</span>
@@ -1314,16 +1315,16 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-179
-180
-181
-182
-183
-184
-185</pre>
+185
+186
+187
+188
+189
+190
+191</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 179</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 185</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_description'>description</span><span class='lparen'>(</span><span class='id identifier rubyid_desc'>desc</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_desc'>desc</span>
@@ -1394,22 +1395,22 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-191
-192
-193
-194
-195
-196
 197
 198
 199
 200
 201
 202
-203</pre>
+203
+204
+205
+206
+207
+208
+209</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 191</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 197</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_params'>params</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
@@ -1477,12 +1478,12 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-209
-210
-211</pre>
+215
+216
+217</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 209</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 215</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_define'>define</span><span class='lparen'>(</span><span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_b'>b</span><span class='rparen'>)</span>
   <span class='ivar'>@runner</span> <span class='op'>=</span> <span class='id identifier rubyid_klass'>klass</span> <span class='op'>||</span> <span class='id identifier rubyid_b'>b</span>
@@ -1520,10 +1521,6 @@ function that can be called by an LLM.</p>
       
       
       
-        &mdash;
-        <div class='inline'><p>The result of the function call</p>
-</div>
-      
     </li>
   
 </ul>
@@ -1534,17 +1531,19 @@ function that can be called by an LLM.</p>
       <pre class="lines">
 
 
-217
-218
-219
-220
-221</pre>
+223
+224
+225
+226
+227
+228</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 217</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 223</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
-  <span class='id identifier rubyid_call_function'>call_function</span>
+  <span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='ivar'>@tracer</span><span class='op'>&amp;.</span><span class='id identifier rubyid_llm'>llm</span>
+  <span class='id identifier rubyid_llm'>llm</span> <span class='op'>?</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_with_tracer'>with_tracer</span><span class='lparen'>(</span><span class='ivar'>@tracer</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call_function'>call_function</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='id identifier rubyid_call_function'>call_function</span>
 <span class='kw'>ensure</span>
   <span class='ivar'>@called</span> <span class='op'>=</span> <span class='kw'>true</span>
 <span class='kw'>end</span></pre>
@@ -1554,9 +1553,9 @@ function that can be called by an LLM.</p>
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="spawn-instance_method">
+  <h3 class="signature " id="task-instance_method">
   
-    #<strong>spawn</strong>(strategy)  &#x21d2; <tt><span class='object_link'><a href="Function/Task.html" title="LLM::Function::Task (class)">LLM::Function::Task</a></span></tt> 
+    #<strong>task</strong>(strategy, options = {})  &#x21d2; <tt><span class='object_link'><a href="Function/Task.html" title="LLM::Function::Task (class)">LLM::Function::Task</a></span></tt> 
   
 
   
@@ -1564,12 +1563,7 @@ function that can be called by an LLM.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p>Calls the function concurrently.</p>
-
-<p>This is the low-level method that powers concurrent tool execution.
-Prefer the collection methods on <span class='object_link'><a href="Context.html#functions-instance_method" title="LLM::Context#functions (method)">Context#functions</a></span> for most
-use cases: <span class='object_link'><a href="Function/Array.html#call-instance_method" title="LLM::Function::Array#call (method)">LLM::Function::Array#call</a></span>, <span class='object_link'><a href="Function/Array.html#wait-instance_method" title="LLM::Function::Array#wait (method)">LLM::Function::Array#wait</a></span>,
-or <span class='object_link'><a href="Function/Array.html#spawn-instance_method" title="LLM::Function::Array#spawn (method)">LLM::Function::Array#spawn</a></span>.</p>
+    <p>Returns a function as a <span class='object_link'><a href="Function/Task.html" title="LLM::Function::Task (class)">LLM::Function::Task</a></span>.</p>
 
 
   </div>
@@ -1580,11 +1574,11 @@ or <span class='object_link'><a href="Function/Array.html#spawn-instance_method"
     <h4 class="tag_title">Examples:</h4>
     
       
-      <pre class="example code"><code><span class='comment'># Normal usage (via collection)
-</span><span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_functions'>functions</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='rparen'>)</span>
+      <pre class="example code"><code><span class='comment'># As a group
+</span><span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions'>pending_functions</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='rparen'>)</span>
 
-<span class='comment'># Direct usage (uncommon)
-</span><span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='id identifier rubyid_tool'>tool</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='symbol'>:thread</span><span class='rparen'>)</span>
+<span class='comment'># As a task
+</span><span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='id identifier rubyid_tool'>tool</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='symbol'>:thread</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span></code></pre>
     
   </div>
@@ -1604,12 +1598,11 @@ or <span class='object_link'><a href="Function/Array.html#spawn-instance_method"
         <div class='inline'><p>Controls concurrency strategy:</p>
 
 <ul>
-<li><code>:call</code>: Call the function sequentially without spawning</li>
+<li><code>:sequential</code>: Call the function sequentially</li>
 <li><code>:thread</code>: Use threads</li>
-<li><code>:task</code>: Use async tasks (requires async gem)</li>
+<li><code>:async</code>: Use async tasks (requires async gem)</li>
 <li><code>:fork</code>: Use a forked child process (requires xchan.rb support)</li>
 <li><code>:fiber</code>: Use scheduler-backed fibers (requires Fiber.scheduler)</li>
-<li><code>:fork</code>: Use a forked child process (requires xchan.rb support)</li>
 <li><code>:ractor</code>: Use Ruby ractors (class-based tools only; MCP tools are not supported)</li>
 </ul>
 </div>
@@ -1642,8 +1635,6 @@ or <span class='object_link'><a href="Function/Array.html#spawn-instance_method"
       <pre class="lines">
 
 
-251
-252
 253
 254
 255
@@ -1667,44 +1658,34 @@ or <span class='object_link'><a href="Function/Array.html#spawn-instance_method"
 273
 274
 275
-276
-277
-278
-279
-280</pre>
+276</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 251</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 253</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_task'>task</span> <span class='op'>=</span> <span class='kw'>case</span> <span class='id identifier rubyid_strategy'>strategy</span>
-  <span class='kw'>when</span> <span class='symbol'>:call</span>
-    <span class='const'><span class='object_link'><a href="Function/CallTask.html" title="LLM::Function::CallTask (class)">CallTask</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/CallTask.html#initialize-instance_method" title="LLM::Function::CallTask#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:task</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_strategy'>strategy</span>
+  <span class='kw'>when</span> <span class='symbol'>:sequential</span>
+    <span class='const'><span class='object_link'><a href="Function/Sequential.html" title="LLM::Function::Sequential (module)">Sequential</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Sequential/Task.html" title="LLM::Function::Sequential::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Sequential/Task.html#initialize-instance_method" title="LLM::Function::Sequential::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:async</span>
     <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_require'><span class='object_link'><a href="../LLM.html#require-class_method" title="LLM.require (method)">require</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>async</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Async</span><span class='rparen'>)</span>
-    <span class='const'>Async</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call!'>call!</span> <span class='rbrace'>}</span>
+    <span class='const'><span class='object_link'><a href="Function/Async.html" title="LLM::Function::Async (module)">Async</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Async/Task.html" title="LLM::Function::Async::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Async/Task.html#initialize-instance_method" title="LLM::Function::Async::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:thread</span>
-    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call!'>call!</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='lbrace'>{</span> <span class='id identifier rubyid__1'>_1</span><span class='period'>.</span><span class='id identifier rubyid_report_on_exception'>report_on_exception</span> <span class='op'>=</span> <span class='kw'>false</span> <span class='rbrace'>}</span>
+    <span class='const'><span class='object_link'><a href="Function/Thread.html" title="LLM::Function::Thread (module)">Thread</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Thread/Task.html" title="LLM::Function::Thread::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Thread/Task.html#initialize-instance_method" title="LLM::Function::Thread::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:fiber</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Fiber concurrency requires Fiber.scheduler</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'>Fiber</span><span class='period'>.</span><span class='id identifier rubyid_scheduler'>scheduler</span>
-    <span class='const'>Fiber</span><span class='period'>.</span><span class='id identifier rubyid_schedule'>schedule</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_call!'>call!</span> <span class='rbrace'>}</span>
+    <span class='const'><span class='object_link'><a href="Function/Fiber.html" title="LLM::Function::Fiber (module)">Fiber</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Fiber/Task.html" title="LLM::Function::Fiber::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Fiber/Task.html#initialize-instance_method" title="LLM::Function::Fiber::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:fork</span>
     <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_require'><span class='object_link'><a href="../LLM.html#require-class_method" title="LLM.require (method)">require</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>xchan</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Chan</span><span class='op'>::</span><span class='const'>UNIXSocket</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_span'>span</span> <span class='op'>=</span> <span class='ivar'>@tracer</span><span class='op'>&amp;.</span><span class='id identifier rubyid_on_tool_start'>on_tool_start</span><span class='lparen'>(</span><span class='label'>id:</span><span class='comma'>,</span> <span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='comma'>,</span> <span class='label'>model:</span><span class='rparen'>)</span>
-    <span class='const'><span class='object_link'><a href="Function/Fork.html" title="LLM::Function::Fork (module)">Fork</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Fork/Task.html" title="LLM::Function::Fork::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Fork/Task.html#initialize-instance_method" title="LLM::Function::Fork::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='label'>tracer:</span> <span class='ivar'>@tracer</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_spawn'><span class='object_link'><a href="Function/Fork/Task.html#spawn-instance_method" title="LLM::Function::Fork::Task#spawn (method)">spawn</a></span></span>
+    <span class='const'><span class='object_link'><a href="Function/Fork.html" title="LLM::Function::Fork (module)">Fork</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Fork/Task.html" title="LLM::Function::Fork::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Fork/Task.html#initialize-instance_method" title="LLM::Function::Fork::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>tracer:</span> <span class='ivar'>@tracer</span><span class='rparen'>)</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:ractor</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../LLM.html#RactorError-constant" title="LLM::RactorError (constant)">RactorError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Ractor concurrency only supports class-based tools</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='const'>Class</span> <span class='op'>===</span> <span class='ivar'>@runner</span>
     <span class='kw'>if</span> <span class='ivar'>@runner</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:skill?</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@runner</span><span class='period'>.</span><span class='id identifier rubyid_skill?'>skill?</span>
       <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../LLM.html#RactorError-constant" title="LLM::RactorError (constant)">RactorError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Ractor concurrency does not support skill-backed tools</span><span class='tstring_end'>&quot;</span></span>
     <span class='kw'>end</span>
-    <span class='id identifier rubyid_span'>span</span> <span class='op'>=</span> <span class='ivar'>@tracer</span><span class='op'>&amp;.</span><span class='id identifier rubyid_on_tool_start'>on_tool_start</span><span class='lparen'>(</span><span class='label'>id:</span><span class='comma'>,</span> <span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='comma'>,</span> <span class='label'>model:</span><span class='rparen'>)</span>
-    <span class='const'><span class='object_link'><a href="Function/Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Ractor/Task.html" title="LLM::Function::Ractor::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Ractor/Task.html#initialize-instance_method" title="LLM::Function::Ractor::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='ivar'>@runner</span><span class='comma'>,</span> <span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='label'>tracer:</span> <span class='ivar'>@tracer</span><span class='comma'>,</span> <span class='label'>span:</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_spawn'><span class='object_link'><a href="Function/Ractor/Task.html#spawn-instance_method" title="LLM::Function::Ractor::Task#spawn (method)">spawn</a></span></span>
+    <span class='const'><span class='object_link'><a href="Function/Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Ractor/Task.html" title="LLM::Function::Ractor::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Ractor/Task.html#initialize-instance_method" title="LLM::Function::Ractor::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='ivar'>@runner</span><span class='comma'>,</span> <span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>function:</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='label'>tracer:</span> <span class='ivar'>@tracer</span><span class='comma'>,</span> <span class='label'>model:</span><span class='rparen'>)</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown strategy: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. Expected :call, :thread, :task, :fiber, :fork, or :ractor</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown strategy: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. Expected :sequential, :thread, :fiber, :async, :fork, or :ractor</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
-  <span class='const'><span class='object_link'><a href="Function/Task.html" title="LLM::Function::Task (class)">Task</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Function/Task.html#initialize-instance_method" title="LLM::Function::Task#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
-<span class='kw'>ensure</span>
-  <span class='ivar'>@called</span> <span class='op'>=</span> <span class='kw'>true</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1736,7 +1717,7 @@ or <span class='object_link'><a href="Function/Array.html#spawn-instance_method"
       <pre class="example code"><code><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_openai'><span class='object_link'><a href="../LLM.html#openai-class_method" title="LLM.openai (method)">openai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_fn1'>fn1</span><span class='comma'>,</span> <span class='id identifier rubyid_fn2'>fn2</span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>I want to run the functions</span><span class='tstring_end'>&quot;</span></span>
-<span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_functions'>functions</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:cancel</span><span class='rparen'>)</span></code></pre>
+<span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions'>pending_functions</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:cancel</span><span class='rparen'>)</span></code></pre>
     
   </div>
 
@@ -1760,14 +1741,14 @@ or <span class='object_link'><a href="Function/Array.html#spawn-instance_method"
       <pre class="lines">
 
 
-290
-291
-292
-293
-294</pre>
+286
+287
+288
+289
+290</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 290</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 286</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_cancel'>cancel</span><span class='lparen'>(</span><span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>function call cancelled</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="Function/Return.html" title="LLM::Function::Return (class)">Return</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="LLM::Function#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>cancelled:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>reason:</span><span class='rbrace'>}</span><span class='rparen'>)</span>
@@ -1823,14 +1804,14 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
-301
-302
-303
-304
-305</pre>
+297
+298
+299
+300
+301</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 301</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 297</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='id identifier rubyid_hook'>hook</span> <span class='op'>=</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>on_cancel</span><span class='words_sep'> </span><span class='tstring_content'>on_interrupt</span><span class='tstring_end'>]</span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='ivar'>@runner</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid__1'>_1</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
@@ -1880,12 +1861,12 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
-311
-312
-313</pre>
+307
+308
+309</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 311</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 307</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_called?'>called?</span>
   <span class='ivar'>@called</span>
@@ -1933,12 +1914,12 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
-318
-319
-320</pre>
+314
+315
+316</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 318</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 314</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_cancelled?'>cancelled?</span>
   <span class='ivar'>@cancelled</span>
@@ -1986,12 +1967,12 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
-325
-326
-327</pre>
+321
+322
+323</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 325</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 321</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_skill?'>skill?</span>
   <span class='ivar'>@runner</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:skill?</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='ivar'>@runner</span><span class='period'>.</span><span class='id identifier rubyid_skill?'>skill?</span>
@@ -2039,12 +2020,12 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
-332
-333
-334</pre>
+328
+329
+330</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 332</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 328</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_pending?'>pending?</span>
   <span class='op'>!</span><span class='ivar'>@called</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ivar'>@cancelled</span>
@@ -2092,16 +2073,16 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
+335
+336
+337
+338
 339
 340
-341
-342
-343
-344
-345</pre>
+341</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 339</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 335</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_unavailable'>unavailable</span>
   <span class='const'><span class='object_link'><a href="Function/Return.html" title="LLM::Function::Return (class)">Return</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="LLM::Function#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='lbrace'>{</span>
@@ -2153,16 +2134,16 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
+346
+347
+348
+349
 350
 351
-352
-353
-354
-355
-356</pre>
+352</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 350</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 346</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rate_limit'>rate_limit</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="LLM::Function (class)">Function</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Function/Return.html" title="LLM::Function::Return (class)">Return</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="LLM::Function#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='lbrace'>{</span>
@@ -2213,12 +2194,12 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
-360
-361
-362</pre>
+356
+357
+358</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 360</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 356</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_adapt'>adapt</span><span class='lparen'>(</span><span class='id identifier rubyid_provider'>provider</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_provider'>provider</span><span class='period'>.</span><span class='id identifier rubyid_adapt_function'>adapt_function</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -2285,15 +2266,15 @@ This is cooperative and only applies to runners that implement
       <pre class="lines">
 
 
-127
-128
-129
-130
-131
-132</pre>
+133
+134
+135
+136
+137
+138</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 127</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function.rb', line 133</span>
 
 <span class='kw'>def</span> <span class='op'>==</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
@@ -2311,7 +2292,7 @@ This is cooperative and only applies to runners that implement
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:35 2026 by
+  Generated on Tue Jul 21 04:07:35 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

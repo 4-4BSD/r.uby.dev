@@ -82,6 +82,139 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
+<p>Six breaking changes. Concurrency strategies have been renamed
+(<code>:call</code> → <code>:sequential</code>, <code>:task</code> → <code>:async</code>), <code>spawn</code> is now
+<code>task</code>, and the <code>:async</code> strategy has been rebuilt from the ground
+up — it no longer blocks and now supports interruption. The compactor
+has been refactored into pluggable strategies. Interruption is now
+reliable across all six concurrency backends.</p>
+
+<h3 id="migration-from-v12-6-0">Migration from v12.6.0</h3>
+
+<table><thead>
+<tr>
+<th>Old</th>
+<th>New</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>fn.spawn(:call)</code></td>
+<td><code>fn.task(:sequential)</code></td>
+</tr>
+<tr>
+<td><code>fn.spawn(:task)</code></td>
+<td><code>fn.task(:async)</code></td>
+</tr>
+<tr>
+<td><code>ctx.wait(:call)</code></td>
+<td><code>ctx.wait(:sequential)</code></td>
+</tr>
+<tr>
+<td><code>agent.concurrency :task</code></td>
+<td><code>agent.concurrency :async</code></td>
+</tr>
+<tr>
+<td><code>LLM::Function::FiberGroup</code></td>
+<td><code>LLM::Function::Fiber::Group</code></td>
+</tr>
+<tr>
+<td><code>LLM::Function::CallGroup</code></td>
+<td><code>LLM::Function::Sequential::Group</code></td>
+</tr>
+<tr>
+<td><code>LLM::Function::TaskGroup</code></td>
+<td><code>LLM::Function::Async::Group</code></td>
+</tr>
+<tr>
+<td><code>Compactor.new(model:, token_threshold:)</code></td>
+<td><code>Compactor::Truncate.new(ctx)</code></td>
+</tr>
+<tr>
+<td><code>on_compaction(ctx, compactor)</code></td>
+<td><code>on_compaction(compactor)</code></td>
+</tr>
+</tbody></table>
+
+<h3 id="breaking">Breaking</h3>
+
+<ul>
+<li><p><strong>rename <code>LLM::Function#spawn</code> as <code>LLM::Function#task</code></strong> <br>
+<code>LLM::Function#task</code> (previously <code>spawn</code>) now consistently returns an
+object that implements the <code>LLM::Function::Task</code> interface. The old
+implementation alternated between spawning a task immediately or
+returning it to be executed later; the contract is now that <code>task</code>
+returns a task object that can be spawned, waited on, and passed to
+<code>LLM::Function::Group</code>.</p></li>
+<li><p><strong>rename concurrency strategies (<code>:call</code> → <code>:sequential</code>,</strong>
+<strong><code>:task</code> → <code>:async</code>)</strong> <br>
+The <code>:call</code> concurrency strategy is now <code>:sequential</code>, and the <code>:task</code>
+strategy is now <code>:async</code>. <code>LLM::Agent.concurrency</code>, <code>LLM::Context#wait</code>,
+<code>LLM::Function::Array#task</code>, and <code>LLM::Function#task</code> all accept the
+new names. The old names raise <code>ArgumentError</code>.</p></li>
+<li><p><strong>rename group classes</strong> <br>
+Group classes have been moved into their strategy&#39;s namespace:
+<code>FiberGroup</code> → <code>Fiber::Group</code>, <code>ThreadGroup</code> → <code>Thread::Group</code>,
+<code>CallGroup</code> → <code>Sequential::Group</code>, <code>TaskGroup</code> → <code>Async::Group</code>,
+<code>Fork::Group</code> → <code>Fork::Group</code>, <code>Ractor::Group</code> → <code>Ractor::Group</code>.</p></li>
+<li><p><strong>repurpose <code>LLM::Function::Task</code> as a task interface superclass</strong> <br>
+<code>LLM::Function::Task</code> has been repurposed from a general-purpose class
+that tried to support multiple concurrency strategies into an abstract
+base class that defines the task interface. Individual strategies
+(<code>Sequential::Task</code>, <code>Thread::Task</code>, <code>Fiber::Task</code>, <code>Async::Task</code>,
+<code>Fork::Task</code>, <code>Ractor::Task</code>) now subclass it and implement
+<code>spawn</code>, <code>alive?</code>, <code>interrupt!</code>, and <code>wait</code>.</p></li>
+<li><p><strong>fix <code>:async</code> concurrency (now backed by a managed</strong>
+<strong><code>LLM::Function::Async::Reactor</code> on a background thread)</strong> <br>
+The <code>:async</code> strategy previously used <code>Async {}</code> which spawned its own
+reactor and blocked the caller until all tasks completed — making it
+unusable for concurrent tool execution. The strategy also did not
+support interruption, so cancelling a context with async-backed tool
+loops was a no-op.
+<br><br>
+The fix replaces <code>Async {}</code> with a per-turn
+<code>LLM::Function::Async::Reactor</code> that runs on a dedicated background
+thread. The reactor uses a thread-safe inbox <code>Queue</code> — work is
+submitted via <code>submit(&amp;block)</code> and consumed by the reactor&#39;s event
+loop, keeping all fibers on one thread. Each tool runs in an
+<code>Async::Task</code> inside that reactor.
+<br><br>
+<code>Async::Group</code> manages the reactor lifecycle, creating one on demand
+and assigning it to each <code>Async::Task</code> before spawning. The group
+also handles lazy <code>spawn</code> — calling <code>wait</code> on a group spawns all
+tasks automatically.
+<br><br>
+Interruption pushes <code>LLM::Interrupt</code> to the task&#39;s result queue
+(instead of using <code>Fiber#raise</code>), and <code>alive?</code> tracks state through a
+boolean flag rather than referencing the async task directly. Results
+are bridged from the reactor thread back to the caller through a
+<code>Queue</code>.
+<br><br>
+This work is what drove the large refactor of the function internals
+(renamed strategies, split <code>spawn</code>/<code>wait</code>, repurposed <code>Task</code> as a
+superclass, etc.) — the <code>:async</code> strategy needed the same task-shaped
+interface that the other strategies already had.</p></li>
+<li><p><strong>compactor: refactor to strategy-based interface</strong> <br>
+<code>LLM::Compactor</code> has been refactored from a single class that performed
+LLM-based summarization into a strategy-based superclass. Each subclass
+implements a different compaction strategy via <code>call(**opts)</code>. The old
+summarization approach (using <code>model:</code>, <code>token_threshold:</code>,
+<code>message_threshold:</code>, and <code>retention_window:</code> options) has been removed.
+The built-in <code>LLM::Compactor::Truncate</code> strategy drops the oldest
+messages when the conversation exceeds a configured size.</p></li>
+</ul>
+
+<h3 id="core">Core</h3>
+
+<ul>
+<li><strong>extend <code>LLM.require</code> with an optional version argument</strong> <br>
+<code>LLM.require</code> now accepts a second <code>version</code> parameter that is passed
+to <code>Kernel#gem</code> before loading, enabling version constraints for
+optional runtime dependencies. For example,
+<code>LLM.require &quot;test-cmd.rb&quot;, &quot;~&gt; 1.1&quot;</code> ensures a minimum gem version
+is available. This is used internally by the <code>Git</code>, <code>Rg</code>, <code>Mkdir</code>,
+and <code>Shell</code> tools to enforce compatibility with the <code>test-cmd.rb</code> gem.</li>
+</ul>
+
 <h3 id="compactor">Compactor</h3>
 
 <ul>
@@ -94,6 +227,16 @@ sequence. It is configured with <code>keep:</code> (default 64) and emits the
 standard <code>on_compaction</code> and <code>on_compaction_finish</code> stream lifecycle
 callbacks. Unlike the previous summarization approach, no LLM call is
 made — the strategy is purely lossy but fast and requires no network.</p></li>
+<li><p><strong>raise when given an unparseable <code>keep:</code> value</strong> <br>
+<code>LLM::Compactor::Truncate</code> now raises <code>ArgumentError</code> when the <code>keep:</code>
+parameter cannot be parsed as an integer or percentage string, instead
+of failing with an obscure error later during execution.</p></li>
+<li><p><strong>accept percentage string for the <code>keep:</code> parameter</strong> <br>
+<code>LLM::Compactor::Truncate#call</code> now accepts a percentage string such
+as <code>&quot;80%&quot;</code> for the <code>keep:</code> parameter, which keeps approximately 80%
+of the most recent messages. Integer values continue to work as
+before. This makes it easy to trim proportionally rather than to an
+absolute number of messages.</p></li>
 <li><p><strong>add <code>Null</code> strategy for no-op compaction</strong> <br>
 <code>LLM::Compactor::Null</code> is a new built-in compaction strategy that does
 nothing. It is used as the default compactor when no strategy is
@@ -104,14 +247,6 @@ present without requiring a separate nil check.</p></li>
 <code>LLM::Context</code> instances. When given an agent, the internal context is
 unwrapped automatically, making the compactor API more flexible when
 working with agents.</p></li>
-<li><p><strong>refactor to strategy-based interface</strong> <br>
-<code>LLM::Compactor</code> has been refactored from a single class that performed
-LLM-based summarization into a strategy-based superclass. Each subclass
-implements a different compaction strategy via <code>call(**opts)</code>. The old
-summarization approach (using <code>model:</code>, <code>token_threshold:</code>,
-<code>message_threshold:</code>, and <code>retention_window:</code> options) has been removed.
-The built-in <code>LLM::Compactor::Truncate</code> strategy drops the oldest
-messages when the conversation exceeds a configured size.</p></li>
 </ul>
 
 <h4 id="context-integration">Context integration</h4>
@@ -159,98 +294,105 @@ preventing hung processes from blocking the agent indefinitely.</p></li>
 <h3 id="schema">Schema</h3>
 
 <ul>
-<li><p><strong>track property definition order in the <code>index</code> attribute</strong> <br>
-<code>LLM::Schema::Leaf</code> now has an <code>index</code> accessor that tracks the order
-in which properties are defined. Each property receives an incrementing
-index as it is added to the schema, matching the same convention used
-by <code>LLM::Command::Parameter</code>.</p></li>
-<li><p><strong>store <code>@properties</code> as an <code>LLM::Object</code></strong> <br>
-<code>LLM::Schema::Object</code> now stores its <code>@properties</code> hash as an
-<code>LLM::Object</code> instead of a plain <code>Hash</code>, enabling indifferent-access
-lookups with both string and symbol keys.</p></li>
+<li><strong>properties are now ordered and support indifferent access</strong> <br>
+<code>LLM::Schema::Leaf</code> tracks property definition order in a new <code>index</code>
+attribute, matching the convention already used by
+<code>LLM::Command::Parameter</code>. Internally, <code>@properties</code> is stored as an
+<code>LLM::Object</code> instead of a plain <code>Hash</code>, so lookups with both string
+and symbol keys work.</li>
 </ul>
 
 <h3 id="buffer">Buffer</h3>
 
 <ul>
-<li><p><strong>add Array-like query and mutation methods</strong> <br>
+<li><p><strong>more array-like message management</strong> <br>
 <code>LLM::Buffer</code> now exposes <code>first</code>, <code>reject!</code>, <code>select!</code>, <code>shift</code>,
-<code>clear</code>, <code>drop</code>, and <code>take</code> methods, making it easier to query and
-mutate <code>LLM::Context#messages</code> like an ordinary Array. <code>reject!</code> is
-also aliased as <code>delete_if</code> for familiarity.</p></li>
-<li><p><strong>distinguish <code>nil</code> from <code>undefined</code> in <code>last</code></strong> <br>
+<code>clear</code>, <code>drop</code>, <code>take</code>, and <code>reverse</code>, making it easier to query
+and mutate <code>LLM::Context#messages</code> like an ordinary Array. <code>reject!</code>
+is aliased as <code>delete_if</code> for familiarity.</p></li>
+<li><p><strong><code>last(nil)</code> no longer returns the last message</strong> <br>
 <code>LLM::Buffer#last</code> now uses an internal <code>UNDEFINED</code> sentinel to
-distinguish between calling <code>last</code> with no argument (returns the
-last message) and <code>last(nil)</code> (an error). Previously, <code>nil</code> was
-indistinguishable from no argument, causing <code>last(nil)</code> to
-incorrectly return the last message.</p></li>
+distinguish between no argument (<code>last</code> — returns the last message)
+and <code>nil</code> (<code>last(nil)</code> — treated as an argument). Previously <code>nil</code>
+was indistinguishable from no argument.</p></li>
+</ul>
+
+<h3 id="function">Function</h3>
+
+<ul>
+<li><p><strong>consolidate <code>call</code> and <code>call!</code> into one method</strong> <br>
+The private <code>call!</code> method has been merged into the public <code>call</code>
+method. The separate <code>call!</code> method existed because of tracer-scoping
+logic that is now handled directly inside <code>call</code>. All internal call
+sites now use <code>function.call</code> instead of <code>function.call!</code>.</p></li>
+<li><p><strong>add <code>LLM::Function::Group</code> as an abstract base class</strong> <br>
+A new abstract base class (<code>LLM::Function::Group</code>) defines the
+interface that all concurrency strategy groups must implement:
+<code>alive?</code>, <code>interrupt!</code>, and <code>wait</code>. Each strategy group
+(<code>Sequential::Group</code>, <code>Thread::Group</code>, <code>Fiber::Group</code>,
+<code>Async::Group</code>, <code>Fork::Group</code>, <code>Ractor::Group</code>) now subclasses
+this base.</p></li>
+<li><p><strong>split <code>spawn</code> and <code>wait</code> across all strategies</strong> <br>
+<code>spawn</code> now starts execution without blocking, and <code>wait</code> collects
+the result. <code>on_tool_start</code> has been moved into each task&#39;s <code>spawn</code>
+method so the tracer span covers actual execution rather than just
+task construction. Each task and group now exposes a public <code>spawn</code>
+method alongside the existing <code>wait</code>/<code>value</code> methods.</p></li>
+</ul>
+
+<h3 id="agent">Agent</h3>
+
+<ul>
+<li><strong>add <code>name</code> class DSL and instance method</strong> <br>
+<code>LLM::Agent</code> now has a <code>name</code> class DSL (<code>name &quot;admin&quot;</code>) and a
+corresponding <code>#name</code> instance method. The name is resolved through
+the same lazy-resolution path as other agent attributes — it can be
+set via <code>LLM::Agent.set(name: ...)</code>, <code>LLM::Agent.new(name: ...)</code>,
+or the class DSL. When no name is given, a default is derived from
+the class name (e.g., <code>SystemAdmin</code> becomes <code>system-admin</code>). The
+agent&#39;s name is used by the REPL as the default prompt label and
+transcript prefix, making it easier to distinguish multiple sessions
+or give the agent a recognisable identity in the curses-based UI.</li>
 </ul>
 
 <h3 id="repl">REPL</h3>
 
 <ul>
-<li><p><strong>add <code>name:</code> parameter to identify the agent</strong> <br>
-<code>LLM::Agent#repl</code> and <code>LLM::Repl.new</code> now accept a <code>name:</code> parameter
-(defaulting to <code>&quot;agent&quot;</code>) that customises the input prompt to
-<code>provider(name)&gt;</code> and the transcript label from the hardcoded
-<code>agent:</code> to the given name. This makes it easier to distinguish
-multiple REPL sessions or give the agent a recognisable identity
-in the curses-based UI.</p></li>
-<li><p><strong>add <code>compact</code> command for context window compaction</strong> <br>
-The curses-based REPL now has a <code>/compact</code> command that frees space
-in the context window using the <code>LLM::Compactor::Truncate</code> strategy.
-Typing <code>/compact</code> invokes the compactor, drops the oldest messages,
-and displays <code>compact in progress</code> / <code>compact complete</code> feedback in
-the transcript. An optional <code>n</code> argument specifies how many messages
-to keep — for example, <code>/compact 32</code> keeps the most recent 32 messages,
-while <code>/compact</code> with no argument defaults to keeping the last 128.</p></li>
-<li><p><strong>add <code>LLM::Command.complete</code> for command name completion</strong> <br>
-<code>LLM::Repl::Command.complete(str)</code> (also available as <code>LLM::Command.complete</code>)
-returns an array of command names whose names start with the given input
-string, providing the foundation for tab-completion of command names in
-the REPL.</p></li>
-<li><p><strong>implement tab-complete for command names</strong> <br>
-The curses-based REPL input now supports tab-completion for <code>/</code> commands.
-Pressing the Tab key while the input begins with <code>/</code> matches the typed
-prefix against the command registry and fills in the first matching command
-name. This provides quick access to commands like <code>/compact</code>, <code>/help</code>,
-<code>/exit</code>, and <code>/quit</code> without typing the full name.</p></li>
-<li><p><strong>cycle through tab-complete matches on repeated Tab presses</strong> <br>
-Pressing Tab again after an autocomplete cycles through the remaining
-matching commands. Each subsequent Tab advances to the next candidate,
-making it easy to reach any command without typing the full name.</p></li>
-<li><p><strong>expose <code>agent</code> and <code>repl</code> readers on Command</strong> <br>
-<code>LLM::Repl::Command</code> now exposes <code>agent</code> (the active <code>LLM::Agent</code>)
-and <code>repl</code> (the active <code>LLM::Repl</code>) as public readers, making it
-easy for custom commands to access the agent and the repl interface
-without reaching through internal references.</p></li>
-<li><p><strong>allow commands to set parameter defaults</strong> <br>
-Commands can now set default values for their parameters directly in
-their <code>call</code> method signature. When a user provides fewer arguments
-than declared parameters, the default value from the signature is
-used instead of passing <code>nil</code>. This enables commands like <code>/compact</code>
-to define defaults such as <code>def call(n: 128)</code> and have those defaults
-apply when no argument is given.</p></li>
-<li><p><strong>sort tool arguments by parameter definition order</strong> <br>
-The curses-based REPL now sorts tool parameters by their definition
-order (using the new <code>index</code> attribute) when displaying tool arguments
-in the status bar and when assigning argument values to parameters.
-This ensures consistent display regardless of the order in which the
-model returns the arguments.</p></li>
-<li><p><strong>aliases inherit parent description and parameters</strong> <br>
-<code>LLM::Command</code> subclasses that alias another command (e.g.,
-<code>class Quit &lt; Command::Exit</code>) now inherit the parent&#39;s description
-and parameter definitions. Previously, an alias had neither a
-description nor parameters; now they are copied from the parent
-command so <code>/quit</code> behaves identically to <code>/exit</code> in all respects
-except its name.</p></li>
-<li><p><strong>expand markdown coverage to lists, blockquotes, horizontal rules, links, and images</strong> <br>
-The curses-based REPL markdown renderer now handles additional node
-types, including ordered and unordered lists (<code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>, <code>&lt;li&gt;</code>),
-blockquotes (<code>&lt;blockquote&gt;</code>), horizontal rules (<code>&lt;hr&gt;</code>), hyperlinks
-(<code>&lt;a&gt;</code> rendered with underline), and images (<code>&lt;img&gt;</code> rendered as
-<code>[image: alt text]</code>). This provides richer rendering of model
-responses in the interactive session.</p></li>
+<li><p><strong>agent identity in the prompt</strong> <br>
+<code>LLM::Agent#repl</code> and <code>LLM::Repl.new</code> accept a <code>name:</code> parameter
+(defaulting to <code>LLM::Agent#name</code>) that sets the input prompt to
+<code>provider(name)&gt;</code> and labels transcript messages with the agent&#39;s
+name instead of a hardcoded <code>agent:</code>. Useful when running multiple
+sessions.</p></li>
+<li><p><strong><code>/compact</code> command</strong> <br>
+New built-in <code>/compact</code> command frees context window space by
+dropping the oldest messages via <code>LLM::Compactor::Truncate</code>.
+Supports both integer (<code>/compact 32</code>) and percentage (<code>/compact 75%</code>)
+arguments. Defaults to keeping the last 128 messages.</p></li>
+<li><p><strong>tab-completion for <code>/</code> commands</strong> <br>
+Pressing Tab on an input line starting with <code>/</code> autocompletes the
+command name. Repeated Tab presses cycle through matching commands.
+Powered by <code>LLM::Command.complete(str)</code> which is available outside
+the REPL too.</p></li>
+<li><p><strong>command system enhancements</strong> <br>
+Commands can set parameter defaults in their <code>call</code> method signature
+(e.g., <code>def call(n: 128)</code>). Aliases like <code>/quit</code> now inherit their
+parent&#39;s description and parameters. Commands also have access to
+the active <code>agent</code> and <code>repl</code> via public readers.</p></li>
+<li><p><strong>tool argument sorting</strong> <br>
+Tool parameters in the status bar are now displayed in definition
+order (using the new <code>index</code> attribute), regardless of the order
+the model returns them.</p></li>
+<li><p><strong>expanded markdown rendering</strong> <br>
+The curses-based markdown renderer now handles lists (<code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>),
+blockquotes, horizontal rules, hyperlinks (underline), images
+(<code>[image: alt text]</code>), and tables (aligned columns).</p></li>
+<li><p><strong>input improvements</strong> <br>
+Ctrl+P and Ctrl+N walk through conversation history (user messages
+only, managed by <code>LLM::Repl::Walker</code>). Page Up/Down scroll the
+transcript by a page. ENTER and BACKSPACE are now mapped to raw
+character codes from <code>Curses.getch</code> instead of relying on
+<code>Curses::Key::ENTER</code> and <code>Curses::Key::BACKSPACE</code>.</p></li>
 </ul>
 
 <h3 id="object">Object</h3>
@@ -271,6 +413,18 @@ the original key reference.</li>
 Update <code>data/deepinfra.json</code> to mark several models as <code>&quot;status&quot;:
 &quot;deprecated&quot;</code>, including <code>meta-llama/Meta-Llama-3.1-8B-Instruct</code>,
 <code>Qwen/Qwen1.5-110B-Chat</code>, and <code>mistralai/Mixtral-8x7B-Instruct-v0.1</code>.</li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><strong>google: fix <code>stream</code> parameter leakage that broke the provider</strong> <br>
+Fix a bug in the Google provider where <code>stream: stream.enabled?</code> was
+being merged into request parameters, causing API-level errors. The
+Google provider does not use a <code>stream</code> parameter — streaming is
+controlled via the URL path (<code>streamGenerateContent</code> vs
+<code>generateContent</code>). The fix removes the leaked parameter and correctly
+routes streaming requests through the appropriate path.</li>
 </ul>
 
 <h2 id="v12-6-0">v12.6.0</h2>
@@ -2989,7 +3143,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:21 2026 by
+  Generated on Tue Jul 21 04:07:32 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

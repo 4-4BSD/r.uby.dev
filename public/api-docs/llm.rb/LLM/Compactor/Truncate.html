@@ -219,14 +219,16 @@ memory.</p>
         <span class='name'>keep</span>
       
       
-        <span class='type'>(<tt>Integer</tt>)</span>
+        <span class='type'>(<tt>String</tt>, <tt>Integer</tt>)</span>
       
       
         <em class="default">(defaults to: <tt>64</tt>)</em>
       
       
         &mdash;
-        <div class='inline'><p>The last (approx) n number of messages to keep</p>
+        <div class='inline'><p>The last (approx) n number of messages to keep.
+This parameter can also be a percentage: eg &quot;80%&quot;
+to keep 80% of the most recent messages.</p>
 </div>
       
     </li>
@@ -253,8 +255,6 @@ memory.</p>
       <pre class="lines">
 
 
-18
-19
 20
 21
 22
@@ -264,13 +264,17 @@ memory.</p>
 26
 27
 28
-29</pre>
+29
+30
+31
+32</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/compactor/truncate.rb', line 18</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/compactor/truncate.rb', line 20</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>keep:</span> <span class='int'>64</span><span class='rparen'>)</span>
-  <span class='kw'>if</span> <span class='id identifier rubyid_keep'>keep</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:system?</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='id identifier rubyid_keep'>keep</span> <span class='op'>=</span> <span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_keep'>keep</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_keep'>keep</span> <span class='op'>&lt;=</span> <span class='int'>0</span> <span class='op'>||</span> <span class='id identifier rubyid_keep'>keep</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_messages'>messages</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:system?</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
     <span class='kw'>nil</span>
   <span class='kw'>else</span>
     <span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -291,7 +295,7 @@ memory.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:49 2026 by
+  Generated on Tue Jul 21 04:07:39 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

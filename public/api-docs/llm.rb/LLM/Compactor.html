@@ -115,8 +115,8 @@ strategies in llm.rb.</p>
 
 <p>A compactor is bound to a context and decides whether and how to compact
 the conversation history when <span class='object_link'><a href="#call-instance_method" title="LLM::Compactor#call (method)">#call</a></span> is invoked. Each subclass
-implements a different strategy: dropping old messages, summarizing them
-with an LLM, or restructuring them through a schema.</p>
+implements a different strategy: <span class='object_link'><a href="Compactor/Truncate.html" title="LLM::Compactor::Truncate (class)">Truncate</a></span> drops the
+oldest messages, and <span class='object_link'><a href="Compactor/Null.html" title="LLM::Compactor::Null (class)">Null</a></span> is a no-op (the default).</p>
 
 <p>The compactor does not have a separate <code>compact?</code> predicate. It inspects
 the context internally and returns <code>nil</code> when nothing needs to happen.
@@ -455,7 +455,7 @@ Callers invoke <span class='object_link'><a href="#call-instance_method" title="
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:36 2026 by
+  Generated on Tue Jul 21 04:07:36 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

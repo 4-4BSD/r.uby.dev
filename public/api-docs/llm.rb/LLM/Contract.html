@@ -68,7 +68,7 @@
       <div id="content"><h1>Module: LLM::Contract
   
   
-  
+  <span class="private note title">Private</span>
 </h1>
 <div class="box_info">
   
@@ -99,43 +99,19 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>The <code>LLM::Contract</code> module provides the ability for modules
-who are extended by it to implement contracts which must be
-implemented by other modules who include a given contract.</p>
+    <p class="note private">
+  <strong>This module is part of a private API.</strong>
+  You should avoid using this module if possible, as it may be removed or be changed in the future.
+</p>
+<p>The <code>LLM::Contract</code> module enforces API contracts between
+provider response adapters and the runtime. Users never
+interact with this module directly.</p>
 
 
   </div>
 </div>
 <div class="tags">
   
-  <div class="examples">
-    <h4 class="tag_title">Examples:</h4>
-    
-      
-      <pre class="example code"><code><span class='kw'>module</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Contract</span>
-   <span class='comment'># ..
-</span><span class='kw'>end</span>
-
-<span class='kw'>module</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Contract</span>
-  <span class='kw'>module</span> <span class='const'><span class='object_link'><a href="Contract/Completion.html" title="LLM::Contract::Completion (module)">Completion</a></span></span>
-    <span class='id identifier rubyid_extend'>extend</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Contract</span>
-    <span class='comment'># inheriting modules must implement these methods
-</span>    <span class='comment'># otherwise an error is raised on include
-</span>    <span class='kw'>def</span> <span class='id identifier rubyid_foo'>foo</span> <span class='op'>=</span> <span class='kw'>nil</span>
-    <span class='kw'>def</span> <span class='id identifier rubyid_bar'>bar</span> <span class='op'>=</span> <span class='kw'>nil</span>
-  <span class='kw'>end</span>
-<span class='kw'>end</span>
-
-<span class='kw'>module</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="OpenAI.html" title="LLM::OpenAI (class)">OpenAI</a></span></span><span class='op'>::</span><span class='const'>ResponseAdapter</span>
-  <span class='kw'>module</span> <span class='const'><span class='object_link'><a href="Contract/Completion.html" title="LLM::Contract::Completion (module)">Completion</a></span></span>
-    <span class='kw'>def</span> <span class='id identifier rubyid_foo'>foo</span> <span class='op'>=</span> <span class='kw'>nil</span>
-    <span class='kw'>def</span> <span class='id identifier rubyid_bar'>bar</span> <span class='op'>=</span> <span class='kw'>nil</span>
-    <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Contract</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Contract/Completion.html" title="LLM::Contract::Completion (module)">Completion</a></span></span>
-  <span class='kw'>end</span>
-<span class='kw'>end</span></code></pre>
-    
-  </div>
-
 
 </div><h2>Defined Under Namespace</h2>
 <p class="children">
@@ -157,7 +133,20 @@ implemented by other modules who include a given contract.</p>
     <dl class="constants">
       
         <dt id="ContractError-constant" class="">ContractError =
-          
+          <div class="docstring">
+  <div class="discussion">
+    <p class="note private">
+  <strong>This constant is part of a private API.</strong>
+  You should avoid using this constant if possible, as it may be removed or be changed in the future.
+</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
         </dt>
         <dd><pre class="code"><span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Error.html" title="LLM::Error (class)">Error</a></span></span><span class='rparen'>)</span></pre></dd>
       
@@ -238,19 +227,19 @@ implemented by other modules who include a given contract.</p>
       <pre class="lines">
 
 
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46</pre>
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/contract.rb', line 37</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/contract.rb', line 16</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_included'>included</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_meths'>meths</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_instance_methods'>instance_methods</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
@@ -272,7 +261,7 @@ implemented by other modules who include a given contract.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:23 2026 by
+  Generated on Tue Jul 21 04:07:32 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

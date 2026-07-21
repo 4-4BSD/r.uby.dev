@@ -108,9 +108,10 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>The <span class='object_link'><a href="" title="LLM::Function::Task (class)">Task</a></span> class wraps a single concurrent function call and
-provides a small, uniform interface across threads, scheduler-backed fibers,
-and async tasks.</p>
+    <p>This class is the superclass that all concurrency
+strategies must subclass in order to implement their
+own Task class. It provides a common interface that
+is the same across all concurrency strategies.</p>
 
 
   </div>
@@ -118,7 +119,11 @@ and async tasks.</p>
 <div class="tags">
   
 
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Async/Task.html" title="LLM::Function::Async::Task (class)">Async::Task</a></span>, <span class='object_link'><a href="Fiber/Task.html" title="LLM::Function::Fiber::Task (class)">Fiber::Task</a></span>, <span class='object_link'><a href="Sequential/Task.html" title="LLM::Function::Sequential::Task (class)">Sequential::Task</a></span>, <span class='object_link'><a href="Thread/Task.html" title="LLM::Function::Thread::Task (class)">LLM::Function::Thread::Task</a></span></p>
 </div>
+
 
 
 
@@ -128,34 +133,7 @@ and async tasks.</p>
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#task-instance_method" title="#task (instance method)">#<strong>task</strong>  &#x21d2; Object </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#function-instance_method" title="#function (instance method)">#<strong>function</strong>  &#x21d2; LLM::Function<sup>?</sup> </a>
+      <a href="#function-instance_method" title="#function (instance method)">#<strong>function</strong>  &#x21d2; LLM::Function </a>
     
 
     
@@ -195,7 +173,7 @@ and async tasks.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(task, function = nil)  &#x21d2; LLM::Function::Task </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(fn, options = {})  &#x21d2; Task </a>
     
 
     
@@ -207,6 +185,29 @@ and async tasks.</p>
   
   
   
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>A new instance of Task.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#spawn-instance_method" title="#spawn (instance method)">#<strong>spawn</strong>  &#x21d2; nil </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
   
   
 
@@ -228,7 +229,7 @@ and async tasks.</p>
   
   
   
-  
+  <span class="abstract note title">abstract</span>
   
   
 
@@ -252,7 +253,7 @@ and async tasks.</p>
   
   
   
-  
+  <span class="abstract note title">abstract</span>
   
   
 
@@ -276,7 +277,7 @@ and async tasks.</p>
   
   
   
-  
+  <span class="abstract note title">abstract</span>
   
   
 
@@ -298,7 +299,7 @@ and async tasks.</p>
   
   
   
-  
+  <span class="abstract note title">abstract</span>
   
   
 
@@ -318,7 +319,7 @@ and async tasks.</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(task, function = nil)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Function::Task (class)">LLM::Function::Task</a></span></tt> 
+    #<strong>initialize</strong>(fn, options = {})  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Function::Task (class)">Task</a></span></tt> 
   
 
   
@@ -326,7 +327,8 @@ and async tasks.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <p>Returns a new instance of Task.</p>
+
 
   </div>
 </div>
@@ -336,10 +338,10 @@ and async tasks.</p>
   
     <li>
       
-        <span class='name'>task</span>
+        <span class='name'>fn</span>
       
       
-        <span class='type'>(<tt>Thread</tt>, <tt>Fiber</tt>, <tt>Async::Task</tt>, <tt><span class='object_link'><a href="Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span></tt>, <tt><span class='object_link'><a href="Ractor/Task.html" title="LLM::Function::Ractor::Task (class)">LLM::Function::Ractor::Task</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>)</span>
       
       
       
@@ -347,14 +349,19 @@ and async tasks.</p>
   
     <li>
       
-        <span class='name'>function</span>
+        <span class='name'>options</span>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>, <tt>nil</tt>)</span>
+        <span class='type'>(<tt>Hash</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>nil</tt>)</em>
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
       
+      
+        &mdash;
+        <div class='inline'><p>An optional set of options that are specific
+to a given concurrency strategy.</p>
+</div>
       
     </li>
   
@@ -367,17 +374,15 @@ and async tasks.</p>
       <pre class="lines">
 
 
-21
-22
-23
-24</pre>
+19
+20
+21</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 21</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 19</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_task'>task</span><span class='comma'>,</span> <span class='id identifier rubyid_function'>function</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
-  <span class='ivar'>@task</span> <span class='op'>=</span> <span class='id identifier rubyid_task'>task</span>
-  <span class='ivar'>@function</span> <span class='op'>=</span> <span class='id identifier rubyid_function'>function</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='ivar'>@function</span> <span class='op'>=</span> <span class='id identifier rubyid_fn'>fn</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -392,9 +397,9 @@ and async tasks.</p>
       
       <span id=""></span>
       <div class="method_details first">
-  <h3 class="signature first" id="task-instance_method">
+  <h3 class="signature first" id="function-instance_method">
   
-    #<strong>task</strong>  &#x21d2; <tt><span class='object_link'><a href="../Object.html" title="LLM::Object (class)">Object</a></span></tt>  <span class="extras">(readonly)</span>
+    #<strong>function</strong>  &#x21d2; <tt><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -414,7 +419,7 @@ and async tasks.</p>
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="../Object.html" title="LLM::Object (class)">Object</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>)</span>
       
       
       
@@ -428,66 +433,12 @@ and async tasks.</p>
       <pre class="lines">
 
 
-11
 12
-13</pre>
+13
+14</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 11</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_task'>task</span>
-  <span class='ivar'>@task</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="function-instance_method">
-  
-    #<strong>function</strong>  &#x21d2; <tt><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt><sup>?</sup>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>, <tt>nil</tt>)</span>
-      
-      
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-15
-16
-17</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 12</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_function'>function</span>
   <span class='ivar'>@function</span>
@@ -505,7 +456,76 @@ and async tasks.</p>
 
     
       <div class="method_details first">
-  <h3 class="signature first" id="alive?-instance_method">
+  <h3 class="signature first" id="spawn-instance_method">
+  
+    #<strong>spawn</strong>  &#x21d2; <tt>nil</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_spawn'>spawn</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="alive?-instance_method">
   
     #<strong>alive?</strong>  &#x21d2; <tt>Boolean</tt> 
   
@@ -515,7 +535,11 @@ and async tasks.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
 
   </div>
 </div>
@@ -534,6 +558,19 @@ and async tasks.</p>
     </li>
   
 </ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -541,17 +578,15 @@ and async tasks.</p>
       <pre class="lines">
 
 
-28
-29
-30
-31</pre>
+33
+34
+35</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 28</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 33</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alive?'>alive?</span>
-  <span class='kw'>return</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_alive?'>alive?</span> <span class='kw'>if</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:alive?</span><span class='rparen'>)</span>
-  <span class='kw'>false</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -573,7 +608,11 @@ and async tasks.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
 
   </div>
 </div>
@@ -592,6 +631,19 @@ and async tasks.</p>
     </li>
   
 </ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -599,41 +651,15 @@ and async tasks.</p>
       <pre class="lines">
 
 
-35
-36
-37
-38
-39
 40
 41
-42
-43
-44
-45
-46
-47
-48
-49
-50</pre>
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 35</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 40</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
-  <span class='kw'>case</span> <span class='id identifier rubyid_task'>task</span>
-  <span class='kw'>when</span> <span class='const'>Thread</span>
-    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='const'>Fiber</span>
-    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_alive?'>alive?</span>
-  <span class='kw'>else</span>
-    <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Async</span><span class='op'>::</span><span class='const'>Task</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='op'>::</span><span class='const'>Async</span><span class='op'>::</span><span class='const'>Task</span> <span class='op'>===</span> <span class='id identifier rubyid_task'>task</span>
-      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_fiber'>fiber</span><span class='op'>&amp;.</span><span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_alive?'>alive?</span>
-    <span class='kw'>elsif</span> <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:interrupt!</span><span class='rparen'>)</span>
-      <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span>
-    <span class='kw'>end</span>
-  <span class='kw'>end</span>
-  <span class='id identifier rubyid_function'>function</span><span class='op'>&amp;.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span>
-  <span class='kw'>nil</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -655,7 +681,11 @@ and async tasks.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
 
   </div>
 </div>
@@ -674,6 +704,19 @@ and async tasks.</p>
     </li>
   
 </ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -681,29 +724,15 @@ and async tasks.</p>
       <pre class="lines">
 
 
-55
-56
-57
-58
-59
-60
-61
-62
-63
-64</pre>
+48
+49
+50</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 55</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 48</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
-  <span class='kw'>if</span> <span class='const'>Thread</span> <span class='op'>===</span> <span class='id identifier rubyid_task'>task</span>
-    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
-  <span class='kw'>elsif</span> <span class='const'>Fiber</span> <span class='op'>===</span> <span class='id identifier rubyid_task'>task</span>
-    <span class='id identifier rubyid_fiber'>fiber</span><span class='period'>.</span><span class='id identifier rubyid_alive?'>alive?</span> <span class='op'>?</span> <span class='id identifier rubyid_scheduler'>scheduler</span><span class='period'>.</span><span class='id identifier rubyid_run'>run</span> <span class='op'>:</span> <span class='kw'>nil</span>
-    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
-  <span class='kw'>else</span>
-    <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span>
-  <span class='kw'>end</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -721,7 +750,11 @@ and async tasks.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'></div>
+</div>
+
 
   </div>
 </div>
@@ -740,6 +773,19 @@ and async tasks.</p>
     </li>
   
 </ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -747,23 +793,15 @@ and async tasks.</p>
       <pre class="lines">
 
 
-69
-70
-71
-72
-73
-74
-75</pre>
+56
+57
+58</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 69</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/task.rb', line 56</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_group_class'>group_class</span>
-  <span class='kw'>case</span> <span class='id identifier rubyid_task'>task</span>
-  <span class='kw'>when</span> <span class='const'>Thread</span> <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">Function</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ThreadGroup.html" title="LLM::Function::ThreadGroup (class)">ThreadGroup</a></span></span>
-  <span class='kw'>when</span> <span class='const'>Fiber</span> <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">Function</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FiberGroup.html" title="LLM::Function::FiberGroup (class)">FiberGroup</a></span></span>
-  <span class='kw'>else</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Function.html" title="LLM::Function (class)">Function</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="TaskGroup.html" title="LLM::Function::TaskGroup (class)">TaskGroup</a></span></span>
-  <span class='kw'>end</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -775,7 +813,7 @@ and async tasks.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:42 2026 by
+  Generated on Tue Jul 21 04:07:37 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

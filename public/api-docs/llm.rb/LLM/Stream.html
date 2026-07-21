@@ -138,6 +138,38 @@ also emit lifecycle callbacks like <span class='object_link'><a href="#on_transf
 </div>
 <div class="tags">
   
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Subclass with callbacks</p>
+</div></h5>
+      
+      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>MyStream</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Stream</span>
+  <span class='kw'>def</span> <span class='id identifier rubyid_on_content'>on_content</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print'>print</span> <span class='id identifier rubyid_content'>content</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_on_reasoning_content'>on_reasoning_content</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_warn'>warn</span> <span class='id identifier rubyid_content'>content</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="../LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>stream:</span> <span class='const'>MyStream</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Explain Ruby fibers.</span><span class='tstring_end'>&quot;</span></span></code></pre>
+    
+  </div>
+
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Agent.html" title="LLM::Agent (class)">Where streams are typically attached</a></span></li>
+    
+      <li><span class='object_link'><a href="Context.html" title="LLM::Context (class)">Where streams are bound per-turn</a></span></li>
+    
+  </ul>
 
 </div><div id="subclasses">
   <h2>Direct Known Subclasses</h2>
@@ -626,22 +658,22 @@ and nil. Anything else raises a TypeError.</p>
       <pre class="lines">
 
 
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48
-49
-50
-51</pre>
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 39</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 57</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='id identifier rubyid_obj'>obj</span><span class='comma'>,</span> <span class='label'>extra:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="LLM::Stream (class)">Stream</a></span></span> <span class='op'>===</span> <span class='id identifier rubyid_obj'>obj</span>
@@ -721,21 +753,21 @@ then falls back to the global function registry.</p>
       <pre class="lines">
 
 
-186
-187
-188
-189
-190
-191
-192
-193
-194
 195
 196
-197</pre>
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 186</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 195</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid___find__'>__find__</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_tools'>tools</span> <span class='op'>=</span> <span class='id identifier rubyid_extra'>extra</span><span class='lbracket'>[</span><span class='symbol'>:tools</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='op'>&amp;.</span><span class='id identifier rubyid_params'>params</span><span class='op'>&amp;.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='symbol'>:tools</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
@@ -792,12 +824,12 @@ then falls back to the global function registry.</p>
       <pre class="lines">
 
 
-56
-57
-58</pre>
+74
+75
+76</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 56</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 74</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_extra'>extra</span>
   <span class='ivar'>@extra</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Object.html" title="LLM::Object (class)">Object</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from'>from</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
@@ -845,12 +877,12 @@ then falls back to the global function registry.</p>
       <pre class="lines">
 
 
-63
-64
-65</pre>
+81
+82
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 63</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 81</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ctx'>ctx</span>
   <span class='id identifier rubyid_extra'>extra</span><span class='lbracket'>[</span><span class='symbol'>:ctx</span><span class='rbracket'>]</span>
@@ -898,12 +930,12 @@ then falls back to the global function registry.</p>
       <pre class="lines">
 
 
-70
-71
-72</pre>
+88
+89
+90</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 88</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_queue'>queue</span>
   <span class='ivar'>@queue</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="Stream/Queue.html" title="LLM::Stream::Queue (class)">Queue</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Stream/Queue.html#initialize-instance_method" title="LLM::Stream::Queue#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -953,12 +985,12 @@ to the actual task types already present in the queue.</p>
       <pre class="lines">
 
 
-79
-80
-81</pre>
+97
+98
+99</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 79</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 97</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='op'>*</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span>
@@ -1005,12 +1037,12 @@ to the actual task types already present in the queue.</p>
       <pre class="lines">
 
 
-85
-86
-87</pre>
+103
+104
+105</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 85</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 103</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_enabled?'>enabled?</span>
   <span class='kw'>true</span>
@@ -1081,12 +1113,12 @@ to the actual task types already present in the queue.</p>
       <pre class="lines">
 
 
-96
-97
-98</pre>
+114
+115
+116</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 96</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 114</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_content'>on_content</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1153,12 +1185,12 @@ to the actual task types already present in the queue.</p>
       <pre class="lines">
 
 
-106
-107
-108</pre>
+124
+125
+126</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 106</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 124</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_reasoning_content'>on_reasoning_content</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1179,23 +1211,9 @@ to the actual task types already present in the queue.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-  <div class="note notetag">
-    <strong>Note:</strong>
-    <div class='inline'><p>A stream implementation may start tool execution here, for
-example by pushing <code>ctx.spawn(tool, :thread)</code>,
-<code>ctx.spawn(tool, :fiber)</code>, or <code>ctx.spawn(tool, :task)</code> onto <span class='object_link'><a href="#queue-instance_method" title="LLM::Stream#queue (method)">#queue</a></span>.
-Mixed strategies can also be selected per tool, such as
-<code>tool.mcp? ? ctx.spawn(tool, :task) : ctx.spawn(tool, :ractor)</code>.
-Streamed tool resolution now prefers the current request tools, so
-<span class='object_link'><a href="../LLM.html#function-class_method" title="LLM.function (method)">LLM.function</a></span>, MCP tools, bound tool instances, and normal
-<span class='object_link'><a href="Tool.html" title="LLM::Tool (class)">LLM::Tool</a></span> classes can all resolve through the same
-request-local path. The current <code>:ractor</code> mode is for class-based
-tools and does not support MCP tools.</p>
-</div>
-  </div>
-
-<p>Called when a streamed tool call has been fully constructed.</p>
+    <p>Called when a streamed tool call has been fully constructed.
+A stream implementation may start tool execution here by pushing
+<code>@queue &lt;&lt; tool.task(:thread)</code> onto <span class='object_link'><a href="#queue-instance_method" title="LLM::Stream#queue (method)">#queue</a></span>.</p>
 
 
   </div>
@@ -1241,12 +1259,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-125
-126
-127</pre>
+135
+136
+137</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 125</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 135</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_call'>on_tool_call</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1267,16 +1285,9 @@ tools and does not support MCP tools.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    
-  <div class="note notetag">
-    <strong>Note:</strong>
-    <div class='inline'><p>This callback runs when <span class='object_link'><a href="#wait-instance_method" title="LLM::Stream#wait (method)">#wait</a></span> resolves work that was queued from
-<span class='object_link'><a href="#on_tool_call-instance_method" title="LLM::Stream#on_tool_call (method)">#on_tool_call</a></span>, such as values returned by <code>ctx.spawn(tool, :thread)</code>,
-<code>ctx.spawn(tool, :fiber)</code>, or <code>ctx.spawn(tool, :task)</code>.</p>
-</div>
-  </div>
-
-<p>Called when queued streamed tool work returns.</p>
+    <p>Called when queued streamed tool work returns.
+This callback runs when <span class='object_link'><a href="#wait-instance_method" title="LLM::Stream#wait (method)">#wait</a></span> resolves work queued from
+<span class='object_link'><a href="#on_tool_call-instance_method" title="LLM::Stream#on_tool_call (method)">#on_tool_call</a></span>.</p>
 
 
   </div>
@@ -1337,12 +1348,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-139
-140
-141</pre>
+148
+149
+150</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 139</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 148</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_return'>on_tool_return</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='comma'>,</span> <span class='id identifier rubyid_result'>result</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1416,12 +1427,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-148
-149
-150</pre>
+157
+158
+159</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 148</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 157</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_transform'>on_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1495,12 +1506,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-157
-158
-159</pre>
+166
+167
+168</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 157</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 166</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_transform_finish'>on_transform_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1563,12 +1574,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-165
-166
-167</pre>
+174
+175
+176</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 165</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 174</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1631,12 +1642,12 @@ tools and does not support MCP tools.</p>
       <pre class="lines">
 
 
-173
-174
-175</pre>
+182
+183
+184</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 173</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 182</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1651,7 +1662,7 @@ tools and does not support MCP tools.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:32 2026 by
+  Generated on Tue Jul 21 04:07:34 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

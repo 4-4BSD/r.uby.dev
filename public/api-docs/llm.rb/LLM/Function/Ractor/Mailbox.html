@@ -420,13 +420,17 @@ for a single ractor-backed function call.</p>
 
 21
 22
-23</pre>
+23
+24
+25</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/mailbox.rb', line 21</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alive?'>alive?</span>
   <span class='id identifier rubyid_request'>request</span><span class='lparen'>(</span><span class='symbol'>:alive?</span><span class='rparen'>)</span>
+<span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Ractor</span><span class='op'>::</span><span class='const'>ClosedError</span>
+  <span class='kw'>false</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -470,12 +474,12 @@ for a single ractor-backed function call.</p>
       <pre class="lines">
 
 
-27
-28
-29</pre>
+29
+30
+31</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/mailbox.rb', line 27</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/mailbox.rb', line 29</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
   <span class='id identifier rubyid_request'>request</span><span class='lparen'>(</span><span class='symbol'>:wait</span><span class='rparen'>)</span>
@@ -522,13 +526,13 @@ for a single ractor-backed function call.</p>
       <pre class="lines">
 
 
-33
-34
 35
-36</pre>
+36
+37
+38</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/mailbox.rb', line 33</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/mailbox.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='symbol'>:interrupt</span><span class='rbracket'>]</span><span class='rparen'>)</span>
@@ -544,7 +548,7 @@ for a single ractor-backed function call.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:56 2026 by
+  Generated on Tue Jul 21 04:07:40 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

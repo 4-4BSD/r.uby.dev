@@ -112,6 +112,7 @@ features that didn&#39;t make it into the homepage documentation.</p>
 
 - [LLM::Tool](#llmtool)
 - [Errors](#errors)
+- [Confirmation](#confirmation)
 </details>
 
 <details>
@@ -134,6 +135,19 @@ features that didn&#39;t make it into the homepage documentation.</p>
 
 - [IO-like object](#io-like-object)
 - [LLM::Stream](#llmstream)
+</details>
+
+<details>
+<summary>Concurrency</summary>
+
+- [Overview](#overview)
+- [sequential](#sequential)
+- [thread](#thread)
+- [fiber](#fiber)
+- [async](#async)
+- [fork](#fork)
+- [ractor](#ractor)
+- [Quick reference](#quick-reference)
 </details>
 
 <details>
@@ -172,7 +186,7 @@ features that didn&#39;t make it into the homepage documentation.</p>
 <summary>REPL</summary>
 
 - [LLM::Agent](#llmagent)
-- [State](#state)
+- [Persistence](#persistence)
 - [Tools](#tools)
 - [Skills](#skills-1)
 - [Tracer](#tracer-1)
@@ -213,6 +227,12 @@ features that didn&#39;t make it into the homepage documentation.</p>
 - [translation](#translation)
 </details>
 
+<details>
+<summary>OCR</summary>
+
+- [Mistral](#mistral)
+</details>
+
 <p><strong>Protocols</strong></p>
 
 <details>
@@ -237,7 +257,7 @@ class, and it is built on top of
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> -
 the heart of the runtime. An agent manages the tool loop automatically,
 implements a tool loop guard for misbehaving models, and
-it can use five different concurrency strategies to execute
+it can use six different concurrency strategies to execute
 tools.</p>
 
 <p>An agent can be a subclass of
@@ -326,6 +346,14 @@ The model then proceeds to process the tool&#39;s response,
 and then might generate its own response, or perhaps call
 another tool.</p>
 
+<p>There is exactly one rule: a tool call must always produce
+a tool response. If a tool raises an exception, the runtime
+rescues it and returns a structured error to the model
+instead. The conversation never enters an invalid state
+because of a crashed tool &mdash; the model always has
+something to work with. This is by design. Keeping the
+tool loop alive is the highest priority.</p>
+
 <h4 id="llm-tool">LLM::Tool</h4>
 
 <p>A tool can be defined by subclassing
@@ -339,7 +367,7 @@ serve a user&#39;s query.</p>
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shellwords</span><span class='tstring_end'>&quot;</span></span>
 
-<span class='kw'>class</span> <span class='const'>Shell</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Shell</span>
+<span class='kw'>class</span> <span class='const'>Shell</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span>
   <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&quot;</span></span>
   <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>execute a shell command</span><span class='tstring_end'>&quot;</span></span>
   <span class='id identifier rubyid_parameter'>parameter</span> <span class='symbol'>:name</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>the command&#39;s name</span><span class='tstring_end'>&quot;</span></span>
@@ -348,7 +376,7 @@ serve a user&#39;s query.</p>
   <span class='id identifier rubyid_defaults'>defaults</span> <span class='label'>arguments:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='backtick'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_shellscape'>shellscape</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:shellescape</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>`</span></span>
+    <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='backtick'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_shellescape'>shellescape</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:shellescape</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>`</span></span>
     <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='gvar'>$?</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span><span class='comma'>,</span> <span class='label'>out:</span><span class='rbrace'>}</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span>
@@ -360,15 +388,9 @@ serve a user&#39;s query.</p>
 
 <h4 id="errors">Errors</h4>
 
-<p>Exceptions that might be raised by a tool are automatically
-rescued and returned to the model as a structured error.
-Otherwise &ndash; the conversation&#39;s history could be left
-in an invalid state.</p>
-
-<p>That&#39;s because a tool call must complete with a tool response,
-that&#39;s the only valid response a model expects, so even in the
-case of an error, something must be returned that communicates
-what happened.</p>
+<p>Exceptions raised by a tool are automatically rescued and
+returned to the model as a structured error. The model sees
+something like this:</p>
 
 <pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Error</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span>
   <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>error</span><span class='tstring_end'>&quot;</span></span>
@@ -379,6 +401,75 @@ what happened.</p>
 </span>  <span class='comment'># {error: true, kind: &quot;RuntimeError&quot;, message: &quot;boom&quot;}
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>boom</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>The runtime wraps the exception into <code>{error: true, kind: &quot;RuntimeError&quot;,
+message: &quot;boom&quot;}</code> and returns it to the model as the tool response. From
+the model&#39;s perspective the tool completed &mdash; it just completed with
+an error. The model can read the error, decide what went wrong, and try
+something else. The conversation stays valid.</p>
+
+<p>You can also handle errors yourself inside <code>call</code>. Rescue the exception
+and return whatever shape makes sense for your tool:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Shell</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>execute a shell command</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='backtick'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>`</span></span>
+    <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='gvar'>$?</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span><span class='comma'>,</span> <span class='label'>out:</span><span class='rbrace'>}</span>
+  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOENT</span>
+    <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>error:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>command not found: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>The model receives <code>{ok: false, error: &quot;command not found: ls&quot;}</code> and can
+react accordingly &mdash; maybe it corrects the command name and tries
+again. This is often better than letting the runtime&#39;s generic error
+wrapper speak for you, because you can provide domain-specific detail
+that helps the model recover.</p>
+
+<p>The principle is the same either way: <strong>return something</strong>. A tool call
+must complete with a tool response. If you don&#39;t return a value, and you
+don&#39;t raise, the runtime has nothing to send back and the conversation
+is stuck. As long as you return a Hash (or anything the model can
+interpret), the tool loop continues.</p>
+
+<h4 id="confirmation">Confirmation</h4>
+
+<p>Tools that perform destructive actions can be gated behind
+explicit confirmation. List their names in
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm-class_method"><code>LLM::Agent.confirm</code></a>
+to block execution until you override <code>on_tool_confirmation</code>.</p>
+
+<p>The default handler cancels the tool. Override it per-agent to
+prompt the user, log the decision, or auto-approve certain tools.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>AdminAgent</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span>
+  <span class='id identifier rubyid_set'>set</span> <span class='label'>confirm:</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>delete</span><span class='words_sep'> </span><span class='tstring_content'>destroy</span><span class='words_sep'> </span><span class='tstring_content'>shutdown</span><span class='tstring_end'>]</span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_confirmation'>on_tool_confirmation</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Run </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> with </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='embexpr_end'>}</span><span class='tstring_content'>? [y/N] </span><span class='tstring_end'>&quot;</span></span>
+    <span class='gvar'>$stdin</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span><span class='op'>&amp;.</span><span class='id identifier rubyid_match?'>match?</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\Ay\z</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_cancel'>cancel</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'>AdminAgent</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+</code></pre>
+
+<p>Confirmation also accepts a Symbol for lazy resolution, which
+allows the list of confirmed tools to change per-instance:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>AdaptiveAgent</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span>
+  <span class='id identifier rubyid_set'>set</span> <span class='label'>confirm:</span> <span class='symbol'>:tools_that_need_confirmation</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_tools_that_need_confirmation'>tools_that_need_confirmation</span>
+    <span class='id identifier rubyid_some_condition'>some_condition</span> <span class='op'>?</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>delete</span><span class='words_sep'> </span><span class='tstring_content'>destroy</span><span class='tstring_end'>]</span></span> <span class='op'>:</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>delete</span><span class='tstring_end'>]</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span>
 </code></pre>
@@ -648,6 +739,177 @@ scenes.</p>
 
 <p><a href="#table-of-contents">Back to top</a></p>
 
+<h2 id="concurrency">Concurrency</h2>
+
+<p>llm.rb supports six concurrency strategies for tool execution &ndash;
+<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>.
+Each one implements the same interface &mdash; <code>spawn</code>, <code>wait</code>, <code>alive?</code>,
+<code>interrupt!</code> &mdash; so the caller never has to care which strategy is
+behind a given task.</p>
+
+<p>Choose a strategy per-agent or per-call:</p>
+
+<pre class="code ruby"><code class="ruby">## Per-agent — every tool loop uses :fork
+agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
+
+## Per-call — run a single tool on a thread
+fn = FetchStocks.function
+fn.task(:thread).wait
+</code></pre>
+
+<p>Interruption is reliable across all six. No matter the backing &mdash;
+thread, fiber, process, ractor &mdash; <code>LLM::Interrupt</code> reaches the
+tool and it can rescue, clean up, and either re-raise to cancel the
+turn or return a value to continue.</p>
+
+<h4 id="sequential">sequential</h4>
+
+<p>The default. Tools run one at a time on the calling thread. No
+concurrency, no overhead. <code>spawn</code> is a no-op &mdash; execution happens
+in <code>wait</code>. <code>alive?</code> always returns <code>false</code>.</p>
+
+<p>Best for simple agents with a tool or two, debugging, or when tool
+order matters.</p>
+
+<h4 id="thread">thread</h4>
+
+<p>Each tool runs in its own <code>Thread</code>. The thread is created lazily &mdash;
+you can build a task, pass it around, and decide when to run it.
+Threads have <code>report_on_exception</code> disabled so errors surface through
+<code>wait</code> rather than stderr.</p>
+
+<p>Interruption raises <code>LLM::Interrupt</code> directly on the tool&#39;s thread,
+which stops it mid-flight.</p>
+
+<p>Best for IO-bound tools &mdash; HTTP calls, database queries. CRuby
+releases the GVL during blocking IO, so you get real concurrency.</p>
+
+<h4 id="fiber">fiber</h4>
+
+<p>Each tool runs in a scheduler-backed <code>Fiber</code> via <code>Fiber.schedule</code>.
+Requires <code>Fiber.scheduler</code> &mdash; raises <code>ArgumentError</code> without one.
+Fibers yield cooperatively at IO boundaries, so this pairs well with
+async libraries that set a scheduler.</p>
+
+<p>Interruption raises <code>LLM::Interrupt</code> on the fiber, which stops at
+the next yield point.</p>
+
+<p>Best for IO-bound tools inside an async framework. Much lighter than
+threads.</p>
+
+<h4 id="async">async</h4>
+
+<p>Each tool runs as an <code>Async::Task</code> inside a managed background
+reactor. A dedicated thread runs an <code>Async::Reactor</code> event loop.
+Work is submitted through a thread-safe <code>Queue</code> inbox and consumed
+by the reactor. All fibers stay on one thread &mdash; no shared-memory
+contention between them.</p>
+
+<p>The reactor is created on demand and shared across all tasks in a
+group. When <code>Group#wait</code> is called, tasks are submitted, the reactor
+runs them concurrently, and results are bridged back to the caller
+through per-task queues. The reactor is torn down after <code>wait</code>
+completes.</p>
+
+<p>Interruption pushes an <code>LLM::Interrupt</code> sentinel into the task&#39;s
+result queue instead of using <code>Fiber#raise</code> &mdash; cleaner, and it
+avoids surprising the reactor&#39;s internal fibers.</p>
+
+<p>Best for IO-bound tools when you want Async&#39;s structured concurrency
+model without running your whole application inside a reactor. The
+reactor is self-contained &mdash; your main thread stays synchronous.
+Requires the <code>async</code> gem.</p>
+
+<h4 id="fork">fork</h4>
+
+<p>Each tool runs in a forked child process. Communication uses
+<a href="https://github.com/1robertrb/xchan.rb"><code>xchan</code></a> (marshal-based
+channels): the parent sends control messages, the child sends
+results back. Each child is a separate OS process with its own
+memory space &mdash; a crash in the tool cannot touch the parent.</p>
+
+<p><code>Fork::Task</code> checks liveness with <code>Process.waitpid(WNOHANG)</code> and
+delivers interrupts as messages over the control channel. The child
+raises <code>LLM::Interrupt</code> on <code>Thread.main</code> when it receives the
+interrupt message. Tracer callbacks fire in both parent and child.</p>
+
+<p>Best for process isolation &mdash; shell commands, native extensions,
+anything you don&#39;t want touching the parent&#39;s memory. True parallelism
+too, since there&#39;s no GVL in separate processes. Requires the
+<code>xchan</code> gem.</p>
+
+<h4 id="ractor">ractor</h4>
+
+<p>Each class-based tool runs in a Ruby <code>Ractor</code>. <code>Ractor::Task</code>
+coordinates through <code>Ractor::Mailbox</code>. Interruption sends a message
+through the mailbox; a listener thread inside the ractor raises
+<code>LLM::Interrupt</code> on <code>Thread.main</code>.</p>
+
+<p>Ractors have restrictions: only class-based tools are supported (no
+blocks, skills, or MCP tools), and arguments must be
+ractor-shareable. The runtime raises <code>LLM::RactorError</code> early if
+you try to run an unsupported tool type.</p>
+
+<p>Best for CPU-bound tools, true parallelism without the overhead of
+forking full processes. More restrictive than <code>:fork</code> but lighter.</p>
+
+<h4 id="quick-reference">Quick reference</h4>
+
+<table><thead>
+<tr>
+<th>Strategy</th>
+<th>Backing</th>
+<th>Parallel?</th>
+<th>Isolation?</th>
+<th>Requires</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>:sequential</code></td>
+<td>direct call</td>
+<td>No</td>
+<td>No</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>:thread</code></td>
+<td><code>Thread</code></td>
+<td>IO only (GVL)</td>
+<td>No</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>:fiber</code></td>
+<td><code>Fiber.schedule</code></td>
+<td>Cooperative</td>
+<td>No</td>
+<td><code>Fiber.scheduler</code></td>
+</tr>
+<tr>
+<td><code>:async</code></td>
+<td><code>Async::Reactor</code> on bg thread</td>
+<td>Cooperative</td>
+<td>No</td>
+<td><code>async</code> gem</td>
+</tr>
+<tr>
+<td><code>:fork</code></td>
+<td><code>Kernel.fork</code></td>
+<td>Yes (process)</td>
+<td>Yes (memory)</td>
+<td><code>xchan</code> gem</td>
+</tr>
+<tr>
+<td><code>:ractor</code></td>
+<td><code>Ractor</code></td>
+<td>Yes (CPU)</td>
+<td>Limited</td>
+<td>&mdash;</td>
+</tr>
+</tbody></table>
+
+<p><a href="#table-of-contents">Back to top</a></p>
+
 <h2 id="context-compaction">Context Compaction</h2>
 
 <p>Long-running conversations consume tokens. Without intervention, every turn
@@ -715,6 +977,11 @@ conversation would contain an orphaned result with no matching call,
 causing API-level errors on the next turn.</li>
 </ul>
 
+<p>The <code>keep:</code> parameter accepts either an integer count or a percentage
+string like <code>&quot;80%&quot;</code>, which keeps approximately 80% of the most recent
+messages. This is useful when you want to trim proportionally rather
+than to an absolute number.</p>
+
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span>
   <span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span>
   <span class='label'>compactor:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor.html" title="LLM::Compactor (class)">Compactor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Compactor/Truncate.html" title="LLM::Compactor::Truncate (class)">Truncate</a></span></span><span class='comma'>,</span>
@@ -729,6 +996,7 @@ agent&#39;s context:</p>
 
 <pre class="code ruby"><code class="ruby">/compact        # keep last 128 messages
 /compact 50     # keep last 50 messages
+/compact 75%    # keep approximately 75% of messages
 </code></pre>
 
 <h3 id="lifecycle-callbacks">Lifecycle callbacks</h3>
@@ -954,20 +1222,32 @@ for a number of different reasons, most often because the
 user made a mistake, or the model is making a mistake and
 the user wants to cancel the action.</p>
 
-<p>The runtime has built-in support for cancellation. So for
-example it is possible to cancel a request on the main
-thread from a secondary thread. A number of things happen
-when a request is cancelled. First the request is cancelled
-at the transport level, and each transport handles it a little
-differently. The net effect in every case is that the connection
-is closed.</p>
+<p>The runtime has built-in support for cancellation. Call
+<code>agent.cancel!</code> or <code>ctx.cancel!</code> from any thread and two
+things happen at once:</p>
 
-<p>The runtime then notifies the rest of the system. so for example,
-if a tool was running, it will receive the <code>on_interrupt</code> / <code>on_cancel</code>
-callback that lets the tool do any necessary cleanup, or execute its own
-cancellation plan. Tools that were pending (not yet run but requetsed to
-run) are cancelled through
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>.</p>
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+is raised on the thread where <code>talk</code> is running, so the
+caller can rescue it and know the request was cancelled.</p>
+
+<p>At the same time, <code>LLM::Interrupt</code> is raised on every tool
+that is currently executing &mdash; regardless of which
+concurrency strategy it&#39;s using. A tool running in a thread
+gets it on that thread. A tool in a fiber gets it on that
+fiber. A tool in a forked process gets it via a message
+over the xchan control channel. The
+delivery mechanism depends on the strategy, but the effect is
+the same: the tool can rescue <code>LLM::Interrupt</code>, clean up
+resources, close connections, flush buffers, and either
+re-raise to abort or return a partial result.</p>
+
+<p>Pending tools &mdash; those the model requested but that haven&#39;t
+started running yet &mdash; are cancelled through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>
+without ever being executed.</p>
+
+<p>The transport layer also cancels the in-flight HTTP request,
+closing the connection to the provider.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 
@@ -995,8 +1275,8 @@ run) are cancelled through
 ESC in the <a href="#repl">REPL</a> &ndash; the runtime raises
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
 on the tool&#39;s execution context. This behavior is uniform across
-all six concurrency strategies (<code>:call</code>, <code>:thread</code>, <code>:fiber</code>,
-<code>:task</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
+all six concurrency strategies (<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>,
+<code>:async</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
 
 <p>A tool has two choices:</p>
 
@@ -1029,10 +1309,14 @@ the request outright &ndash; useful when continuing would produce
 garbage. Returning a value lets the model adapt, which can be
 helpful when the interrupt is temporary (e.g. a timeout).</p>
 
-<p>The <code>:ractor</code> strategy is cooperative by nature &ndash; the ractor
-must check for a cancel message at safe points in its execution.
-The <code>:fork</code> strategy delivers the interrupt via a signal, which
-interrupts blocking syscalls immediately. All other strategies
+<p>The <code>:ractor</code> strategy delivers the interrupt through ractor
+message passing &mdash; a listener thread inside the tool ractor
+receives the interrupt message and raises <code>LLM::Interrupt</code> on the
+ractor&#39;s main thread. The end result is the same as every other
+strategy: the tool can rescue, clean up, and decide.
+The <code>:fork</code> strategy delivers the interrupt via a message
+over the xchan control channel, which a listener thread in the
+child process picks up and raises on <code>Thread.main</code>. All other strategies
 raise the exception directly on the executing thread or fiber.</p>
 
 <p><a href="#table-of-contents">Back to top</a></p>
@@ -1121,14 +1405,19 @@ asking questions about what it has done up to that point.</p>
 and <a href="https://github.com/gettalong/kramdown">kramdown</a> libraries are
 installed and available to require.</p>
 
+<p>The <code>name:</code> option labels the agent throughout the TUI &mdash;
+useful when working with multiple agents. The <code>path:</code> option
+persists state across sessions. The <code>tools:</code> option attaches
+extra tools for the duration of the session.</p>
+
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 
 <span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my-agent</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>session.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_subclasses'>subclasses</span><span class='rparen'>)</span>
 </code></pre>
 
-<h4 id="state">State</h4>
+<h4 id="persistence">Persistence</h4>
 
 <p>The <code>path:</code> option accepts a file path where runtime state
 is read from and written to. This lets you resume a
@@ -1149,6 +1438,15 @@ you attach additional tools for the duration of the session.</p>
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='label'>tools:</span> <span class='lbracket'>[</span><span class='const'>Debugger</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+</code></pre>
+
+<p>Load every built-in tool with <code>LLM::Tool.subclasses</code>:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm/tools</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='label'>tools:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_subclasses'>subclasses</span><span class='rparen'>)</span>
 </code></pre>
 
 <h4 id="skills">Skills</h4>
@@ -1177,7 +1475,11 @@ of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</
 
 <h4 id="input">Input</h4>
 
-<p>The input area supports several keyboard shortcuts:</p>
+<p>The input area supports several keyboard shortcuts.
+When characters arrive faster than a threshold the REPL
+detects that text is being pasted rather than typed. In
+paste mode pressing <code>Enter</code> inserts a newline instead of
+submitting, allowing multi-line prompts.</p>
 
 <table><thead>
 <tr>
@@ -1214,38 +1516,105 @@ of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</
 <td>Delete the character at the cursor</td>
 </tr>
 <tr>
+<td><code>Ctrl+P</code></td>
+<td>Recall the previous user message</td>
+</tr>
+<tr>
+<td><code>Ctrl+N</code></td>
+<td>Recall the next user message</td>
+</tr>
+<tr>
 <td><code>Left / Right</code></td>
 <td>Move the cursor</td>
 </tr>
 <tr>
 <td><code>Up / Down</code></td>
-<td>Scroll the transcript</td>
+<td>Scroll the transcript one line</td>
+</tr>
+<tr>
+<td><code>PgUp</code> / <code>PgDn</code></td>
+<td>Scroll the transcript by one page</td>
+</tr>
+<tr>
+<td><code>Tab</code></td>
+<td>Complete <code>/command</code> names</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>Cancel the current request</td>
 </tr>
 </tbody></table>
-
-<p>When characters arrive faster than a threshold the REPL
-detects that text is being pasted rather than typed. In
-paste mode pressing <code>Enter</code> inserts a newline instead of
-submitting, allowing multi-line prompts.</p>
 
 <h4 id="commands">Commands</h4>
 
 <p>Commands are recognized by a <code>/</code> prefix on the input line.
-The built-in command is <code>/exit</code>, which leaves the REPL.
-The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a>
-class can be subclassed to add custom commands &ndash;
-any subclass that defines a <code>name</code>, <code>description</code>, and
-<code>call</code> method is automatically registered and available.</p>
+Type <code>/compact</code> to free context window space by dropping the
+oldest messages. Type <code>/exit</code> to leave the REPL.</p>
 
-<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Repl.html" title="LLM::Repl (class)">Repl</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Repl/Command.html" title="LLM::Repl::Command (class)">Command</a></span></span>
-  <span class='kw'>class</span> <span class='const'>Clear</span> <span class='op'>&lt;</span> <span class='kw'>self</span>
-    <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>clear</span><span class='tstring_end'>&quot;</span></span>
-    <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>clears the transcript</span><span class='tstring_end'>&quot;</span></span>
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a>
+class is intentionally similar to <a href="#llmtool"><code>LLM::Tool</code></a> and
+<a href="#schema"><code>LLM::Schema</code></a> in its interface &ndash; you declare a
+name, description, and parameters with the same vocabulary.
+A subclass is automatically registered and available as <code>/name</code>.</p>
 
-    <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
-      <span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>clear</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cls</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-    <span class='kw'>end</span>
+<h5 id="parameters">Parameters</h5>
+
+<p>Parameters are declared with <code>parameter :name, Type, &quot;description&quot;</code>
+and marked required with <code>required %i[name]</code>. The <code>call</code> method
+receives them as keyword arguments matching the parameter names.
+Parameters without a user-supplied value fall back to the
+method signature&#39;s default.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Greeter</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM.html#Command-constant" title="LLM::Command (constant)">Command</a></span></span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>greet</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Greets the given name</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_parameter'>parameter</span> <span class='symbol'>:name</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The person&#39;s name</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_required'>required</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>name</span><span class='tstring_end'>]</span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_write'>write</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Welcome </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>!\n</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h5 id="output">Output</h5>
+
+<p>A command writes to the transcript with <code>write(str, who:)</code>.
+The <code>who:</code> label is rendered in bold. It defaults to
+<code>command(name):</code> where <code>name</code> is the command&#39;s registered
+name.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Greetings </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>!\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h5 id="help">Help</h5>
+
+<p>The built-in <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html#help-class_method"><code>help</code></a>
+class method formats the name, description, and parameter list
+automatically. Use it from inside a command or via <code>/help</code>.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Greeter</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM.html#Command-constant" title="LLM::Command (constant)">Command</a></span></span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>greet</span><span class='tstring_end'>&quot;</span></span>
+  <span class='comment'># ...
+</span><span class='kw'>end</span>
+
+<span class='comment'># /help greet displays:
+</span><span class='comment'>#   Command: greet
+</span><span class='comment'>#   Description: Greets the given name
+</span><span class='comment'>#
+</span><span class='comment'>#   Parameters:
+</span><span class='comment'>#     name [String] - The person&#39;s name (required)
+</span></code></pre>
+
+<h5 id="aliases">Aliases</h5>
+
+<p>Subclassing an existing command inherits its name, description,
+and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Quit</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Repl.html" title="LLM::Repl (class)">Repl</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Repl/Command.html" title="LLM::Repl::Command (class)">Command</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Repl/Command/Exit.html" title="LLM::Repl::Command::Exit (class)">Exit</a></span></span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>quit</span><span class='tstring_end'>&quot;</span></span>
 <span class='kw'>end</span>
 </code></pre>
 
@@ -1407,10 +1776,41 @@ support this method.</p>
 </span></code></pre>
 
 <p><a href="#table-of-contents">Back to top</a></p>
+
+<h2 id="ocr">OCR</h2>
+
+<p>Optical Character Recognition extracts text from images and
+documents.</p>
+
+<h4 id="mistral">Mistral</h4>
+
+<p>Mistral is the only provider that currently supports OCR
+through its dedicated API endpoint. The <code>ocr</code> method accepts
+either an <code>image_url:</code> or a <code>document_url:</code> parameter.
+Document URLs can point to PDFs. The response exposes pages
+through <code>res.pages</code>, where each page has a <code>markdown</code> field
+containing the extracted text.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_mistral'><span class='object_link'><a href="LLM.html#mistral-class_method" title="LLM.mistral (method)">mistral</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+<span class='comment'>##
+</span><span class='comment'># Extract text from an image
+</span><span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_ocr'>ocr</span><span class='lparen'>(</span><span class='label'>image_url:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://example.com/photo.png</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_pages'>pages</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_page'>page</span><span class='op'>|</span> <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_markdown'>markdown</span> <span class='rbrace'>}</span>
+
+<span class='comment'>##
+</span><span class='comment'># Extract text from a PDF
+</span><span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_ocr'>ocr</span><span class='lparen'>(</span><span class='label'>document_url:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://example.com/report.pdf</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_pages'>pages</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_page'>page</span><span class='op'>|</span> <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_markdown'>markdown</span> <span class='rbrace'>}</span>
+</code></pre>
+
+<p><a href="#table-of-contents">Back to top</a></p>
 </div></div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:21 2026 by
+  Generated on Tue Jul 21 04:07:32 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -129,9 +129,27 @@ of a function (also known as a tool) as a class.</p>
     <h4 class="tag_title">Examples:</h4>
     
       
-      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>System</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Tool</span>
-  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>system</span><span class='tstring_end'>&quot;</span></span>
-  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Runs system commands</span><span class='tstring_end'>&quot;</span></span>
+        <h5 class="example_title"><div class='inline'><p>Declarative form (preferred)</p>
+</div></h5>
+      
+      <pre class="example code"><code><span class='kw'>class</span> <span class='const'><span class='object_link'><a href="Tool/ReadFile.html" title="LLM::Tool::ReadFile (class)">ReadFile</a></span></span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Tool</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>read-file</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Read a file from disk</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_parameter'>parameter</span> <span class='symbol'>:path</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The filename or path</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_required'>required</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>path</span><span class='tstring_end'>]</span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>path:</span><span class='rparen'>)</span>
+    <span class='lbrace'>{</span><span class='label'>contents:</span> <span class='const'><span class='object_link'><a href="File.html" title="LLM::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></code></pre>
+    
+      
+        <h5 class="example_title"><div class='inline'><p>Block-form DSL (also supported)</p>
+</div></h5>
+      
+      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>RunCommand</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'>Tool</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>run-command</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_description'>description</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Runs a shell command</span><span class='tstring_end'>&quot;</span></span>
   <span class='id identifier rubyid_params'>params</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_schema'>schema</span><span class='op'>|</span>
     <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_object'>object</span><span class='lparen'>(</span><span class='label'>command:</span> <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_string'>string</span><span class='period'>.</span><span class='id identifier rubyid_required'>required</span><span class='rparen'>)</span>
   <span class='kw'>end</span>
@@ -143,6 +161,15 @@ of a function (also known as a tool) as a class.</p>
     
   </div>
 
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="Agent.html" title="LLM::Agent (class)">Tools are attached to agents</a></span></li>
+    
+      <li><span class='object_link'><a href="Function.html" title="LLM::Function (class)">The function object that Tool wraps</a></span></li>
+    
+  </ul>
 
 </div><div id="subclasses">
   <h2>Direct Known Subclasses</h2>
@@ -777,32 +804,32 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-70
-71
-72
-73
-74
-75
-76
-77
-78
-79
-80
-81
-82
-83
-84
-85
 86
 87
 88
 89
 90
 91
-92</pre>
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 70</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 86</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_a2a'>a2a</span><span class='lparen'>(</span><span class='id identifier rubyid_a2a'>a2a</span><span class='comma'>,</span> <span class='id identifier rubyid_skill'>skill</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_skill'>skill</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -857,15 +884,15 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-97
-98
-99
-100
-101
-102</pre>
+113
+114
+115
+116
+117
+118</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 97</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 113</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_clear_registry!'>clear_registry!</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -922,13 +949,13 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-108
-109
-110
-111</pre>
+124
+125
+126
+127</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 108</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 124</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_register'>register</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='rparen'>)</span>
   <span class='kw'>super</span>
@@ -983,16 +1010,16 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-117
-118
-119
-120
-121
-122
-123</pre>
+133
+134
+135
+136
+137
+138
+139</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 117</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 133</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_unregister'>unregister</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -1050,16 +1077,16 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-129
-130
-131
-132
-133
-134
-135</pre>
+145
+146
+147
+148
+149
+150
+151</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 129</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 145</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_inherited'>inherited</span><span class='lparen'>(</span><span class='id identifier rubyid_tool'>tool</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_lock'><span class='object_link'><a href="../LLM.html#lock-class_method" title="LLM.lock (method)">lock</a></span></span><span class='lparen'>(</span><span class='symbol'>:inherited</span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -1132,14 +1159,14 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-141
-142
-143
-144
-145</pre>
+157
+158
+159
+160
+161</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 141</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 157</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -1189,12 +1216,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-150
-151
-152</pre>
+166
+167
+168</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 150</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 166</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span>
   <span class='kw'>super</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:name</span><span class='rparen'>)</span>
@@ -1270,12 +1297,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-159
-160
-161</pre>
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 159</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 175</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_by_name!'>find_by_name!</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_find_by_name'>find_by_name</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_raise'>raise</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../LLM.html#NoSuchToolError-constant" title="LLM::NoSuchToolError (constant)">NoSuchToolError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>no such tool </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
@@ -1344,14 +1371,14 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-167
-168
-169
-170
-171</pre>
+183
+184
+185
+186
+187</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 167</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 183</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span><span class='lparen'>(</span><span class='id identifier rubyid_desc'>desc</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -1420,14 +1447,14 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-177
-178
-179
-180
-181</pre>
+193
+194
+195
+196
+197</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 177</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 193</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -1467,14 +1494,14 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-185
-186
-187
-188
-189</pre>
+201
+202
+203
+204
+205</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 185</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 201</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_function'>function</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -1524,12 +1551,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-194
-195
-196</pre>
+210
+211
+212</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 194</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 210</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mcp?'>mcp?</span>
   <span class='kw'>false</span>
@@ -1577,12 +1604,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-201
-202
-203</pre>
+217
+218
+219</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 201</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 217</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_a2a?'>a2a?</span>
   <span class='kw'>false</span>
@@ -1630,12 +1657,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-208
-209
-210</pre>
+224
+225
+226</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 208</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 224</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_skill?'>skill?</span>
   <span class='kw'>false</span>
@@ -1721,29 +1748,29 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-42
-43
-44
-45
-46
-47
-48
-49
-50
-51
-52
-53
-54
-55
-56
-57
 58
 59
 60
-61</pre>
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 42</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 58</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mcp'>mcp</span><span class='lparen'>(</span><span class='id identifier rubyid_mcp'>mcp</span><span class='comma'>,</span> <span class='id identifier rubyid_tool'>tool</span><span class='rparen'>)</span>
   <span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="LLM::Tool (class)">Tool</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span>
@@ -1814,12 +1841,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-250
-251
-252</pre>
+266
+267
+268</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 250</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 266</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_cancel'>on_cancel</span>
   <span class='id identifier rubyid_on_interrupt'>on_interrupt</span>
@@ -1867,12 +1894,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-215
-216
-217</pre>
+231
+232
+233</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 215</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 231</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_function'>function</span>
   <span class='ivar'>@function</span> <span class='op'>||=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span><span class='period'>.</span><span class='id identifier rubyid_tap'>tap</span> <span class='lbrace'>{</span> <span class='id identifier rubyid__1'>_1</span><span class='period'>.</span><span class='id identifier rubyid_define'>define</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
@@ -1920,12 +1947,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-222
-223
-224</pre>
+238
+239
+240</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 222</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 238</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_mcp?'>mcp?</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_mcp?'>mcp?</span>
@@ -1973,12 +2000,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-229
-230
-231</pre>
+245
+246
+247</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 229</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 245</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_a2a?'>a2a?</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_a2a?'>a2a?</span>
@@ -2026,12 +2053,12 @@ of a function (also known as a tool) as a class.</p>
       <pre class="lines">
 
 
-236
-237
-238</pre>
+252
+253
+254</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 236</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 252</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_skill?'>skill?</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_skill?'>skill?</span>
@@ -2080,11 +2107,11 @@ Tools can override this to implement cooperative cleanup.</p>
       <pre class="lines">
 
 
-244
-245</pre>
+260
+261</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 244</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tool.rb', line 260</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_interrupt'>on_interrupt</span>
 <span class='kw'>end</span></pre>
@@ -2098,7 +2125,7 @@ Tools can override this to implement cooperative cleanup.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:29 2026 by
+  Generated on Tue Jul 21 04:07:33 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

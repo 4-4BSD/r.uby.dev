@@ -145,7 +145,7 @@ to the LLM on the next turn.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#spawn-instance_method" title="#spawn (instance method)">#<strong>spawn</strong>(strategy)  &#x21d2; LLM::Function::CallGroup, ... </a>
+      <a href="#task-instance_method" title="#task (instance method)">#<strong>task</strong>(strategy)  &#x21d2; LLM::Function::Sequential::Group, ... </a>
     
 
     
@@ -278,9 +278,9 @@ to the LLM on the next turn.</p>
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="spawn-instance_method">
+  <h3 class="signature " id="task-instance_method">
   
-    #<strong>spawn</strong>(strategy)  &#x21d2; <tt><span class='object_link'><a href="CallGroup.html" title="LLM::Function::CallGroup (class)">LLM::Function::CallGroup</a></span></tt>, ... 
+    #<strong>task</strong>(strategy)  &#x21d2; <tt><span class='object_link'><a href="Sequential/Group.html" title="LLM::Function::Sequential::Group (class)">LLM::Function::Sequential::Group</a></span></tt>, ... 
   
 
   
@@ -312,9 +312,9 @@ waited on to access the return values.</p>
         <div class='inline'><p>Controls concurrency strategy:</p>
 
 <ul>
-<li><code>:call</code>: Call functions sequentially without spawning</li>
+<li><code>:sequential</code>: Call functions sequentially without spawning</li>
 <li><code>:thread</code>: Use threads</li>
-<li><code>:task</code>: Use async tasks (requires async gem)</li>
+<li><code>:async</code>: Use async tasks (requires async gem)</li>
 <li><code>:fiber</code>: Use scheduler-backed fibers (requires Fiber.scheduler)</li>
 <li><code>:fork</code>: Use forked child processes</li>
 <li><code>:ractor</code>: Use Ruby ractors (class-based tools only; MCP tools are not supported)</li>
@@ -331,7 +331,7 @@ waited on to access the return values.</p>
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="CallGroup.html" title="LLM::Function::CallGroup (class)">LLM::Function::CallGroup</a></span></tt>, <tt><span class='object_link'><a href="ThreadGroup.html" title="LLM::Function::ThreadGroup (class)">LLM::Function::ThreadGroup</a></span></tt>, <tt><span class='object_link'><a href="TaskGroup.html" title="LLM::Function::TaskGroup (class)">LLM::Function::TaskGroup</a></span></tt>, <tt><span class='object_link'><a href="FiberGroup.html" title="LLM::Function::FiberGroup (class)">LLM::Function::FiberGroup</a></span></tt>, <tt><span class='object_link'><a href="Ractor/Group.html" title="LLM::Function::Ractor::Group (class)">LLM::Function::Ractor::Group</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Sequential/Group.html" title="LLM::Function::Sequential::Group (class)">LLM::Function::Sequential::Group</a></span></tt>, <tt><span class='object_link'><a href="Thread/Group.html" title="LLM::Function::Thread::Group (class)">LLM::Function::Thread::Group</a></span></tt>, <tt><span class='object_link'><a href="Async/Group.html" title="LLM::Function::Async::Group (class)">LLM::Function::Async::Group</a></span></tt>, <tt><span class='object_link'><a href="Fiber/Group.html" title="LLM::Function::Fiber::Group (class)">LLM::Function::Fiber::Group</a></span></tt>, <tt><span class='object_link'><a href="Fork/Group.html" title="LLM::Function::Fork::Group (class)">LLM::Function::Fork::Group</a></span></tt>, <tt><span class='object_link'><a href="Ractor/Group.html" title="LLM::Function::Ractor::Group (class)">LLM::Function::Ractor::Group</a></span></tt>)</span>
       
       
       
@@ -362,27 +362,29 @@ waited on to access the return values.</p>
 48
 49
 50
-51</pre>
+51
+52</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/array.rb', line 34</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span>
   <span class='kw'>case</span> <span class='id identifier rubyid_strategy'>strategy</span>
-  <span class='kw'>when</span> <span class='symbol'>:call</span>
-    <span class='const'><span class='object_link'><a href="CallGroup.html" title="LLM::Function::CallGroup (class)">CallGroup</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CallGroup.html#initialize-instance_method" title="LLM::Function::CallGroup#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
-  <span class='kw'>when</span> <span class='symbol'>:task</span>
-    <span class='const'><span class='object_link'><a href="TaskGroup.html" title="LLM::Function::TaskGroup (class)">TaskGroup</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="TaskGroup.html#initialize-instance_method" title="LLM::Function::TaskGroup#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='symbol'>:task</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:sequential</span>
+    <span class='const'><span class='object_link'><a href="Sequential.html" title="LLM::Function::Sequential (module)">Sequential</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Sequential/Group.html" title="LLM::Function::Sequential::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Sequential/Group.html#initialize-instance_method" title="LLM::Function::Sequential::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:async</span>
+    <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_require'><span class='object_link'><a href="../../LLM.html#require-class_method" title="LLM.require (method)">require</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>async</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Async</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Async.html" title="LLM::Function::Async (module)">Async</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Async/Group.html" title="LLM::Function::Async::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Async/Group.html#initialize-instance_method" title="LLM::Function::Async::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='symbol'>:async</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:thread</span>
-    <span class='const'><span class='object_link'><a href="ThreadGroup.html" title="LLM::Function::ThreadGroup (class)">ThreadGroup</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ThreadGroup.html#initialize-instance_method" title="LLM::Function::ThreadGroup#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='symbol'>:thread</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Thread.html" title="LLM::Function::Thread (module)">Thread</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Thread/Group.html" title="LLM::Function::Thread::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Thread/Group.html#initialize-instance_method" title="LLM::Function::Thread::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='symbol'>:thread</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:fiber</span>
-    <span class='const'><span class='object_link'><a href="FiberGroup.html" title="LLM::Function::FiberGroup (class)">FiberGroup</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="FiberGroup.html#initialize-instance_method" title="LLM::Function::FiberGroup#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='symbol'>:fiber</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Fiber.html" title="LLM::Function::Fiber (module)">Fiber</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Fiber/Group.html" title="LLM::Function::Fiber::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Fiber/Group.html#initialize-instance_method" title="LLM::Function::Fiber::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='symbol'>:fiber</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:fork</span>
-    <span class='const'><span class='object_link'><a href="Fork.html" title="LLM::Function::Fork (module)">Fork</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Fork/Group.html" title="LLM::Function::Fork::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Fork/Group.html#initialize-instance_method" title="LLM::Function::Fork::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='symbol'>:fork</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Fork.html" title="LLM::Function::Fork (module)">Fork</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Fork/Group.html" title="LLM::Function::Fork::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Fork/Group.html#initialize-instance_method" title="LLM::Function::Fork::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='symbol'>:fork</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>when</span> <span class='symbol'>:ractor</span>
-    <span class='const'><span class='object_link'><a href="Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Ractor/Group.html" title="LLM::Function::Ractor::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Ractor/Group.html#initialize-instance_method" title="LLM::Function::Ractor::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='symbol'>:ractor</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Ractor/Group.html" title="LLM::Function::Ractor::Group (class)">Group</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Ractor/Group.html#initialize-instance_method" title="LLM::Function::Ractor::Group#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='symbol'>:ractor</span><span class='rparen'>)</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='kw'>else</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown strategy: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. Expected :call, :thread, :task, :fiber, :fork, or :ractor</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown strategy: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_strategy'>strategy</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>. Expected :sequential, :thread, :async, :fiber, :fork, or :ractor</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -461,15 +463,15 @@ and waits for the return values.</p>
       <pre class="lines">
 
 
-68
 69
-70</pre>
+70
+71</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/array.rb', line 68</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/array.rb', line 69</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span>
+  <span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -513,12 +515,12 @@ and waits for the return values.</p>
       <pre class="lines">
 
 
-74
 75
-76</pre>
+76
+77</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/array.rb', line 74</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/array.rb', line 75</span>
 
 <span class='kw'>def</span> <span class='op'>-</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='kw'>super</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="" title="LLM::Function::Array (module)">Array</a></span></span><span class='rparen'>)</span>
@@ -533,7 +535,7 @@ and waits for the return values.</p>
 </div>
 
       <div id="footer">
-  Generated on Sun Jul 19 17:26:24 2026 by
+  Generated on Tue Jul 21 04:07:32 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
