@@ -285,14 +285,16 @@ Document.create!(
       <section id="concurrency">
         <h3>Concurrency</h3>
         <p>
-          The runtime supports five different concurrency strategies that have
+          The runtime supports six different concurrency strategies that have
           different attributes. The choice between all of them often depends
           on the requirements of your application.
         </p>
         <p>
-          IO-bound tools are a good fit for the <code>:task</code>, <code>:thread</code>,
+          IO-bound tools are a good fit for the <code>:async</code>, <code>:thread</code>,
           and <code>:fiber</code> strategies while true parallelism can be achieved
           with the <code>:fork</code> and <code>:ractor</code> strategies. The
+          <code>:sequential</code> strategy runs tools one at a time and is the default.
+          The
           <code>:fork</code> strategy also provides a separate process that offers
           isolation from its parent.
         </p>

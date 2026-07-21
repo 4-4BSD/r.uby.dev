@@ -8,21 +8,21 @@
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     <!-- SEO -->
-    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
+    <meta name="description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, concurrency, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
     <meta name="robots" content="index,follow">
 
     <!-- OpenGraph -->
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="llm.rb deep dive">
-    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
+    <meta property="og:description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, concurrency, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="llm.rb deep dive">
-    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
+    <meta name="twitter:description" content="A deeper tour of llm.rb features including agents, tools, skills, schemas, concurrency, MCP, A2A, transports, streaming, context compaction, tracing, images, audio, and OCR.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -69,6 +69,17 @@
               <summary>Stream</summary>
               <a class="toc-sub" href="#io-like-object">IO-like object</a>
               <a class="toc-sub" href="#llmstream">LLM::Stream</a>
+            </details>
+            <details>
+              <summary>Concurrency</summary>
+              <a class="toc-sub" href="#overview">Overview</a>
+              <a class="toc-sub" href="#sequential">sequential</a>
+              <a class="toc-sub" href="#thread">thread</a>
+              <a class="toc-sub" href="#fiber">fiber</a>
+              <a class="toc-sub" href="#async">async</a>
+              <a class="toc-sub" href="#fork">fork</a>
+              <a class="toc-sub" href="#ractor">ractor</a>
+              <a class="toc-sub" href="#quick-reference">Quick reference</a>
             </details>
             <details>
               <summary>Context Compaction</summary>
@@ -169,7 +180,7 @@
 
 <h2 id="agents">Agents</h2>
 
-<p>An agent is represented by the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> class, and it is built on top of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> - the heart of the runtime. An agent manages the tool loop automatically, implements a tool loop guard for misbehaving models, and it can use five different concurrency strategies to execute tools.</p>
+<p>An agent is represented by the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> class, and it is built on top of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> - the heart of the runtime. An agent manages the tool loop automatically, implements a tool loop guard for misbehaving models, and it can use six different concurrency strategies to execute tools.</p>
 
 <p>An agent can be a subclass of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, or a direct instance of it. The subclass approach is useful when you want reusable agents that can attach behavior (as methods) to their own class.</p>
 
@@ -182,11 +193,11 @@
 <p>The example purposefully demonstrates how the attributes can be lazily defined with a block, or a Symbol that is evaluated as an instance method on the subclass. It is not strictly neccessary, though, and the example would be simpler without it.</p>
 
 <pre><code class="language-ruby">class Agent &lt; LLM::Agent
-  model "deepseek-v4-pro"
-  tools { [DoResearch, FinalizeResearch, ActOnResearch] }
-  stream { $stdout }
-  tracer :set_tracer
-  concurrency :fork
+  set model: "deepseek-v4-pro",
+      tools: [DoResearch, FinalizeResearch, ActOnResearch],
+      stream: -&gt; { $stdout },
+      tracer: :set_tracer,
+      concurrency: :fork
 
   def research!
     talk "start the research"
@@ -220,6 +231,8 @@ agent.talk "Hello, fellow agent"
 
 <p>In other words, a tool provides a way for a model to call a method you have written, and it returns a value to the model that is considered the tool’s response. The model then proceeds to process the tool’s response, and then might generate its own response, or perhaps call another tool.</p>
 
+<p>There is exactly one rule: a tool call must always produce a tool response. If a tool raises an exception, the runtime rescues it and returns a structured error to the model instead. The conversation never enters an invalid state because of a crashed tool &mdash; the model always has something to work with. This is by design. Keeping the tool loop alive is the highest priority.</p>
+
 <h4 id="llmtool">LLM::Tool</h4>
 
 <p>A tool can be defined by subclassing <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> with a name, description, and optional set of parameters. The tool name, and description should be informative so the model can understand what the tool does and how it can serve a user’s query.</p>
@@ -227,7 +240,7 @@ agent.talk "Hello, fellow agent"
 <pre><code class="language-ruby">require "llm"
 require "shellwords"
 
-class Shell &lt; LLM::Shell
+class Shell &lt; LLM::Tool
   name "shell"
   description "execute a shell command"
   parameter :name, String, "the command's name"
@@ -236,7 +249,7 @@ class Shell &lt; LLM::Shell
   defaults arguments: []
 
   def call(name:, arguments:)
-    out = `#{name.shellscape} #{arguments.map(&amp;:shellescape).join(" ")}`
+    out = `#{name.shellescape} #{arguments.map(&amp;:shellescape).join(" ")}`
     {ok: $?.success?, out:}
   end
 end
@@ -248,9 +261,7 @@ agent.talk "What files are in the current working directory?"
 
 <h4 id="errors">Errors</h4>
 
-<p>Exceptions that might be raised by a tool are automatically rescued and returned to the model as a structured error. Otherwise – the conversation’s history could be left in an invalid state.</p>
-
-<p>That’s because a tool call must complete with a tool response, that’s the only valid response a model expects, so even in the case of an error, something must be returned that communicates what happened.</p>
+<p>Exceptions raised by a tool are automatically rescued and returned to the model as a structured error. The model sees something like this:</p>
 
 <pre><code class="language-ruby">class Error &lt; LLM::Tool
   name "error"
@@ -264,6 +275,27 @@ agent.talk "What files are in the current working directory?"
   end
 end
 </code></pre>
+
+<p>The runtime wraps the exception into <code>{error: true, kind: "RuntimeError", message: "boom"}</code> and returns it to the model as the tool response. From the model’s perspective the tool completed &mdash; it just completed with an error. The model can read the error, decide what went wrong, and try something else. The conversation stays valid.</p>
+
+<p>You can also handle errors yourself inside <code>call</code>. Rescue the exception and return whatever shape makes sense for your tool:</p>
+
+<pre><code class="language-ruby">class Shell &lt; LLM::Tool
+  name "shell"
+  description "execute a shell command"
+
+  def call(name:, arguments: [])
+    out = `#{name} #{arguments.join(" ")}`
+    {ok: $?.success?, out:}
+  rescue Errno::ENOENT
+    {ok: false, error: "command not found: #{name}"}
+  end
+end
+</code></pre>
+
+<p>The model receives <code>{ok: false, error: "command not found: ls"}</code> and can react accordingly &mdash; maybe it corrects the command name and tries again. This is often better than letting the runtime’s generic error wrapper speak for you, because you can provide domain-specific detail that helps the model recover.</p>
+
+<p>The principle is the same either way: <strong>return something</strong>. A tool call must complete with a tool response. If you don’t return a value, and you don’t raise, the runtime has nothing to send back and the conversation is stuck. As long as you return a Hash (or anything the model can interpret), the tool loop continues.</p>
 
 <h4 id="confirmation">Confirmation</h4>
 
@@ -366,7 +398,7 @@ estimate = res.content!
 ##
 # Let's print the estimate
 if estimate.applicable
-  print "The person is approx ", estimage.age, " years old", "\n"
+  print "The person is approx ", estimate.age.to_s, " years old", "\n"
   print "I have a confidence rating of ", estimate.confidence.to_s, "\n"
 else
   print "This photo is not applicable:", "\n"
@@ -417,6 +449,128 @@ agent.talk "hello world"
   end
 end
 </code></pre>
+
+<h2 id="concurrency">Concurrency</h2>
+
+<p id="overview">llm.rb supports six concurrency strategies for tool execution &ndash; <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>. Each one implements the same interface &mdash; <code>spawn</code>, <code>wait</code>, <code>alive?</code>, <code>interrupt!</code> &mdash; so the caller never has to care which strategy is behind a given task.</p>
+
+<p>Choose a strategy per-agent or per-call:</p>
+
+<pre><code class="language-ruby">## Per-agent — every tool loop uses :fork
+agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
+
+## Per-call — run a single tool on a thread
+fn = FetchStocks.function
+fn.task(:thread).wait
+</code></pre>
+
+<p>Interruption is reliable across all six. No matter the backing &mdash; thread, fiber, process, ractor &mdash; <code>LLM::Interrupt</code> reaches the tool and it can rescue, clean up, and either re-raise to cancel the turn or return a value to continue.</p>
+
+<h4 id="sequential">sequential</h4>
+
+<p>The default. Tools run one at a time on the calling thread. No concurrency, no overhead. <code>spawn</code> is a no-op &mdash; execution happens in <code>wait</code>. <code>alive?</code> always returns <code>false</code>.</p>
+
+<p>Best for simple agents with a tool or two, debugging, or when tool order matters.</p>
+
+<h4 id="thread">thread</h4>
+
+<p>Each tool runs in its own <code>Thread</code>. The thread is created lazily &mdash; you can build a task, pass it around, and decide when to run it. Threads have <code>report_on_exception</code> disabled so errors surface through <code>wait</code> rather than stderr.</p>
+
+<p>Interruption raises <code>LLM::Interrupt</code> directly on the tool’s thread, which stops it mid-flight.</p>
+
+<p>Best for IO-bound tools &mdash; HTTP calls, database queries. CRuby releases the GVL during blocking IO, so you get real concurrency.</p>
+
+<h4 id="fiber">fiber</h4>
+
+<p>Each tool runs in a scheduler-backed <code>Fiber</code> via <code>Fiber.schedule</code>. Requires <code>Fiber.scheduler</code> &mdash; raises <code>ArgumentError</code> without one. Fibers yield cooperatively at IO boundaries, so this pairs well with async libraries that set a scheduler.</p>
+
+<p>Interruption raises <code>LLM::Interrupt</code> on the fiber, which stops at the next yield point.</p>
+
+<p>Best for IO-bound tools inside an async framework. Much lighter than threads.</p>
+
+<h4 id="async">async</h4>
+
+<p>Each tool runs as an <code>Async::Task</code> inside a managed background reactor. A dedicated thread runs an <code>Async::Reactor</code> event loop. Work is submitted through a thread-safe <code>Queue</code> inbox and consumed by the reactor. All fibers stay on one thread &mdash; no shared-memory contention between them.</p>
+
+<p>The reactor is created on demand and shared across all tasks in a group. When <code>Group#wait</code> is called, tasks are submitted, the reactor runs them concurrently, and results are bridged back to the caller through per-task queues. The reactor is torn down after <code>wait</code> completes.</p>
+
+<p>Interruption pushes an <code>LLM::Interrupt</code> sentinel into the task’s result queue instead of using <code>Fiber#raise</code> &mdash; cleaner, and it avoids surprising the reactor’s internal fibers.</p>
+
+<p>Best for IO-bound tools when you want Async’s structured concurrency model without running your whole application inside a reactor. The reactor is self-contained &mdash; your main thread stays synchronous. Requires the <code>async</code> gem.</p>
+
+<h4 id="fork">fork</h4>
+
+<p>Each tool runs in a forked child process. Communication uses <a href="https://github.com/1robertrb/xchan.rb"><code>xchan</code></a> (marshal-based channels): the parent sends control messages, the child sends results back. Each child is a separate OS process with its own memory space &mdash; a crash in the tool cannot touch the parent.</p>
+
+<p><code>Fork::Task</code> checks liveness with <code>Process.waitpid(WNOHANG)</code> and delivers interrupts as messages over the control channel. The child raises <code>LLM::Interrupt</code> on <code>Thread.main</code> when it receives the interrupt message. Tracer callbacks fire in both parent and child.</p>
+
+<p>Best for process isolation &mdash; shell commands, native extensions, anything you don’t want touching the parent’s memory. True parallelism too, since there’s no GVL in separate processes. Requires the <code>xchan</code> gem.</p>
+
+<h4 id="ractor">ractor</h4>
+
+<p>Each class-based tool runs in a Ruby <code>Ractor</code>. <code>Ractor::Task</code> coordinates through <code>Ractor::Mailbox</code>. Interruption sends a message through the mailbox; a listener thread inside the ractor raises <code>LLM::Interrupt</code> on <code>Thread.main</code>.</p>
+
+<p>Ractors have restrictions: only class-based tools are supported (no blocks, skills, or MCP tools), and arguments must be ractor-shareable. The runtime raises <code>LLM::RactorError</code> early if you try to run an unsupported tool type.</p>
+
+<p>Best for CPU-bound tools, true parallelism without the overhead of forking full processes. More restrictive than <code>:fork</code> but lighter.</p>
+
+<h4 id="quick-reference">Quick reference</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Strategy</th>
+      <th>Backing</th>
+      <th>Parallel?</th>
+      <th>Isolation?</th>
+      <th>Requires</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>:sequential</code></td>
+      <td>direct call</td>
+      <td>No</td>
+      <td>No</td>
+      <td>&mdash;</td>
+    </tr>
+    <tr>
+      <td><code>:thread</code></td>
+      <td><code>Thread</code></td>
+      <td>IO only (GVL)</td>
+      <td>No</td>
+      <td>&mdash;</td>
+    </tr>
+    <tr>
+      <td><code>:fiber</code></td>
+      <td><code>Fiber.schedule</code></td>
+      <td>Cooperative</td>
+      <td>No</td>
+      <td><code>Fiber.scheduler</code></td>
+    </tr>
+    <tr>
+      <td><code>:async</code></td>
+      <td><code>Async::Reactor</code> on bg thread</td>
+      <td>Cooperative</td>
+      <td>No</td>
+      <td><code>async</code> gem</td>
+    </tr>
+    <tr>
+      <td><code>:fork</code></td>
+      <td><code>Kernel.fork</code></td>
+      <td>Yes (process)</td>
+      <td>Yes (memory)</td>
+      <td><code>xchan</code> gem</td>
+    </tr>
+    <tr>
+      <td><code>:ractor</code></td>
+      <td><code>Ractor</code></td>
+      <td>Yes (CPU)</td>
+      <td>Limited</td>
+      <td>&mdash;</td>
+    </tr>
+  </tbody>
+</table>
 
 <h2 id="context-compaction">Context Compaction</h2>
 
@@ -509,7 +663,7 @@ end
 
 <p>The runtime has built-in support for cancellation. So for example it is possible to cancel a request on the main thread from a secondary thread. A number of things happen when a request is cancelled. First the request is cancelled at the transport level, and each transport handles it a little differently. The net effect in every case is that the connection is closed.</p>
 
-<p>The runtime then notifies the rest of the system. so for example, if a tool was running, it will receive the <code>on_interrupt</code> / <code>on_cancel</code> callback that lets the tool do any necessary cleanup, or execute its own cancellation plan. Tools that were pending (not yet run but requetsed to run) are cancelled through <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>.</p>
+<p>The runtime then notifies the rest of the system. so for example, if a tool was running, it will receive the <code>on_interrupt</code> / <code>on_cancel</code> callback that lets the tool do any necessary cleanup, or execute its own cancellation plan. Tools that were pending (not yet run but requested to run) are cancelled through <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>.</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -533,7 +687,7 @@ end
 
 <h4 id="tool-interrupts">Tool interrupts</h4>
 
-<p>When a running tool is interrupted &ndash; for example the user presses ESC in the <a href="#repl">REPL</a> &ndash; the runtime raises <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a> on the tool’s execution context. This behavior is uniform across all six concurrency strategies (<code>:call</code>, <code>:thread</code>, <code>:fiber</code>, <code>:task</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
+<p>When a running tool is interrupted &ndash; for example the user presses ESC in the <a href="#repl">REPL</a> &ndash; the runtime raises <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a> on the tool’s execution context. This behavior is uniform across all six concurrency strategies (<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
 
 <p>A tool has two choices:</p>
 
