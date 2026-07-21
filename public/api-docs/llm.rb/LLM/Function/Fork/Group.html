@@ -367,7 +367,9 @@ in forked child processes.</p>
 16
 17
 18
-19</pre>
+19
+20
+21</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/fork/group.rb', line 16</span>
@@ -375,6 +377,8 @@ in forked child processes.</p>
 <span class='kw'>def</span> <span class='id identifier rubyid_spawn'>spawn</span>
   <span class='ivar'>@tasks</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:spawn</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
+<span class='kw'>ensure</span>
+  <span class='ivar'>@spawned</span> <span class='op'>=</span> <span class='kw'>true</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -418,12 +422,12 @@ in forked child processes.</p>
       <pre class="lines">
 
 
-23
-24
-25</pre>
+25
+26
+27</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/group.rb', line 23</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/group.rb', line 25</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alive?'>alive?</span>
   <span class='ivar'>@tasks</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:alive?</span><span class='rparen'>)</span>
@@ -474,13 +478,13 @@ in forked child processes.</p>
       <pre class="lines">
 
 
-29
-30
 31
-32</pre>
+32
+33
+34</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/group.rb', line 29</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/group.rb', line 31</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='ivar'>@tasks</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:interrupt!</span><span class='rparen'>)</span>
@@ -532,14 +536,16 @@ in forked child processes.</p>
       <pre class="lines">
 
 
-37
-38
-39</pre>
+39
+40
+41
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/group.rb', line 37</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/group.rb', line 39</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
+  <span class='id identifier rubyid_spawn'>spawn</span> <span class='kw'>unless</span> <span class='ivar'>@spawned</span>
   <span class='ivar'>@tasks</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:wait</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -552,7 +558,7 @@ in forked child processes.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 21 04:07:39 2026 by
+  Generated on Tue Jul 21 20:04:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

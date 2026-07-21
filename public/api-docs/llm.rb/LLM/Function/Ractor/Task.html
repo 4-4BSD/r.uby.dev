@@ -75,10 +75,12 @@
   <dl>
     <dt>Inherits:</dt>
     <dd>
-      <span class="inheritName">Object</span>
+      <span class="inheritName"><span class='object_link'><a href="../Task.html" title="LLM::Function::Task (class)">Task</a></span></span>
       
         <ul class="fullTree">
           <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Task.html" title="LLM::Function::Task (class)">Task</a></span></li>
           
             <li class="next">LLM::Function::Ractor::Task</li>
           
@@ -128,33 +130,6 @@ call and delegates mailbox coordination to
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#function-instance_method" title="#function (instance method)">#<strong>function</strong>  &#x21d2; LLM::Function<sup>?</sup> </a>
-    
-
-    
-  </span>
-  
-  
-  
-    
-      <span class="note title readonly">readonly</span>
-    
-    
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'></div></span>
-  
-</li>
-
-    
-      <li class="public ">
-  <span class="summary_signature">
-    
       <a href="#mailbox-instance_method" title="#mailbox (instance method)">#<strong>mailbox</strong>  &#x21d2; LLM::Function::Ractor::Mailbox </a>
     
 
@@ -183,6 +158,11 @@ call and delegates mailbox coordination to
 
 
 
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Task.html" title="LLM::Function::Task (class)">Task</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Task.html#function-instance_method" title="LLM::Function::Task#function (method)">#function</a></span></p>
+
 
   
     <h2>
@@ -195,7 +175,7 @@ call and delegates mailbox coordination to
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(runner_class, id, name, arguments, options = {})  &#x21d2; LLM::Function::Ractor::Task </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(fn, options = {})  &#x21d2; LLM::Function::Ractor::Task </a>
     
 
     
@@ -334,13 +314,20 @@ call and delegates mailbox coordination to
     
   
 
-<div id="constructor_details" class="method_details_list">
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
   <h2>Constructor Details</h2>
   
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(runner_class, id, name, arguments, options = {})  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Function::Ractor::Task (class)">LLM::Function::Ractor::Task</a></span></tt> 
+    #<strong>initialize</strong>(fn, options = {})  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Function::Ractor::Task (class)">LLM::Function::Ractor::Task</a></span></tt> 
   
 
   
@@ -358,43 +345,10 @@ call and delegates mailbox coordination to
   
     <li>
       
-        <span class='name'>runner_class</span>
+        <span class='name'>fn</span>
       
       
-        <span class='type'>(<tt>Class</tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>id</span>
-      
-      
-        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>name</span>
-      
-      
-        <span class='type'>(<tt>String</tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>arguments</span>
-      
-      
-        <span class='type'>(<tt>Hash</tt>, <tt><span class='object_link'><a href="../Array.html" title="LLM::Function::Array (module)">Array</a></span></tt>, <tt>nil</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>)</span>
       
       
       
@@ -420,12 +374,6 @@ call and delegates mailbox coordination to
     
     
     
-    
-    
-    
-    
-    
-    
     <p class="tag_title">Options Hash (<tt>options</tt>):</p>
     <ul class="option">
       
@@ -439,8 +387,35 @@ call and delegates mailbox coordination to
         </li>
       
         <li>
-          <span class="name">:function</span>
-          <span class="type">(<tt><span class='object_link'><a href="../../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>, <tt>nil</tt>)</span>
+          <span class="name">:runner_class</span>
+          <span class="type">(<tt>Class</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:id</span>
+          <span class="type">(<tt>String</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:name</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+        </li>
+      
+        <li>
+          <span class="name">:arguments</span>
+          <span class="type">(<tt>Hash</tt>, <tt><span class='object_link'><a href="../Array.html" title="LLM::Function::Array (module)">Array</a></span></tt>, <tt>nil</tt>)</span>
           <span class="default">
             
           </span>
@@ -466,27 +441,27 @@ call and delegates mailbox coordination to
       <pre class="lines">
 
 
+23
+24
+25
+26
 27
 28
 29
 30
-31
-32
-33
-34
-35</pre>
+31</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 27</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 23</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_runner_class'>runner_class</span><span class='comma'>,</span> <span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='ivar'>@function</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:function</span><span class='rbracket'>]</span>
-  <span class='ivar'>@runner_class</span> <span class='op'>=</span> <span class='id identifier rubyid_runner_class'>runner_class</span>
-  <span class='ivar'>@id</span> <span class='op'>=</span> <span class='id identifier rubyid_id'>id</span>
-  <span class='ivar'>@name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
-  <span class='ivar'>@arguments</span> <span class='op'>=</span> <span class='id identifier rubyid_arguments'>arguments</span>
-  <span class='ivar'>@model</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:model</span><span class='rbracket'>]</span>
-  <span class='ivar'>@tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:tracer</span><span class='rbracket'>]</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='ivar'>@runner_class</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:runner_class</span><span class='rparen'>)</span>
+  <span class='ivar'>@id</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+  <span class='ivar'>@name</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:name</span><span class='rparen'>)</span>
+  <span class='ivar'>@arguments</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:arguments</span><span class='rparen'>)</span>
+  <span class='ivar'>@model</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:model</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:tracer</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -501,61 +476,7 @@ call and delegates mailbox coordination to
       
       <span id=""></span>
       <div class="method_details first">
-  <h3 class="signature first" id="function-instance_method">
-  
-    #<strong>function</strong>  &#x21d2; <tt><span class='object_link'><a href="../../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt><sup>?</sup>  <span class="extras">(readonly)</span>
-  
-
-  
-
-  
-</h3><div class="docstring">
-  <div class="discussion">
-    
-
-  </div>
-</div>
-<div class="tags">
-  
-<p class="tag_title">Returns:</p>
-<ul class="return">
-  
-    <li>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="../../Function.html" title="LLM::Function (class)">LLM::Function</a></span></tt>, <tt>nil</tt>)</span>
-      
-      
-      
-    </li>
-  
-</ul>
-
-</div><table class="source_code">
-  <tr>
-    <td>
-      <pre class="lines">
-
-
-11
-12
-13</pre>
-    </td>
-    <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 11</span>
-
-<span class='kw'>def</span> <span class='id identifier rubyid_function'>function</span>
-  <span class='ivar'>@function</span>
-<span class='kw'>end</span></pre>
-    </td>
-  </tr>
-</table>
-</div>
-    
-      
-      <span id=""></span>
-      <div class="method_details ">
-  <h3 class="signature " id="mailbox-instance_method">
+  <h3 class="signature first" id="mailbox-instance_method">
   
     #<strong>mailbox</strong>  &#x21d2; <tt><span class='object_link'><a href="Mailbox.html" title="LLM::Function::Ractor::Mailbox (class)">LLM::Function::Ractor::Mailbox</a></span></tt>  <span class="extras">(readonly)</span>
   
@@ -591,12 +512,12 @@ call and delegates mailbox coordination to
       <pre class="lines">
 
 
-15
-16
-17</pre>
+11
+12
+13</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 15</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 11</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_mailbox'>mailbox</span>
   <span class='ivar'>@mailbox</span>
@@ -650,17 +571,17 @@ call and delegates mailbox coordination to
       <pre class="lines">
 
 
+35
+36
+37
+38
 39
 40
 41
-42
-43
-44
-45
-46</pre>
+42</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 39</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_spawn'>spawn</span>
   <span class='ivar'>@span</span> <span class='op'>=</span> <span class='ivar'>@tracer</span><span class='op'>&amp;.</span><span class='id identifier rubyid_on_tool_start'>on_tool_start</span><span class='lparen'>(</span>
@@ -712,12 +633,12 @@ call and delegates mailbox coordination to
       <pre class="lines">
 
 
-50
-51
-52</pre>
+46
+47
+48</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 50</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 46</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alive?'>alive?</span>
   <span class='ivar'>@mailbox</span><span class='op'>&amp;.</span><span class='id identifier rubyid_alive?'>alive?</span> <span class='op'>||</span> <span class='kw'>false</span>
@@ -768,13 +689,13 @@ call and delegates mailbox coordination to
       <pre class="lines">
 
 
-56
-57
-58
-59</pre>
+52
+53
+54
+55</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 56</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 52</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='id identifier rubyid_mailbox'>mailbox</span><span class='op'>&amp;.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span>
@@ -826,16 +747,16 @@ call and delegates mailbox coordination to
       <pre class="lines">
 
 
+60
+61
+62
+63
 64
 65
-66
-67
-68
-69
-70</pre>
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 60</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
   <span class='id identifier rubyid_spawn'>spawn</span> <span class='kw'>unless</span> <span class='ivar'>@mailbox</span>
@@ -886,12 +807,12 @@ call and delegates mailbox coordination to
       <pre class="lines">
 
 
-75
-76
-77</pre>
+71
+72
+73</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 75</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/ractor/task.rb', line 71</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_group_class'>group_class</span>
   <span class='const'><span class='object_link'><a href="../../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Function.html" title="LLM::Function (class)">Function</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Ractor.html" title="LLM::Function::Ractor (module)">Ractor</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Group.html" title="LLM::Function::Ractor::Group (class)">Group</a></span></span>
@@ -906,7 +827,7 @@ call and delegates mailbox coordination to
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 21 04:07:40 2026 by
+  Generated on Tue Jul 21 20:04:26 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

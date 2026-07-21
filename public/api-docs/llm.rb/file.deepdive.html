@@ -113,6 +113,11 @@ features that didn&#39;t make it into the homepage documentation.</p>
 - [LLM::Tool](#llmtool)
 - [Errors](#errors)
 - [Confirmation](#confirmation)
+- [Manual tool loop](#manual-tool-loop)
+  - [Executing](#executing)
+  - [Per-tool confirmation](#per-tool-confirmation)
+  - [Full loop](#full-loop)
+  - [Trade-offs](#trade-offs)
 </details>
 
 <details>
@@ -375,7 +380,7 @@ serve a user&#39;s query.</p>
   <span class='id identifier rubyid_required'>required</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>name</span><span class='tstring_end'>]</span></span>
   <span class='id identifier rubyid_defaults'>defaults</span> <span class='label'>arguments:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
 
-  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='rparen'>)</span>
+  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span> <span class='backtick'>`</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_shellescape'>shellescape</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:shellescape</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>`</span></span>
     <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='gvar'>$?</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span><span class='comma'>,</span> <span class='label'>out:</span><span class='rbrace'>}</span>
   <span class='kw'>end</span>
@@ -473,6 +478,121 @@ allows the list of confirmed tools to change per-instance:</p>
   <span class='kw'>end</span>
 <span class='kw'>end</span>
 </code></pre>
+
+<h2 id="manual-tool-loop">Manual tool loop</h2>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> manages
+the tool loop automatically — it calls the model, checks for tool calls,
+executes them, sends results back, and repeats until the model responds
+with text. You can bypass this and drive the loop yourself for finer
+control.</p>
+
+<p>Start with a bare <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+(no agent):</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+</code></pre>
+
+<p>Send a message and check whether the model wants to call tools:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What&#39;s the weather in Tokyo?</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>if</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions?'>pending_functions?</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Model requested </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions'>pending_functions</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_content'> tool(s)</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>else</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h3 id="executing">Executing</h3>
+
+<p>When the model asks to call tools, call <code>ctx.wait(:strategy)</code> to run
+them. <code>ctx.wait</code> picks up pending functions, spawns them, waits for
+results, and records them back in the context. Every strategy is
+supported: <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>,
+and <code>:ractor</code>.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+
+<span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What&#39;s the weather in Tokyo?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='symbol'>:thread</span><span class='rparen'>)</span>
+</code></pre>
+
+<h3 id="per-tool-confirmation">Per-tool confirmation</h3>
+
+<p>Because <code>pending_functions</code> returns a regular array, you can inspect
+each function before execution. Call <code>ctx.wait(:thread)</code> to execute
+all pending tools — but you can also selectively exclude functions or
+run individual ones through <code>fn.task(:thread).wait</code> for ad-hoc execution
+that bypasses guards and streaming hooks:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions'>pending_functions</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_fn'>fn</span><span class='op'>|</span>
+  <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Run </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> with </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='embexpr_end'>}</span><span class='tstring_content'>? [y/N] </span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='gvar'>$stdin</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span><span class='op'>&amp;.</span><span class='id identifier rubyid_match?'>match?</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\Ay\z</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='symbol'>:thread</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_cancel'>cancel</span><span class='lparen'>(</span><span class='label'>reason:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>user declined</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+<span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='rparen'>)</span>
+</code></pre>
+
+<p>This pattern is what
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>&#39;s
+built-in confirmation feature uses internally, but doing it manually
+gives you full control — route the decision through a web socket, a
+background job, or a multi-user approval flow.</p>
+
+<h3 id="full-loop">Full loop</h3>
+
+<p>A complete manual tool loop looks like this:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+<span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What&#39;s the weather in Tokyo?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions?'>pending_functions?</span>
+
+  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='symbol'>:thread</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='rparen'>)</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_content'>content</span>
+</code></pre>
+
+<p>The loop exits when the model responds with text rather than tool
+calls. You can extend it with timeouts, user confirmation gates, or
+custom error handling for each tool.</p>
+
+<h3 id="trade-offs">Trade-offs</h3>
+
+<p>Manual control is more code but gives you:</p>
+
+<ul>
+<li><strong>Arbitrary pre-execution checks</strong> — inspect, rewrite, or skip tool
+calls before they run.</li>
+<li><strong>Custom confirmation flows</strong> — async approval over HTTP, Slack,
+or email instead of the built-in terminal prompt.</li>
+<li><strong>Different strategies per tool</strong> — run one tool on a thread and
+another in a forked process within the same turn.</li>
+<li><strong>Fine-grained error recovery</strong> — rescue per-tool failures and
+decide which results to feed back.</li>
+</ul>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> handles
+all of this automatically and is the right choice for most applications.
+Drop down to the manual loop when you need control that the agent
+abstraction doesn&#39;t expose.</p>
 
 <h2 id="skills">Skills</h2>
 
@@ -1810,7 +1930,7 @@ containing the extracted text.</p>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jul 21 04:07:32 2026 by
+  Generated on Tue Jul 21 20:04:19 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

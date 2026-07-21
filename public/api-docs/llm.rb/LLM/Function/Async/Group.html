@@ -406,7 +406,9 @@ demand if not provided.</p>
 23
 24
 25
-26</pre>
+26
+27
+28</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/async/group.rb', line 20</span>
@@ -417,6 +419,8 @@ demand if not provided.</p>
     <span class='id identifier rubyid_task'>task</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span>
   <span class='kw'>end</span>
   <span class='kw'>nil</span>
+<span class='kw'>ensure</span>
+  <span class='ivar'>@spawned</span> <span class='op'>=</span> <span class='kw'>true</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -460,12 +464,12 @@ demand if not provided.</p>
       <pre class="lines">
 
 
-30
-31
-32</pre>
+32
+33
+34</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/async/group.rb', line 30</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/async/group.rb', line 32</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alive?'>alive?</span>
   <span class='ivar'>@tasks</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:alive?</span><span class='rparen'>)</span>
@@ -516,13 +520,13 @@ demand if not provided.</p>
       <pre class="lines">
 
 
-36
-37
 38
-39</pre>
+39
+40
+41</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/async/group.rb', line 36</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/async/group.rb', line 38</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='ivar'>@tasks</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:interrupt!</span><span class='rparen'>)</span>
@@ -574,18 +578,18 @@ demand if not provided.</p>
       <pre class="lines">
 
 
-44
-45
 46
 47
 48
-49</pre>
+49
+50
+51</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/async/group.rb', line 44</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/async/group.rb', line 46</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
-  <span class='id identifier rubyid_spawn'>spawn</span>
+  <span class='id identifier rubyid_spawn'>spawn</span> <span class='kw'>unless</span> <span class='ivar'>@spawned</span>
   <span class='ivar'>@tasks</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:wait</span><span class='rparen'>)</span>
 <span class='kw'>ensure</span>
   <span class='ivar'>@reactor</span><span class='period'>.</span><span class='id identifier rubyid_stop'>stop</span>
@@ -600,7 +604,7 @@ demand if not provided.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 21 04:07:40 2026 by
+  Generated on Tue Jul 21 20:04:26 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

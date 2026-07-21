@@ -75,10 +75,12 @@
   <dl>
     <dt>Inherits:</dt>
     <dd>
-      <span class="inheritName">Object</span>
+      <span class="inheritName"><span class='object_link'><a href="../Task.html" title="LLM::Function::Task (class)">Task</a></span></span>
       
         <ul class="fullTree">
           <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Task.html" title="LLM::Function::Task (class)">Task</a></span></li>
           
             <li class="next">LLM::Function::Fork::Task</li>
           
@@ -122,6 +124,11 @@ and exchanges control and result messages with the child process.</p>
 
 
 
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Task.html" title="LLM::Function::Task (class)">Task</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Task.html#function-instance_method" title="LLM::Function::Task#function (method)">#function</a></span></p>
 
 
   
@@ -274,7 +281,14 @@ and exchanges control and result messages with the child process.</p>
     
   
 
-<div id="constructor_details" class="method_details_list">
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
   <h2>Constructor Details</h2>
   
     <div class="method_details first">
@@ -360,8 +374,8 @@ and exchanges control and result messages with the child process.</p>
       <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 13</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
-  <span class='ivar'>@function</span> <span class='op'>=</span> <span class='id identifier rubyid_fn'>fn</span>
-  <span class='ivar'>@tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:tracer</span><span class='rbracket'>]</span>
+  <span class='kw'>super</span>
+  <span class='ivar'>@tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:tracer</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='ivar'>@spawned</span> <span class='op'>=</span> <span class='kw'>false</span>
   <span class='ivar'>@waited</span> <span class='op'>=</span> <span class='kw'>false</span>
 <span class='kw'>end</span></pre>
@@ -423,7 +437,10 @@ and exchanges control and result messages with the child process.</p>
 28
 29
 30
-31</pre>
+31
+32
+33
+34</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 22</span>
@@ -433,7 +450,10 @@ and exchanges control and result messages with the child process.</p>
     <span class='label'>id:</span> <span class='ivar'>@function</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='ivar'>@function</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span>
     <span class='label'>arguments:</span> <span class='ivar'>@function</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='ivar'>@function</span><span class='period'>.</span><span class='id identifier rubyid_model'>model</span>
   <span class='rparen'>)</span>
-  <span class='ivar'>@ch</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Object.html" title="LLM::Object (class)">Object</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from'>from</span><span class='lparen'>(</span><span class='label'>control:</span> <span class='id identifier rubyid_xchan'>xchan</span><span class='lparen'>(</span><span class='symbol'>:marshal</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='id identifier rubyid_xchan'>xchan</span><span class='lparen'>(</span><span class='symbol'>:marshal</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='ivar'>@ch</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Object.html" title="LLM::Object (class)">Object</a></span></span><span class='period'>.</span><span class='id identifier rubyid_from'>from</span><span class='lparen'>(</span>
+    <span class='label'>control:</span> <span class='id identifier rubyid_xchan'>xchan</span><span class='lparen'>(</span><span class='symbol'>:marshal</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>result:</span> <span class='id identifier rubyid_xchan'>xchan</span><span class='lparen'>(</span><span class='symbol'>:marshal</span><span class='comma'>,</span> <span class='label'>sock:</span> <span class='const'>Socket</span><span class='op'>::</span><span class='const'>SOCK_STREAM</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
   <span class='ivar'>@pid</span> <span class='op'>=</span> <span class='const'>Kernel</span><span class='period'>.</span><span class='id identifier rubyid_fork'>fork</span> <span class='lbrace'>{</span> <span class='const'><span class='object_link'><a href="../Fork.html" title="LLM::Function::Fork (module)">Fork</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Job.html" title="LLM::Function::Fork::Job (class)">Job</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Job.html#initialize-instance_method" title="LLM::Function::Fork::Job#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='ivar'>@function</span><span class='comma'>,</span> <span class='ivar'>@ch</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'><span class='object_link'><a href="Job.html#call-instance_method" title="LLM::Function::Fork::Job#call (method)">call</a></span></span> <span class='rbrace'>}</span>
   <span class='ivar'>@spawned</span> <span class='op'>=</span> <span class='kw'>true</span>
   <span class='kw'>self</span>
@@ -480,18 +500,18 @@ and exchanges control and result messages with the child process.</p>
       <pre class="lines">
 
 
-35
-36
-37
 38
 39
 40
 41
 42
-43</pre>
+43
+44
+45
+46</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 35</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 38</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_alive?'>alive?</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='ivar'>@waited</span> <span class='op'>||</span> <span class='op'>!</span><span class='ivar'>@pid</span>
@@ -548,16 +568,16 @@ and exchanges control and result messages with the child process.</p>
       <pre class="lines">
 
 
-47
-48
-49
 50
 51
 52
-53</pre>
+53
+54
+55
+56</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 50</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='ivar'>@waited</span>
@@ -612,9 +632,6 @@ and exchanges control and result messages with the child process.</p>
       <pre class="lines">
 
 
-58
-59
-60
 61
 62
 63
@@ -624,10 +641,13 @@ and exchanges control and result messages with the child process.</p>
 67
 68
 69
-70</pre>
+70
+71
+72
+73</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 58</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 61</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span>
   <span class='id identifier rubyid_spawn'>spawn</span> <span class='kw'>unless</span> <span class='ivar'>@spawned</span>
@@ -684,12 +704,12 @@ and exchanges control and result messages with the child process.</p>
       <pre class="lines">
 
 
-75
-76
-77</pre>
+78
+79
+80</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 75</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/function/fork/task.rb', line 78</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_group_class'>group_class</span>
   <span class='const'><span class='object_link'><a href="../../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Function.html" title="LLM::Function (class)">Function</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Fork.html" title="LLM::Function::Fork (module)">Fork</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Group.html" title="LLM::Function::Fork::Group (class)">Group</a></span></span>
@@ -704,7 +724,7 @@ and exchanges control and result messages with the child process.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 21 04:07:39 2026 by
+  Generated on Tue Jul 21 20:04:25 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
