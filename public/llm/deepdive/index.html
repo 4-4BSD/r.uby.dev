@@ -661,9 +661,15 @@ end
 
 <p>A common scenario when communicating with a model is to want to cancel the request mid-stream. This could be done for a number of different reasons, most often because the user made a mistake, or the model is making a mistake and the user wants to cancel the action.</p>
 
-<p>The runtime has built-in support for cancellation. So for example it is possible to cancel a request on the main thread from a secondary thread. A number of things happen when a request is cancelled. First the request is cancelled at the transport level, and each transport handles it a little differently. The net effect in every case is that the connection is closed.</p>
+<p>The runtime has built-in support for cancellation. Call <code>agent.cancel!</code> or <code>ctx.cancel!</code> from any thread and two things happen at once:</p>
 
-<p>The runtime then notifies the rest of the system. so for example, if a tool was running, it will receive the <code>on_interrupt</code> / <code>on_cancel</code> callback that lets the tool do any necessary cleanup, or execute its own cancellation plan. Tools that were pending (not yet run but requested to run) are cancelled through <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>.</p>
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a> is raised on the thread where <code>talk</code> is running, so the caller can rescue it and know the request was cancelled.</p>
+
+<p>At the same time, <code>LLM::Interrupt</code> is raised on every tool that is currently executing &mdash; regardless of which concurrency strategy it's using. A tool running in a thread gets it on that thread. A tool in a fiber gets it on that fiber. A tool in a forked process gets it via a message over the xchan control channel. The delivery mechanism depends on the strategy, but the effect is the same: the tool can rescue <code>LLM::Interrupt</code>, clean up resources, close connections, flush buffers, and either re-raise to abort or return a partial result.</p>
+
+<p>Pending tools &mdash; those the model requested but that haven't started running yet &mdash; are cancelled through <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a> without ever being executed.</p>
+
+<p>The transport layer also cancels the in-flight HTTP request, closing the connection to the provider.</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -713,7 +719,7 @@ end
 
 <p>The right choice depends on the situation. A hard cancel aborts the request outright; useful when continuing would produce garbage. Returning a value lets the model adapt, which can be helpful when the interrupt is temporary (e.g. a timeout).</p>
 
-<p>The <code>:ractor</code> strategy is cooperative by nature; the ractor must check for a cancel message at safe points in its execution. The <code>:fork</code> strategy delivers the interrupt via a signal, which interrupts blocking syscalls immediately. All other strategies raise the exception directly on the executing thread or fiber.</p>
+<p>The <code>:ractor</code> strategy delivers the interrupt through ractor message passing &mdash; a listener thread inside the tool ractor receives the interrupt message and raises <code>LLM::Interrupt</code> on the ractor's main thread. The end result is the same as every other strategy: the tool can rescue, clean up, and decide. The <code>:fork</code> strategy delivers the interrupt via a message over the xchan control channel, which a listener thread in the child process picks up and raises on <code>Thread.main</code>. All other strategies raise the exception directly on the executing thread or fiber.</p>
 
 <h2 id="transports">Transports</h2>
 
@@ -802,14 +808,14 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek
 
 <p>This feature requires that the <a href="https://github.com/ruby/curses">curses</a> and <a href="https://github.com/gettalong/kramdown">kramdown</a> libraries are installed and available to require.</p>
 
+<p>The <code>name:</code> option labels the agent throughout the TUI &mdash; useful when working with multiple agents. The <code>path:</code> option persists state across sessions. The <code>tools:</code> option attaches extra tools for the duration of the session.</p>
+
 <pre><code class="language-ruby">require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, name: "my-agent")
 agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
 </code></pre>
-
-<p>The <code>name:</code> option labels the agent throughout the TUI &mdash; useful when working with multiple agents. The <code>path:</code> option persists state across sessions. The <code>tools:</code> option attaches extra tools for the duration of the session.</p>
 
 <h4 id="persistence">Persistence</h4>
 
