@@ -301,7 +301,9 @@ by managing the tool loop manually through
 31
 32
 33
-34</pre>
+34
+35
+36</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/tools/shell.rb', line 30</span>
@@ -310,6 +312,8 @@ by managing the tool loop manually through
   <span class='id identifier rubyid_command'>command</span> <span class='op'>=</span> <span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='label'>name:</span><span class='comma'>,</span> <span class='label'>arguments:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='label'>command:</span><span class='comma'>,</span> <span class='label'>timeout:</span><span class='rparen'>)</span>
   <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span><span class='comma'>,</span> <span class='label'>stdout:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_stdout'>stdout</span><span class='comma'>,</span> <span class='label'>stderr:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_stderr'>stderr</span><span class='rbrace'>}</span>
+<span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span>
+  <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_kill!'>kill!</span> <span class='kw'>if</span> <span class='id identifier rubyid_command'>command</span><span class='op'>&amp;.</span><span class='id identifier rubyid_running?'>running?</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -321,7 +325,7 @@ by managing the tool loop manually through
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 21 20:04:23 2026 by
+  Generated on Wed Jul 22 23:00:56 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -71,6 +71,19 @@
             </details>
           </div>
           <div class="toc-group">
+            <h3>Protocols</h3>
+            <details>
+              <summary>MCP</summary>
+              <a class="toc-sub" href="#stdio">stdio</a>
+              <a class="toc-sub" href="#http">http</a>
+            </details>
+            <details>
+              <summary>A2A</summary>
+              <a class="toc-sub" href="#rest">rest</a>
+              <a class="toc-sub" href="#jsonrpc">jsonrpc</a>
+            </details>
+          </div>
+          <div class="toc-group">
             <h3>Runtime</h3>
             <details>
               <summary>Stream</summary>
@@ -158,19 +171,6 @@
               <a class="toc-sub" href="#mistral">Mistral</a>
             </details>
           </div>
-          <div class="toc-group">
-            <h3>Protocols</h3>
-            <details>
-              <summary>MCP</summary>
-              <a class="toc-sub" href="#stdio">stdio</a>
-              <a class="toc-sub" href="#http">http</a>
-            </details>
-            <details>
-              <summary>A2A</summary>
-              <a class="toc-sub" href="#rest">rest</a>
-              <a class="toc-sub" href="#jsonrpc">jsonrpc</a>
-            </details>
-          </div>
         </aside>
 
         <article class="deepdive-content">
@@ -234,11 +234,11 @@ agent.talk "Hello, fellow agent"
 
 <p>A tool extends the capabilities of a model. <br /> A tool is a subclass of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> that has a name, a description, and an optional set of typed parameters.</p>
 
-<p>A tool also has a method associated with it, and when the model calls a tool it will do so through this method – alongside any parameters the tool might have defined.</p>
+<p>A tool also has a method associated with it, and when the model calls a tool it will do so through this method, alongside any parameters the tool might have defined.</p>
 
 <p>In other words, a tool provides a way for a model to call a method you have written, and it returns a value to the model that is considered the tool’s response. The model then proceeds to process the tool’s response, and then might generate its own response, or perhaps call another tool.</p>
 
-<p>There is exactly one rule: a tool call must always produce a tool response. If a tool raises an exception, the runtime rescues it and returns a structured error to the model instead. The conversation never enters an invalid state because of a crashed tool &mdash; the model always has something to work with. This is by design. Keeping the tool loop alive is the highest priority.</p>
+<p>There is exactly one rule: a tool call must always produce a tool response. If a tool raises an exception, the runtime rescues it and returns a structured error to the model instead. The conversation never enters an invalid state because of a crashed tool. The model always has something to work with. This is by design. Keeping the tool loop alive is the highest priority.</p>
 
 <h4 id="llmtool">LLM::Tool</h4>
 
@@ -283,7 +283,7 @@ agent.talk "What files are in the current working directory?"
 end
 </code></pre>
 
-<p>The runtime wraps the exception into <code>{error: true, type: "RuntimeError", message: "boom"}</code> and returns it to the model as the tool response. From the model’s perspective the tool completed &mdash; it just completed with an error. The model can read the error, decide what went wrong, and try something else. The conversation stays valid.</p>
+<p>The runtime wraps the exception into <code>{error: true, type: "RuntimeError", message: "boom"}</code> and returns it to the model as the tool response. From the model’s perspective the tool completed. It just completed with an error. The model can read the error, decide what went wrong, and try something else. The conversation stays valid.</p>
 
 <p>You can also handle errors yourself inside <code>call</code>. Rescue the exception and return whatever shape makes sense for your tool:</p>
 
@@ -300,7 +300,7 @@ end
 end
 </code></pre>
 
-<p>The model receives <code>{ok: false, error: "command not found: ls"}</code> and can react accordingly &mdash; maybe it corrects the command name and tries again. This is often better than letting the runtime’s generic error wrapper speak for you, because you can provide domain-specific detail that helps the model recover.</p>
+<p>The model receives <code>{ok: false, error: "command not found: ls"}</code> and can react accordingly. Maybe it corrects the command name and tries again. This is often better than letting the runtime’s generic error wrapper speak for you, because you can provide domain-specific detail that helps the model recover.</p>
 
 <p>The principle is the same either way: <strong>return something</strong>. A tool call must complete with a tool response. If you don’t return a value, and you don’t raise, the runtime has nothing to send back and the conversation is stuck. As long as you return a Hash (or anything the model can interpret), the tool loop continues.</p>
 
@@ -336,7 +336,7 @@ end
 
 <h2 id="manual-tool-loop">Manual tool loop</h2>
 
-<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> manages the tool loop automatically &mdash; it calls the model, checks for tool calls, executes them, sends results back, and repeats until the model responds with text. You can bypass this and drive the loop yourself for finer control.</p>
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> manages the tool loop automatically. It calls the model, checks for tool calls, executes them, sends results back, and repeats until the model responds with text. You can bypass this and drive the loop yourself for finer control.</p>
 
 <p>Start with a bare <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> (no agent):</p>
 
@@ -372,7 +372,7 @@ ctx.talk ctx.wait(:thread)
 
 <h4 id="per-tool-confirmation">Per-tool confirmation</h4>
 
-<p>Because <code>pending_functions</code> returns a regular array, you can inspect each function before execution. Call <code>ctx.wait(:thread)</code> to execute all pending tools &mdash; but you can also selectively exclude functions or run individual ones through <code>fn.task(:thread).wait</code> for ad-hoc execution that bypasses guards and streaming hooks:</p>
+<p>Because <code>pending_functions</code> returns a regular array, you can inspect each function before execution. Call <code>ctx.wait(:thread)</code> to execute all pending tools, but you can also selectively exclude functions or run individual ones through <code>fn.task(:thread).wait</code> for ad-hoc execution that bypasses guards and streaming hooks:</p>
 
 <pre><code class="language-ruby">results = ctx.pending_functions.map do |fn|
   print "Run #{fn.name} with #{fn.arguments}? [y/N] "
@@ -385,7 +385,7 @@ end
 ctx.talk(results)
 </code></pre>
 
-<p>This pattern is what <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>'s built-in confirmation feature uses internally, but doing it manually gives you full control &mdash; route the decision through a web socket, a background job, or a multi-user approval flow.</p>
+<p>This pattern is what <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>'s built-in confirmation feature uses internally, but doing it manually gives you full control. Route the decision through a web socket, a background job, or a multi-user approval flow.</p>
 
 <h4 id="full-loop">Full loop</h4>
 
@@ -520,7 +520,9 @@ agent.talk "Review the recent commits, then deploy if everything looks clean"
 
 <h2 id="schema">Schema</h2>
 
-<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> class can be subclassed to describe the shape of a JSON object or objects that you expect the model to respond with.</p>
+<h3>Overview</h3>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> class can be subclassed to describe the shape of a JSON object or objects that you expect the model to respond with. Instead of parsing free-form text, you declare the expected structure: properties, types, and requirements, and the runtime coerces the model's response into an object with typed accessors.</p>
 
 <p>It can be useful for a wide range of use cases but the most popular might be classification, data extraction, and transferring structured data between different software rather than blobs of text that a machine cannot easily parse in a structured way.</p>
 
@@ -561,7 +563,87 @@ else
 end
 </code></pre>
 
+<h2 id="mcp">MCP</h2>
+
+<h3>Overview</h3>
+
+<p>The Model Context Protocol (MCP) is an open protocol that lets language models interact with external tools and data sources through a standardised interface. Instead of wiring each service directly into your agent, you run an MCP server that exposes its capabilities, and the runtime discovers and calls them as tools.</p>
+
+<p>llm.rb supports two MCP transport types: stdio, where the server runs as a child process communicating over standard streams, and http, where the server runs remotely and communicates over HTTP. Choose stdio for local tools and services; choose http for cloud-hosted MCP servers like GitHub's.</p>
+
+<h4 id="stdio">stdio</h4>
+
+<p>The stdio transport connects to an MCP server that is launched as a separate process, and both its standard input and standard output streams are used for communication. It is recommended but not required to execute commands for a stdio transport over a persistent session via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> method, otherwise you could end up launching the same process multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
+agent = LLM::Agent.new(llm)
+
+mcp.session do
+  agent.talk "What's happening on forgejo?", tools: mcp.tools
+end
+</code></pre>
+
+<h4 id="http">http</h4>
+
+<p>The http transport connects to an MCP server over HTTP, and unlike the stdio transport, the MCP server does not have to be running locally. Popular services like GitHub provide their own MCP server over HTTP, and it is one of the most capable MCP servers available.</p>
+
+<p>Unlike the stdio transport, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> carries little benefit for the http transport and it can be omitted. Use the <code>net_http_persistent</code> transport for MCP interactions that run over HTTP, otherwise you could end up tearing down and setting up the same connection multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {
+    "Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"
+  },
+  transport: :net_http_persistent
+)
+agent = LLM::Agent.new(llm)
+agent.talk "What's happening on GitHub?", tools: mcp.tools
+</code></pre>
+
+<h2 id="a2a">A2A</h2>
+
+<h3>Overview</h3>
+
+<p>The Agent-to-Agent (A2A) protocol enables direct communication between agents over a network. Unlike MCP, which connects an agent to external tools, A2A connects agents to other agents, letting you compose autonomous workers that delegate, collaborate, and share results.</p>
+
+<p>llm.rb supports two A2A transport types: rest, which communicates over standard HTTP and JSON, and jsonrpc, which uses the JSON-RPC protocol. Both expose the remote agent's skills as local tools, so the calling agent calls them the same way it calls any other tool.</p>
+
+<h4 id="rest">rest</h4>
+
+<p>The rest transport communicates with other agents via A2A endpoints that speak both HTTP and JSON. The skills advertised by an agent become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> that can be used by both <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, similar to how MCP tools become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h4 id="jsonrpc">jsonrpc</h4>
+
+<p>The jsonrpc transport communicates with other agents via HTTP and a protocol known as jsonrpc. Sometimes an agent will implement both, or just one of each. An agent’s card, which is represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html"><code>LLM::A2A::Card</code></a>, can be used to discover available transports via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces-instance_method"><code>LLM::A2A::Card#interfaces</code></a> method.</p>
+
+<pre><code class="language-ruby">require "llm"
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.jsonrpc(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
 <h2 id="stream">Stream</h2>
+
+<h3>Overview</h3>
+
+<p>Streaming lets you receive model output incrementally as it is generated, rather than waiting for the full response. This makes UIs feel responsive &mdash; the user sees tokens appear in real time &mdash; and enables progress indicators, partial processing, and early cancellation.</p>
+
+<p>llm.rb provides two levels of streaming: a simple IO-like object that receives content chunks, and a full <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a> subclass with hooks for tool calls, compactions, and other runtime events. Start with the simple form for basic streaming; reach for <code>LLM::Stream</code> when you need fine-grained visibility into what the runtime is doing.</p>
 
 <h4 id="io-like-object">IO-like object</h4>
 
@@ -607,19 +689,19 @@ end
 
 <h2 id="concurrency">Concurrency</h2>
 
-<p id="overview">llm.rb supports six concurrency strategies for tool execution &ndash; <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>. Each one implements the same interface &mdash; <code>spawn</code>, <code>wait</code>, <code>alive?</code>, <code>interrupt!</code> &mdash; so the caller never has to care which strategy is behind a given task.</p>
+<p id="overview">llm.rb supports six concurrency strategies for tool execution: <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>. Each one implements the same interface (<code>spawn</code>, <code>wait</code>, <code>alive?</code>, <code>interrupt!</code>), so the caller never has to care which strategy is behind a given task.</p>
 
 <p>Choose a strategy per-agent or per-call:</p>
 
-<pre><code class="language-ruby">## Per-agent — every tool loop uses :fork
+<pre><code class="language-ruby">## Per-agent: every tool loop uses :fork
 agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
 
-## Per-call — run a single tool on a thread
+## Per-call: run a single tool on a thread
 fn = FetchStocks.function
 fn.task(:thread).wait
 </code></pre>
 
-<p>Interruption is reliable across all six. No matter the backing &mdash; thread, fiber, process, ractor &mdash; <code>LLM::Interrupt</code> reaches the tool and it can rescue, clean up, and either re-raise to cancel the turn or return a value to continue.</p>
+<p>Interruption is reliable across all six. No matter the backing (thread, fiber, process, ractor), <code>LLM::Interrupt</code> reaches the tool and it can rescue, clean up, and either re-raise to cancel the turn or return a value to continue.</p>
 
 <h4 id="sequential">sequential</h4>
 
@@ -729,9 +811,11 @@ fn.task(:thread).wait
 
 <h2 id="context-compaction">Context Compaction</h2>
 
+<h3>Overview</h3>
+
 <p>Long-running conversations consume tokens. Without intervention, every turn pushes toward the model’s context window limit, at which point the provider rejects the request.</p>
 
-<p>llm.rb provides compaction through pluggable strategies. All strategies inherit from <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html"><code>LLM::Compactor</code></a> and are invoked automatically before each <code>ctx.talk(...)</code> call.</p>
+<p>llm.rb provides compaction through pluggable strategies. All strategies inherit from <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor.html"><code>LLM::Compactor</code></a> and are invoked automatically before each <code>ctx.talk(...)</code> call. You configure which strategy to use and when compaction triggers, keeping the conversation alive without manual intervention. The trade-off is that old messages are dropped, so information may be lost &mdash; tune the retention settings to match your use case.</p>
 
 <h4 id="configuration">Configuration</h4>
 
@@ -812,6 +896,12 @@ end
 
 <h2 id="cancellation">Cancellation</h2>
 
+<h3>Overview</h3>
+
+<p>Cancellation lets you abort a model request mid-stream and interrupt any tools that are currently executing. This is useful when the user changes their mind, the model goes off course, or a tool is taking too long. The runtime provides a uniform cancellation mechanism: <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>, which works across all six concurrency strategies and reaches tools regardless of whether they run on a thread, fiber, process, or ractor.</p>
+
+<p>Cancellation has two phases: the in-flight HTTP request is torn down, and every running tool receives the interrupt so it can clean up and decide whether to abort the turn or return a partial result.</p>
+
 <h4 id="cancel-a-request">Cancel a request</h4>
 
 <p>A common scenario when communicating with a model is to want to cancel the request mid-stream. This could be done for a number of different reasons, most often because the user made a mistake, or the model is making a mistake and the user wants to cancel the action.</p>
@@ -820,9 +910,9 @@ end
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a> is raised on the thread where <code>talk</code> is running, so the caller can rescue it and know the request was cancelled.</p>
 
-<p>At the same time, <code>LLM::Interrupt</code> is raised on every tool that is currently executing &mdash; regardless of which concurrency strategy it's using. A tool running in a thread gets it on that thread. A tool in a fiber gets it on that fiber. A tool in a forked process gets it via a message over the xchan control channel. The delivery mechanism depends on the strategy, but the effect is the same: the tool can rescue <code>LLM::Interrupt</code>, clean up resources, close connections, flush buffers, and either re-raise to abort or return a partial result.</p>
+<p>At the same time, <code>LLM::Interrupt</code> is raised on every tool that is currently executing, regardless of which concurrency strategy it's using. A tool running in a thread gets it on that thread. A tool in a fiber gets it on that fiber. A tool in a forked process gets it via a message over the xchan control channel. The delivery mechanism depends on the strategy, but the effect is the same: the tool can rescue <code>LLM::Interrupt</code>, clean up resources, close connections, flush buffers, and either re-raise to abort or return a partial result.</p>
 
-<p>Pending tools &mdash; those the model requested but that haven't started running yet &mdash; are cancelled through <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a> without ever being executed.</p>
+<p>Pending tools (those the model requested but that haven't started running yet) are cancelled through <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a> without ever being executed.</p>
 
 <p>The transport layer also cancels the in-flight HTTP request, closing the connection to the provider.</p>
 
@@ -848,7 +938,7 @@ end
 
 <h4 id="tool-interrupts">Tool interrupts</h4>
 
-<p>When a running tool is interrupted &ndash; for example the user presses ESC in the <a href="#repl">REPL</a> &ndash; the runtime raises <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a> on the tool’s execution context. This behavior is uniform across all six concurrency strategies (<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
+<p>When a running tool is interrupted, for example the user presses ESC in the <a href="#repl">REPL</a>, the runtime raises <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a> on the tool’s execution context. This behavior is uniform across all six concurrency strategies (<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>).</p>
 
 <p>A tool has two choices:</p>
 
@@ -872,11 +962,13 @@ rescue LLM::Interrupt
 end
 </code></pre>
 
-<p>The right choice depends on the situation. A hard cancel aborts the request outright; useful when continuing would produce garbage. Returning a value lets the model adapt, which can be helpful when the interrupt is temporary (e.g. a timeout).</p>
+<p>The right choice depends on the situation. A hard cancel aborts the request outright. Useful when continuing would produce garbage. Returning a value lets the model adapt, which can be helpful when the interrupt is temporary (e.g. a timeout).</p>
 
-<p>The <code>:ractor</code> strategy delivers the interrupt through ractor message passing &mdash; a listener thread inside the tool ractor receives the interrupt message and raises <code>LLM::Interrupt</code> on the ractor's main thread. The end result is the same as every other strategy: the tool can rescue, clean up, and decide. The <code>:fork</code> strategy delivers the interrupt via a message over the xchan control channel, which a listener thread in the child process picks up and raises on <code>Thread.main</code>. All other strategies raise the exception directly on the executing thread or fiber.</p>
+<p>The <code>:ractor</code> strategy delivers the interrupt through ractor message passing. A listener thread inside the tool ractor receives the interrupt message and raises <code>LLM::Interrupt</code> on the ractor's main thread. The end result is the same as every other strategy: the tool can rescue, clean up, and decide. The <code>:fork</code> strategy delivers the interrupt via a message over the xchan control channel, which a listener thread in the child process picks up and raises on <code>Thread.main</code>. All other strategies raise the exception directly on the executing thread or fiber.</p>
 
 <h2 id="transports">Transports</h2>
+
+<h3>Overview</h3>
 
 <p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html"><code>LLM::MCP</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html"><code>LLM::A2A</code></a> classes all accept a <code>transport</code> option that decides which library will be used for HTTP communication. There are three options out of the box: <a href="https://github.com/ruby/net-http"><code>net-http</code></a>, <a href="https://github.com/drbrain/net-http-persistent"><code>net-http-persistent</code></a>, and <a href="https://github.com/taf2/curb"><code>curb</code></a>.</p>
 
@@ -914,6 +1006,8 @@ a2a = LLM::A2A.rest(url: "...", transport: :curb)
 </code></pre>
 
 <h2 id="tracer">Tracer</h2>
+
+<h3>Overview</h3>
 
 <p>The runtime can be observed by subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a>. <br /> The default tracers include a tracer that can write to standard output (<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>), and a generic OpenTelemetry tracer that can export spans via OTLP (<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a>).</p>
 
@@ -955,6 +1049,8 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek
 
 <h2 id="repl">REPL</h2>
 
+<h3>Overview</h3>
+
 <p>During the development and operation of agents it can often be helpful to drop into a read-eval-print loop. This gives you a way to confirm the work was successful, inspect anything that went wrong, and keep talking to the same agent while its state is still intact.</p>
 
 <h4 id="llmagent">LLM::Agent</h4>
@@ -963,7 +1059,7 @@ agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, path: "deepseek
 
 <p>This feature requires that the <a href="https://github.com/ruby/curses">curses</a> and <a href="https://github.com/gettalong/kramdown">kramdown</a> libraries are installed and available to require.</p>
 
-<p>The <code>name:</code> option labels the agent throughout the TUI &mdash; useful when working with multiple agents. The <code>path:</code> option persists state across sessions. The <code>tools:</code> option attaches extra tools for the duration of the session.</p>
+<p>The <code>name:</code> option labels the agent throughout the TUI. Useful when working with multiple agents. The <code>path:</code> option persists state across sessions. The <code>tools:</code> option attaches extra tools for the duration of the session.</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -1092,7 +1188,7 @@ agent.repl(tracer: true, tools: [Debugger])
 
 <p>Commands are recognized by a <code>/</code> prefix on the input line. Type <code>/compact</code> to free context window space by dropping the oldest messages. Type <code>/exit</code> to leave the REPL.</p>
 
-<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a> class is intentionally similar to <a href="#llmtool"><code>LLM::Tool</code></a> and <a href="#schema"><code>LLM::Schema</code></a> in its interface &ndash; you declare a name, description, and parameters with the same vocabulary. A subclass is automatically registered and available as <code>/name</code>.</p>
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a> class is intentionally similar to <a href="#llmtool"><code>LLM::Tool</code></a> and <a href="#schema"><code>LLM::Schema</code></a> in its interface. You declare a name, description, and parameters with the same vocabulary. A subclass is automatically registered and available as <code>/name</code>.</p>
 
 <h5 id="parameters">Parameters</h5>
 
@@ -1147,6 +1243,8 @@ end
 
 <h2 id="serialization">Serialization</h2>
 
+<h3>Overview</h3>
+
 <p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> class can be serialized to JSON and stored in a string or on disk. That is powerful because a context contains runtime state that can be restored later, in a different process or even on a different machine. And because an agent is implemented on top of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> this feature works for <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>, too.</p>
 
 <h4 id="save-to-disk">Save to disk</h4>
@@ -1171,6 +1269,8 @@ agent2.talk "what's my name?"
 </code></pre>
 
 <h2 id="orm">ORM</h2>
+
+<h3>Overview</h3>
 
 <p>Both ActiveRecord, and Sequel have first-class support on the llm.rb runtime. In both cases an ActiveRecord or Sequel model can be turned into a model that has the same capabilities as <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, or <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>.</p>
 
@@ -1249,6 +1349,8 @@ agent.talk "perform research"
 
 <h2 id="images">Images</h2>
 
+<h3>Overview</h3>
+
 <p>The OpenAI, Google, xAI, DeepInfra, and DeepSeek providers have builtin image generation capabilities. OpenAI, xAI, and DeepInfra also support image edits. Google only supports image generation. DeepSeek supports generation and edits too, but only through SVG output rather than raster image models.</p>
 
 <h4 id="generation">Generation</h4>
@@ -1264,7 +1366,7 @@ res = llm.images.create(prompt: "a dog on a rocket to the moon")
 IO.copy_stream res.images[0], "dogrocket.png"
 </code></pre>
 
-<p>The API is the same across providers. <br /> For example – xAI:</p>
+<p>The API is the same across providers. <br /> For example, xAI:</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -1324,7 +1426,9 @@ end
 
 <h2 id="audio">Audio</h2>
 
-<p>The audio interface defined by llm.rb describes three methods, although not every provider implements all of them. Generally speaking the audio interface is for text-to-speech, and speech-to-text models.</p>
+<h3>Overview</h3>
+
+<p>The audio interface defined by llm.rb describes three methods, although not every provider implements all of them. Generally speaking the audio interface is for text-to-speech, and speech-to-text models. Each method serves a different purpose: generating spoken audio from text, transcribing audio into text, or translating spoken content across languages.</p>
 
 <p>The following providers have audio support:</p>
 
@@ -1369,7 +1473,9 @@ res.text # =&gt; "Good day"
 
 <h2 id="ocr">OCR</h2>
 
-<p>Optical Character Recognition extracts text from images and documents.</p>
+<h3>Overview</h3>
+
+<p>Optical Character Recognition extracts text from images and documents, making scanned content searchable and machine-readable. llm.rb supports OCR through a dedicated API endpoint that accepts both image URLs and document URLs (including PDFs), returning extracted text organised by page.</p>
 
 <h4 id="mistral">Mistral</h4>
 
@@ -1389,69 +1495,6 @@ res.pages.each { |page| puts page.markdown }
 res = llm.ocr(document_url: "https://example.com/report.pdf")
 res.pages.each { |page| puts page.markdown }
 </code></pre>
-<h2 id="mcp">MCP</h2>
-
-<h4 id="stdio">stdio</h4>
-
-<p>The stdio transport connects to an MCP server that is launched as a separate process, and both its standard input and standard output streams are used for communication. It is recommended but not required to execute commands for a stdio transport over a persistent session via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> method – otherwise you could end up launching the same process multiple times.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
-agent = LLM::Agent.new(llm)
-
-mcp.session do
-  agent.talk "What's happening on forgejo?", tools: mcp.tools
-end
-</code></pre>
-
-<h4 id="http">http</h4>
-
-<p>The http transport connects to an MCP server over HTTP, and unlike the stdio transport, the MCP server does not have to be running locally. Popular services like GitHub provide their own MCP server over HTTP, and it is one of the most capable MCP servers I have used.</p>
-
-<p>Unlike the stdio transport, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a> carries little benefit for the http transport and it can be omitted.  It is recommended to consider the <code>net_http_persistent</code> transport for MCP interactions that run over HTTP, otherwise you could end up tearing down and setting up the same connection multiple times.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-mcp   = LLM::MCP.http(
-  url: "https://api.githubcopilot.com/mcp/",
-  headers: {
-    "Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"
-  },
-  transport: :net_http_persistent
-)
-agent = LLM::Agent.new(llm)
-agent.talk "What's happening on GitHub?", tools: mcp.tools
-</code></pre>
-
-<h2 id="a2a">A2A</h2>
-
-<h4 id="rest">rest</h4>
-
-<p>The rest transport communicates with other agents via A2A endpoints that speak both HTTP and JSON. The skills advertised by an agent become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> that can be used by both <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>, and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> – similar to how MCP tools become subclasses of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>.</p>
-
-<pre><code class="language-ruby">require "llm"
-
-llm   = LLM.deepseek(key: ENV["KEY"])
-a2a   = LLM::A2A.rest(url: "https://agent.example.com")
-agent = LLM::Agent.new(llm, tools: a2a.skills)
-agent.talk "What's happening, fellow agent?"
-</code></pre>
-
-<h4 id="jsonrpc">jsonrpc</h4>
-
-<p>The jsonrpc transport communicates with other agents via HTTP and a protocol known as jsonrpc. Sometimes an agent will implement both, or just one of each. An agent’s card, which is represented by an instance of <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html"><code>LLM::A2A::Card</code></a>, can be used to discover available transports via the <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces-instance_method"><code>LLM::A2A::Card#interfaces</code></a> method.</p>
-
-<pre><code class="language-ruby">require "llm"
-llm   = LLM.deepseek(key: ENV["KEY"])
-a2a   = LLM::A2A.jsonrpc(url: "https://agent.example.com")
-agent = LLM::Agent.new(llm, tools: a2a.skills)
-agent.talk "What's happening, fellow agent?"
-</code></pre>
-
-
         </article>
       </div>
 

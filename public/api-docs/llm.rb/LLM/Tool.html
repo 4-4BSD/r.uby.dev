@@ -106,7 +106,7 @@
   <dl>
     <dt>Defined in:</dt>
     <dd>lib/llm/tool.rb<span class="defines">,<br>
-  lib/llm/tools/ls.rb,<br> lib/llm/tools/rg.rb,<br> lib/llm/tools/git.rb,<br> lib/llm/tools/pwd.rb,<br> lib/llm/tool/param.rb,<br> lib/llm/tools/chdir.rb,<br> lib/llm/tools/mkdir.rb,<br> lib/llm/tools/shell.rb,<br> lib/llm/tools/utils.rb,<br> lib/llm/tools/which.rb,<br> lib/llm/tools/read_file.rb,<br> lib/llm/tools/swap_text.rb,<br> lib/llm/tools/write_file.rb</span>
+  lib/llm/tools/ls.rb,<br> lib/llm/tools/rg.rb,<br> lib/llm/tools/git.rb,<br> lib/llm/tools/pwd.rb,<br> lib/llm/tool/param.rb,<br> lib/llm/tools/ruby.rb,<br> lib/llm/tools/chdir.rb,<br> lib/llm/tools/mkdir.rb,<br> lib/llm/tools/shell.rb,<br> lib/llm/tools/utils.rb,<br> lib/llm/tools/which.rb,<br> lib/llm/tools/read_file.rb,<br> lib/llm/tools/swap_text.rb,<br> lib/llm/tools/write_file.rb</span>
 
 </dd>
   </dl>
@@ -173,7 +173,7 @@ of a function (also known as a tool) as a class.</p>
 
 </div><div id="subclasses">
   <h2>Direct Known Subclasses</h2>
-  <p class="children"><span class='object_link'><a href="Tool/Chdir.html" title="LLM::Tool::Chdir (class)">Chdir</a></span>, <span class='object_link'><a href="Tool/Git.html" title="LLM::Tool::Git (class)">Git</a></span>, <span class='object_link'><a href="Tool/Ls.html" title="LLM::Tool::Ls (class)">Ls</a></span>, <span class='object_link'><a href="Tool/Mkdir.html" title="LLM::Tool::Mkdir (class)">Mkdir</a></span>, <span class='object_link'><a href="Tool/Pwd.html" title="LLM::Tool::Pwd (class)">Pwd</a></span>, <span class='object_link'><a href="Tool/ReadFile.html" title="LLM::Tool::ReadFile (class)">ReadFile</a></span>, <span class='object_link'><a href="Tool/Rg.html" title="LLM::Tool::Rg (class)">Rg</a></span>, <span class='object_link'><a href="Tool/Shell.html" title="LLM::Tool::Shell (class)">Shell</a></span>, <span class='object_link'><a href="Tool/SwapText.html" title="LLM::Tool::SwapText (class)">SwapText</a></span>, <span class='object_link'><a href="Tool/Which.html" title="LLM::Tool::Which (class)">Which</a></span>, <span class='object_link'><a href="Tool/WriteFile.html" title="LLM::Tool::WriteFile (class)">WriteFile</a></span></p>
+  <p class="children"><span class='object_link'><a href="Tool/Chdir.html" title="LLM::Tool::Chdir (class)">Chdir</a></span>, <span class='object_link'><a href="Tool/Git.html" title="LLM::Tool::Git (class)">Git</a></span>, <span class='object_link'><a href="Tool/Ls.html" title="LLM::Tool::Ls (class)">Ls</a></span>, <span class='object_link'><a href="Tool/Mkdir.html" title="LLM::Tool::Mkdir (class)">Mkdir</a></span>, <span class='object_link'><a href="Tool/Pwd.html" title="LLM::Tool::Pwd (class)">Pwd</a></span>, <span class='object_link'><a href="Tool/ReadFile.html" title="LLM::Tool::ReadFile (class)">ReadFile</a></span>, <span class='object_link'><a href="Tool/Rg.html" title="LLM::Tool::Rg (class)">Rg</a></span>, <span class='object_link'><a href="Tool/Ruby.html" title="LLM::Tool::Ruby (class)">Ruby</a></span>, <span class='object_link'><a href="Tool/Shell.html" title="LLM::Tool::Shell (class)">Shell</a></span>, <span class='object_link'><a href="Tool/SwapText.html" title="LLM::Tool::SwapText (class)">SwapText</a></span>, <span class='object_link'><a href="Tool/Which.html" title="LLM::Tool::Which (class)">Which</a></span>, <span class='object_link'><a href="Tool/WriteFile.html" title="LLM::Tool::WriteFile (class)">WriteFile</a></span></p>
 </div>
 <h2>Defined Under Namespace</h2>
 <p class="children">
@@ -183,7 +183,7 @@ of a function (also known as a tool) as a class.</p>
     
   
     
-      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Tool/Chdir.html" title="LLM::Tool::Chdir (class)">Chdir</a></span>, <span class='object_link'><a href="Tool/Git.html" title="LLM::Tool::Git (class)">Git</a></span>, <span class='object_link'><a href="Tool/Ls.html" title="LLM::Tool::Ls (class)">Ls</a></span>, <span class='object_link'><a href="Tool/Mkdir.html" title="LLM::Tool::Mkdir (class)">Mkdir</a></span>, <span class='object_link'><a href="Tool/Pwd.html" title="LLM::Tool::Pwd (class)">Pwd</a></span>, <span class='object_link'><a href="Tool/ReadFile.html" title="LLM::Tool::ReadFile (class)">ReadFile</a></span>, <span class='object_link'><a href="Tool/Rg.html" title="LLM::Tool::Rg (class)">Rg</a></span>, <span class='object_link'><a href="Tool/Shell.html" title="LLM::Tool::Shell (class)">Shell</a></span>, <span class='object_link'><a href="Tool/SwapText.html" title="LLM::Tool::SwapText (class)">SwapText</a></span>, <span class='object_link'><a href="Tool/Which.html" title="LLM::Tool::Which (class)">Which</a></span>, <span class='object_link'><a href="Tool/WriteFile.html" title="LLM::Tool::WriteFile (class)">WriteFile</a></span>
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Tool/Chdir.html" title="LLM::Tool::Chdir (class)">Chdir</a></span>, <span class='object_link'><a href="Tool/Git.html" title="LLM::Tool::Git (class)">Git</a></span>, <span class='object_link'><a href="Tool/Ls.html" title="LLM::Tool::Ls (class)">Ls</a></span>, <span class='object_link'><a href="Tool/Mkdir.html" title="LLM::Tool::Mkdir (class)">Mkdir</a></span>, <span class='object_link'><a href="Tool/Pwd.html" title="LLM::Tool::Pwd (class)">Pwd</a></span>, <span class='object_link'><a href="Tool/ReadFile.html" title="LLM::Tool::ReadFile (class)">ReadFile</a></span>, <span class='object_link'><a href="Tool/Rg.html" title="LLM::Tool::Rg (class)">Rg</a></span>, <span class='object_link'><a href="Tool/Ruby.html" title="LLM::Tool::Ruby (class)">Ruby</a></span>, <span class='object_link'><a href="Tool/Shell.html" title="LLM::Tool::Shell (class)">Shell</a></span>, <span class='object_link'><a href="Tool/SwapText.html" title="LLM::Tool::SwapText (class)">SwapText</a></span>, <span class='object_link'><a href="Tool/Which.html" title="LLM::Tool::Which (class)">Which</a></span>, <span class='object_link'><a href="Tool/WriteFile.html" title="LLM::Tool::WriteFile (class)">WriteFile</a></span>
     
   
 </p>
@@ -2125,7 +2125,7 @@ Tools can override this to implement cooperative cleanup.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 21 20:04:21 2026 by
+  Generated on Wed Jul 22 23:00:53 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

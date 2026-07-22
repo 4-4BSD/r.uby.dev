@@ -123,8 +123,10 @@ features that didn&#39;t make it into the homepage documentation.</p>
 <details>
 <summary>Skills</summary>
 
-- [SKILL.md](#skillmd)
-- [Run it](#run-it)
+- [Overview](#overview-1)
+- [How it works](#how-it-works)
+- [Why this matters](#why-this-matters)
+- [Frontmatter](#frontmatter)
 </details>
 
 <details>
@@ -330,8 +332,6 @@ subclass later if that makes more sense.</p>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, fellow agent</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="tools">Tools</h2>
 
 <p>A tool extends the capabilities of a model. <br>
@@ -341,7 +341,7 @@ that has a name,
 a description, and an optional set of typed parameters.</p>
 
 <p>A tool also has a method associated with it, and when the
-model calls a tool it will do so through this method &ndash;
+model calls a tool it will do so through this method,
 alongside any parameters the tool might have defined.</p>
 
 <p>In other words, a tool provides a way for a model to
@@ -355,7 +355,7 @@ another tool.</p>
 a tool response. If a tool raises an exception, the runtime
 rescues it and returns a structured error to the model
 instead. The conversation never enters an invalid state
-because of a crashed tool &mdash; the model always has
+because of a crashed tool. The model always has
 something to work with. This is by design. Keeping the
 tool loop alive is the highest priority.</p>
 
@@ -403,16 +403,16 @@ something like this:</p>
 
   <span class='comment'>##
 </span>  <span class='comment'># Returns
-</span>  <span class='comment'># {error: true, kind: &quot;RuntimeError&quot;, message: &quot;boom&quot;}
+</span>  <span class='comment'># {error: true, type: &quot;RuntimeError&quot;, message: &quot;boom&quot;}
 </span>  <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span>
     <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>boom</span><span class='tstring_end'>&quot;</span></span>
   <span class='kw'>end</span>
 <span class='kw'>end</span>
 </code></pre>
 
-<p>The runtime wraps the exception into <code>{error: true, kind: &quot;RuntimeError&quot;,
+<p>The runtime wraps the exception into <code>{error: true, type: &quot;RuntimeError&quot;,
 message: &quot;boom&quot;}</code> and returns it to the model as the tool response. From
-the model&#39;s perspective the tool completed &mdash; it just completed with
+the model&#39;s perspective the tool completed. It just completed with
 an error. The model can read the error, decide what went wrong, and try
 something else. The conversation stays valid.</p>
 
@@ -433,7 +433,7 @@ and return whatever shape makes sense for your tool:</p>
 </code></pre>
 
 <p>The model receives <code>{ok: false, error: &quot;command not found: ls&quot;}</code> and can
-react accordingly &mdash; maybe it corrects the command name and tries
+react accordingly. Maybe it corrects the command name and tries
 again. This is often better than letting the runtime&#39;s generic error
 wrapper speak for you, because you can provide domain-specific detail
 that helps the model recover.</p>
@@ -459,7 +459,7 @@ prompt the user, log the decision, or auto-approve certain tools.</p>
 
   <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_confirmation'>on_tool_confirmation</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span>
     <span class='id identifier rubyid_print'>print</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Run </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> with </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_arguments'>arguments</span><span class='embexpr_end'>}</span><span class='tstring_content'>? [y/N] </span><span class='tstring_end'>&quot;</span></span>
-    <span class='gvar'>$stdin</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span><span class='op'>&amp;.</span><span class='id identifier rubyid_match?'>match?</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\Ay\z</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_cancel'>cancel</span>
+    <span class='gvar'>$stdin</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span><span class='op'>&amp;.</span><span class='id identifier rubyid_match?'>match?</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\Ay\z</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_task'>task</span><span class='lparen'>(</span><span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span> <span class='op'>:</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_cancel'>cancel</span>
   <span class='kw'>end</span>
 <span class='kw'>end</span>
 
@@ -482,7 +482,7 @@ allows the list of confirmed tools to change per-instance:</p>
 <h2 id="manual-tool-loop">Manual tool loop</h2>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> manages
-the tool loop automatically — it calls the model, checks for tool calls,
+the tool loop automatically. It calls the model, checks for tool calls,
 executes them, sends results back, and repeats until the model responds
 with text. You can bypass this and drive the loop yourself for finer
 control.</p>
@@ -528,7 +528,7 @@ and <code>:ractor</code>.</p>
 
 <p>Because <code>pending_functions</code> returns a regular array, you can inspect
 each function before execution. Call <code>ctx.wait(:thread)</code> to execute
-all pending tools — but you can also selectively exclude functions or
+all pending tools, but you can also selectively exclude functions or
 run individual ones through <code>fn.task(:thread).wait</code> for ad-hoc execution
 that bypasses guards and streaming hooks:</p>
 
@@ -546,7 +546,7 @@ that bypasses guards and streaming hooks:</p>
 <p>This pattern is what
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>&#39;s
 built-in confirmation feature uses internally, but doing it manually
-gives you full control — route the decision through a web socket, a
+gives you full control. Route the decision through a web socket, a
 background job, or a multi-user approval flow.</p>
 
 <h3 id="full-loop">Full loop</h3>
@@ -579,13 +579,13 @@ custom error handling for each tool.</p>
 <p>Manual control is more code but gives you:</p>
 
 <ul>
-<li><strong>Arbitrary pre-execution checks</strong> — inspect, rewrite, or skip tool
+<li><strong>Arbitrary pre-execution checks</strong>: inspect, rewrite, or skip tool
 calls before they run.</li>
-<li><strong>Custom confirmation flows</strong> — async approval over HTTP, Slack,
+<li><strong>Custom confirmation flows</strong>: async approval over HTTP, Slack,
 or email instead of the built-in terminal prompt.</li>
-<li><strong>Different strategies per tool</strong> — run one tool on a thread and
+<li><strong>Different strategies per tool</strong>: run one tool on a thread and
 another in a forked process within the same turn.</li>
-<li><strong>Fine-grained error recovery</strong> — rescue per-tool failures and
+<li><strong>Fine-grained error recovery</strong>: rescue per-tool failures and
 decide which results to feed back.</li>
 </ul>
 
@@ -596,55 +596,118 @@ abstraction doesn&#39;t expose.</p>
 
 <h2 id="skills">Skills</h2>
 
-<p>The skill concept is borrowed from tools like Claude and
-Codex, but llm.rb gives it a runtime of its own. A skill
-is a directory with a <code>SKILL.md</code> file. That file contains
-frontmatter where the skill&#39;s name, description, and tools
-can be declared.</p>
+<h3 id="overview">Overview</h3>
 
-<h4 id="skill-md">SKILL.md</h4>
+<p>A skill is a markdown file that becomes a tool. When the
+model calls that tool, the runtime spawns a subagent.
+The subagent gets its own system prompt (the skill body),
+its own tool set (from the frontmatter), and a slice of
+recent parent context. It runs one turn and returns the
+result, then is discarded.</p>
 
-<p>The <code>SKILL.md</code> file can look like this. When a skill runs,
-the runtime spawns a subagent with its own context window
-and message history. Some context is inherited from the
-parent agent, though.</p>
+<p>This gives you a supervisor/worker architecture with a
+single parent agent. The parent decides when to delegate
+work, the skill handles it with focused instructions and
+limited tools, and the parent evaluates the result. You
+get isolation without complexity.</p>
 
-<p>By default the subagent can only access the tools declared
-by the skill. The <code>inherit</code> directive lets it inherit the
-parent agent&#39;s tools instead, including A2A and MCP tools.</p>
+<h3 id="how-it-works">How it works</h3>
 
-<pre class="code markdown"><code class="markdown">---
-name: git-skill
-description: reads my git history and writes a summary
-tools: [&#39;git-log&#39;, &#39;git-show&#39;, &#39;write-file&#39;]
----
+<p>You have one parent agent, zero or more skill files. Each
+skill is registered as a tool the model can call.</p>
 
-## Task
+<p>When the model calls a skill, a subagent is created with:</p>
 
-Collect a log of recent history.
-Analyze each commit.
-Write a summary to summary.txt
-</code></pre>
+<ul>
+<li><strong>Its own system prompt</strong>: the body of your SKILL.md</li>
+<li><strong>Limited tools</strong>: only what you declare in the frontmatter</li>
+<li><strong>Context awareness</strong>: the last 8 user/assistant messages from
+the parent (tool calls stripped)</li>
+</ul>
 
-<h4 id="run-it">Run it</h4>
-
-<p>Given the skill above, llm.rb only needs the path to the
-directory that contains <code>SKILL.md</code>. Under the hood, a skill
-is represented as a tool the model can call. That means
-a skill can be called whenever it satisfies the user&#39;s
-request &ndash; in the same way that a regular tool can.</p>
-
-<p>This feature also works with both the ActiveRecord, and
-Sequel integrations.</p>
+<p>The subagent runs one turn and returns. The parent sees the
+result like any other tool return and decides what to do next.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 
 <span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>skills:</span> <span class='lbracket'>[</span><span class='id identifier rubyid___dir__'>__dir__</span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>run the git skill</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>skills:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./skills/git-log</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>./skills/deploy</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Review the recent commits, then deploy if everything looks clean</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
+<h3 id="why-this-matters">Why this matters</h3>
+
+<p>Because each skill spawns a fresh subagent with constrained
+tools, you can build a clear hierarchy:</p>
+
+<p><strong>The parent supervises.</strong> It decides which skill to call,
+inspects the result, and can iterate or compose multiple
+skills together. The parent stays in control.</p>
+
+<p><strong>Each skill is focused.</strong> Give a skill a narrow prompt and
+only the tools it needs. A changelog skill gets <code>git-log</code>
+and <code>write-file</code>, not the shell. A deploy skill gets
+deployment tools, not file readers. The less a subagent
+has, the less it can wander.</p>
+
+<p><strong>Skills are stateless.</strong> Every call is independent. No
+carryover, no cross-contamination. If a subagent produces
+garbage, the parent tries again or moves on.</p>
+
+<h3 id="frontmatter">Frontmatter</h3>
+
+<p>Every skill file begins with YAML frontmatter that sets the
+skill&#39;s identity and tool access. The markdown body that
+follows the frontmatter becomes the subagent&#39;s system prompt.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>name</code></td>
+<td>A short identifier for the skill. Used as the tool name.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Explains to the model what the skill does. Used as the tool description.</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td>Controls what the subagent can call. See the table below.</td>
+</tr>
+</tbody></table>
+
+<p>The <code>tools</code> field accepts four forms. Use <code>inherit</code> when the
+skill should operate with the same capabilities as the parent.
+Use an explicit list to restrict the subagent to only the tools
+it needs. The fewer tools a subagent has, the less it can wander.</p>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Behavior</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>inherit</code></td>
+<td>Copies the parent agent&#39;s tools, excluding other skills.</td>
+</tr>
+<tr>
+<td><code>all</code> or <code>&quot;*&quot;</code></td>
+<td>Every tool in the global registry.</td>
+</tr>
+<tr>
+<td><code>[&#39;name1&#39;, &#39;name2&#39;]</code></td>
+<td>Only the named tools. Raises an error if not found.</td>
+</tr>
+<tr>
+<td>(omitted)</td>
+<td>No tools at all.</td>
+</tr>
+</tbody></table>
 
 <h2 id="mcp">MCP</h2>
 
@@ -656,7 +719,7 @@ streams are used for communication. It is recommended but not
 required to execute commands for a stdio transport over a
 persistent session via the
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a>
-method &ndash; otherwise
+method, otherwise
 you could end up launching the same process multiple times.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
@@ -675,13 +738,13 @@ you could end up launching the same process multiple times.</p>
 <p>The http transport connects to an MCP server over HTTP, and unlike
 the stdio transport, the MCP server does not have to be running
 locally. Popular services like GitHub provide their own MCP server
-over HTTP, and it is one of the most capable MCP servers I have
-used.</p>
+over HTTP, and it is one of the most capable MCP servers
+available.</p>
 
 <p>Unlike the stdio transport,
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session-instance_method"><code>LLM::MCP#session</code></a>
 carries little benefit for the http transport and it can be
-omitted.  It is recommended to consider the <code>net_http_persistent</code>
+omitted. Use the <code>net_http_persistent</code>
 transport for MCP interactions that run over HTTP, otherwise
 you could end up tearing down and setting up the same connection
 multiple times.</p>
@@ -700,8 +763,6 @@ multiple times.</p>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What&#39;s happening on GitHub?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='id identifier rubyid_mcp'>mcp</span><span class='period'>.</span><span class='id identifier rubyid_tools'>tools</span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="a2a">A2A</h2>
 
 <h4 id="rest">rest</h4>
@@ -712,8 +773,8 @@ by an agent become subclasses of
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
 that can be used by both
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>,
-and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
-&ndash; similar to how MCP tools become subclasses of
+and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>,
+similar to how MCP tools become subclasses of
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
@@ -742,8 +803,6 @@ method.</p>
 <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='id identifier rubyid_a2a'>a2a</span><span class='period'>.</span><span class='id identifier rubyid_skills'>skills</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>What&#39;s happening, fellow agent?</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
-
-<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="transports">Transports</h2>
 
@@ -786,7 +845,7 @@ on top of <a href="https://github.com/ruby/net-http"><code>net/http</code></a>.<
 <h4 id="curb">curb</h4>
 
 <p>The <a href="https://github.com/taf2/curb"><code>curb</code></a> transport is represented by the symbol <code>:curb</code>. <br>
-It provides bindings for libcurl &ndash; a widely used, highly portable
+It provides bindings for libcurl, a widely used, highly portable
 and feature-rich HTTP library written in C.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
@@ -795,8 +854,6 @@ and feature-rich HTTP library written in C.</p>
 <span class='id identifier rubyid_mcp'>mcp</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/MCP.html" title="LLM::MCP (class)">MCP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="LLM/MCP.html#http-class_method" title="LLM::MCP.http (method)">http</a></span></span><span class='lparen'>(</span><span class='label'>url:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>transport:</span> <span class='symbol'>:curb</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_a2a'>a2a</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/A2A.html" title="LLM::A2A (class)">A2A</a></span></span><span class='period'>.</span><span class='id identifier rubyid_rest'><span class='object_link'><a href="LLM/A2A.html#rest-class_method" title="LLM::A2A.rest (method)">rest</a></span></span><span class='lparen'>(</span><span class='label'>url:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>transport:</span> <span class='symbol'>:curb</span><span class='rparen'>)</span>
 </code></pre>
-
-<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="stream">Stream</h2>
 
@@ -857,35 +914,33 @@ scenes.</p>
 <span class='kw'>end</span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="concurrency">Concurrency</h2>
 
-<p>llm.rb supports six concurrency strategies for tool execution &ndash;
+<p>llm.rb supports six concurrency strategies for tool execution:
 <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and <code>:ractor</code>.
-Each one implements the same interface &mdash; <code>spawn</code>, <code>wait</code>, <code>alive?</code>,
-<code>interrupt!</code> &mdash; so the caller never has to care which strategy is
+Each one implements the same interface (<code>spawn</code>, <code>wait</code>, <code>alive?</code>,
+<code>interrupt!</code>), so the caller never has to care which strategy is
 behind a given task.</p>
 
 <p>Choose a strategy per-agent or per-call:</p>
 
-<pre class="code ruby"><code class="ruby">## Per-agent — every tool loop uses :fork
+<pre class="code ruby"><code class="ruby">## Per-agent: every tool loop uses :fork
 agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
 
-## Per-call — run a single tool on a thread
+## Per-call: run a single tool on a thread
 fn = FetchStocks.function
 fn.task(:thread).wait
 </code></pre>
 
-<p>Interruption is reliable across all six. No matter the backing &mdash;
-thread, fiber, process, ractor &mdash; <code>LLM::Interrupt</code> reaches the
+<p>Interruption is reliable across all six. No matter the backing (thread, fiber, process, ractor),
+<code>LLM::Interrupt</code> reaches the
 tool and it can rescue, clean up, and either re-raise to cancel the
 turn or return a value to continue.</p>
 
 <h4 id="sequential">sequential</h4>
 
 <p>The default. Tools run one at a time on the calling thread. No
-concurrency, no overhead. <code>spawn</code> is a no-op &mdash; execution happens
+concurrency, no overhead. <code>spawn</code> is a no-op. Execution happens
 in <code>wait</code>. <code>alive?</code> always returns <code>false</code>.</p>
 
 <p>Best for simple agents with a tool or two, debugging, or when tool
@@ -893,21 +948,21 @@ order matters.</p>
 
 <h4 id="thread">thread</h4>
 
-<p>Each tool runs in its own <code>Thread</code>. The thread is created lazily &mdash;
-you can build a task, pass it around, and decide when to run it.
+<p>Each tool runs in its own <code>Thread</code>. The thread is created lazily.
+You can build a task, pass it around, and decide when to run it.
 Threads have <code>report_on_exception</code> disabled so errors surface through
 <code>wait</code> rather than stderr.</p>
 
 <p>Interruption raises <code>LLM::Interrupt</code> directly on the tool&#39;s thread,
 which stops it mid-flight.</p>
 
-<p>Best for IO-bound tools &mdash; HTTP calls, database queries. CRuby
+<p>Best for IO-bound tools: HTTP calls, database queries. CRuby
 releases the GVL during blocking IO, so you get real concurrency.</p>
 
 <h4 id="fiber">fiber</h4>
 
 <p>Each tool runs in a scheduler-backed <code>Fiber</code> via <code>Fiber.schedule</code>.
-Requires <code>Fiber.scheduler</code> &mdash; raises <code>ArgumentError</code> without one.
+Requires <code>Fiber.scheduler</code>. Raises <code>ArgumentError</code> without one.
 Fibers yield cooperatively at IO boundaries, so this pairs well with
 async libraries that set a scheduler.</p>
 
@@ -922,7 +977,7 @@ threads.</p>
 <p>Each tool runs as an <code>Async::Task</code> inside a managed background
 reactor. A dedicated thread runs an <code>Async::Reactor</code> event loop.
 Work is submitted through a thread-safe <code>Queue</code> inbox and consumed
-by the reactor. All fibers stay on one thread &mdash; no shared-memory
+by the reactor. All fibers stay on one thread. No shared-memory
 contention between them.</p>
 
 <p>The reactor is created on demand and shared across all tasks in a
@@ -932,12 +987,12 @@ through per-task queues. The reactor is torn down after <code>wait</code>
 completes.</p>
 
 <p>Interruption pushes an <code>LLM::Interrupt</code> sentinel into the task&#39;s
-result queue instead of using <code>Fiber#raise</code> &mdash; cleaner, and it
+result queue instead of using <code>Fiber#raise</code>. This is cleaner and
 avoids surprising the reactor&#39;s internal fibers.</p>
 
 <p>Best for IO-bound tools when you want Async&#39;s structured concurrency
 model without running your whole application inside a reactor. The
-reactor is self-contained &mdash; your main thread stays synchronous.
+reactor is self-contained. Your main thread stays synchronous.
 Requires the <code>async</code> gem.</p>
 
 <h4 id="fork">fork</h4>
@@ -946,14 +1001,14 @@ Requires the <code>async</code> gem.</p>
 <a href="https://github.com/1robertrb/xchan.rb"><code>xchan</code></a> (marshal-based
 channels): the parent sends control messages, the child sends
 results back. Each child is a separate OS process with its own
-memory space &mdash; a crash in the tool cannot touch the parent.</p>
+memory space. A crash in the tool cannot touch the parent.</p>
 
 <p><code>Fork::Task</code> checks liveness with <code>Process.waitpid(WNOHANG)</code> and
 delivers interrupts as messages over the control channel. The child
 raises <code>LLM::Interrupt</code> on <code>Thread.main</code> when it receives the
 interrupt message. Tracer callbacks fire in both parent and child.</p>
 
-<p>Best for process isolation &mdash; shell commands, native extensions,
+<p>Best for process isolation: shell commands, native extensions,
 anything you don&#39;t want touching the parent&#39;s memory. True parallelism
 too, since there&#39;s no GVL in separate processes. Requires the
 <code>xchan</code> gem.</p>
@@ -989,14 +1044,14 @@ forking full processes. More restrictive than <code>:fork</code> but lighter.</p
 <td>direct call</td>
 <td>No</td>
 <td>No</td>
-<td>&mdash;</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>:thread</code></td>
 <td><code>Thread</code></td>
 <td>IO only (GVL)</td>
 <td>No</td>
-<td>&mdash;</td>
+<td>None</td>
 </tr>
 <tr>
 <td><code>:fiber</code></td>
@@ -1024,11 +1079,9 @@ forking full processes. More restrictive than <code>:fork</code> but lighter.</p
 <td><code>Ractor</code></td>
 <td>Yes (CPU)</td>
 <td>Limited</td>
-<td>&mdash;</td>
+<td>None</td>
 </tr>
 </tbody></table>
-
-<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="context-compaction">Context Compaction</h2>
 
@@ -1059,13 +1112,13 @@ and are invoked automatically before each <code>ctx.talk(...)</code> call.</p>
 </code></pre>
 
 <p>The compactor runs automatically before every <code>talk</code> call. This keeps the
-conversation constantly alive — there is no chance of exhausting the context
+conversation constantly alive. There is no chance of exhausting the context
 window because old messages are dropped before they accumulate. The trade-off
 is that dropped messages are gone, so information may be lost. Set <code>keep</code> to
 a higher number to retain more context at the cost of slower accumulation.</p>
 
 <p>The default is <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a>
-— compaction is disabled unless you opt in.</p>
+Compaction is disabled unless you opt in.</p>
 
 <h3 id="standalone-usage">Standalone usage</h3>
 
@@ -1081,17 +1134,17 @@ or when you want to compact on a different schedule.</p>
 <h3 id="strategies">Strategies</h3>
 
 <p><strong><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a></strong>
-— the default. Does nothing.</p>
+. The default. Does nothing.</p>
 
 <p><strong><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html"><code>LLM::Compactor::Truncate</code></a></strong>
-— drops the oldest messages, keeping only the N most recent.</p>
+Drops the oldest messages, keeping only the N most recent.</p>
 
 <ul>
-<li><strong>Fast</strong> — no network call, no LLM overhead. Operates entirely in memory
+<li><strong>Fast</strong>: no network call, no LLM overhead. Operates entirely in memory
 with a single pass over the message list.</li>
-<li><strong>No dependencies</strong> — works offline, has no model or API requirements, and
+<li><strong>No dependencies</strong>: works offline, has no model or API requirements, and
 introduces no additional cost.</li>
-<li><strong>Tool-loop safe</strong> — when a tool result (return) falls at the truncation
+<li><strong>Tool-loop safe</strong>: when a tool result (return) falls at the truncation
 boundary, the corresponding tool call is kept. Without this, the
 conversation would contain an orphaned result with no matching call,
 causing API-level errors on the next turn.</li>
@@ -1134,8 +1187,6 @@ agent&#39;s context:</p>
 
 <p>The context&#39;s <code>compacted?</code> flag is <code>true</code> between compaction and the next
 model response.</p>
-
-<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="serialization">Serialization</h2>
 
@@ -1270,8 +1321,6 @@ same for ActiveRecord.</p>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>perform research</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="schema">Schema</h2>
 
 <p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a>
@@ -1330,8 +1379,6 @@ from a PDF, and other file types.</p>
 <span class='kw'>end</span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="cancellation">Cancellation</h2>
 
 <h4 id="cancel-a-request">Cancel a request</h4>
@@ -1351,7 +1398,7 @@ is raised on the thread where <code>talk</code> is running, so the
 caller can rescue it and know the request was cancelled.</p>
 
 <p>At the same time, <code>LLM::Interrupt</code> is raised on every tool
-that is currently executing &mdash; regardless of which
+that is currently executing, regardless of which
 concurrency strategy it&#39;s using. A tool running in a thread
 gets it on that thread. A tool in a fiber gets it on that
 fiber. A tool in a forked process gets it via a message
@@ -1361,8 +1408,8 @@ the same: the tool can rescue <code>LLM::Interrupt</code>, clean up
 resources, close connections, flush buffers, and either
 re-raise to abort or return a partial result.</p>
 
-<p>Pending tools &mdash; those the model requested but that haven&#39;t
-started running yet &mdash; are cancelled through
+<p>Pending tools (those the model requested but that haven&#39;t
+started running yet) are cancelled through
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel-instance_method"><code>LLM::Function#cancel</code></a>
 without ever being executed.</p>
 
@@ -1391,8 +1438,8 @@ closing the connection to the provider.</p>
 
 <h4 id="tool-interrupts">Tool interrupts</h4>
 
-<p>When a running tool is interrupted &ndash; for example the user presses
-ESC in the <a href="#repl">REPL</a> &ndash; the runtime raises
+<p>When a running tool is interrupted, for example the user presses
+ESC in the <a href="#repl">REPL</a>, the runtime raises
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
 on the tool&#39;s execution context. This behavior is uniform across
 all six concurrency strategies (<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>,
@@ -1425,12 +1472,12 @@ interrupted.</p>
 </code></pre>
 
 <p>The right choice depends on the situation. A hard cancel aborts
-the request outright &ndash; useful when continuing would produce
+the request outright. Useful when continuing would produce
 garbage. Returning a value lets the model adapt, which can be
 helpful when the interrupt is temporary (e.g. a timeout).</p>
 
 <p>The <code>:ractor</code> strategy delivers the interrupt through ractor
-message passing &mdash; a listener thread inside the tool ractor
+message passing. A listener thread inside the tool ractor
 receives the interrupt message and raises <code>LLM::Interrupt</code> on the
 ractor&#39;s main thread. The end result is the same as every other
 strategy: the tool can rescue, clean up, and decide.
@@ -1438,8 +1485,6 @@ The <code>:fork</code> strategy delivers the interrupt via a message
 over the xchan control channel, which a listener thread in the
 child process picks up and raises on <code>Thread.main</code>. All other strategies
 raise the exception directly on the executing thread or fiber.</p>
-
-<p><a href="#table-of-contents">Back to top</a></p>
 
 <h2 id="tracer">Tracer</h2>
 
@@ -1496,8 +1541,6 @@ to an agent.</p>
 <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>tracer:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tracer/Logger.html" title="LLM::Tracer::Logger (class)">Logger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Tracer/Logger.html#initialize-instance_method" title="LLM::Tracer::Logger#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-agent.log</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="repl">REPL</h2>
 
 <p>During the development and operation of agents it can often
@@ -1525,8 +1568,8 @@ asking questions about what it has done up to that point.</p>
 and <a href="https://github.com/gettalong/kramdown">kramdown</a> libraries are
 installed and available to require.</p>
 
-<p>The <code>name:</code> option labels the agent throughout the TUI &mdash;
-useful when working with multiple agents. The <code>path:</code> option
+<p>The <code>name:</code> option labels the agent throughout the TUI.
+Useful when working with multiple agents. The <code>path:</code> option
 persists state across sessions. The <code>tools:</code> option attaches
 extra tools for the duration of the session.</p>
 
@@ -1673,7 +1716,7 @@ oldest messages. Type <code>/exit</code> to leave the REPL.</p>
 
 <p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Repl::Command</code></a>
 class is intentionally similar to <a href="#llmtool"><code>LLM::Tool</code></a> and
-<a href="#schema"><code>LLM::Schema</code></a> in its interface &ndash; you declare a
+<a href="#schema"><code>LLM::Schema</code></a> in its interface. You declare a
 name, description, and parameters with the same vocabulary.
 A subclass is automatically registered and available as <code>/name</code>.</p>
 
@@ -1738,8 +1781,6 @@ and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>
 <span class='kw'>end</span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="images">Images</h2>
 
 <p>The OpenAI, Google, xAI, DeepInfra, and DeepSeek providers have
@@ -1767,7 +1808,7 @@ SVG documents rather than raster images.</p>
 </code></pre>
 
 <p>The API is the same across providers. <br>
-For example &ndash; xAI:</p>
+For example, xAI:</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 
@@ -1838,8 +1879,6 @@ It is specific to this endpoint though. It works like this:</p>
 <span class='kw'>end</span>
 </code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="audio">Audio</h2>
 
 <p>The audio interface defined by llm.rb describes three methods,
@@ -1895,8 +1934,6 @@ support this method.</p>
 <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_text'>text</span> <span class='comment'># =&gt; &quot;Good day&quot;
 </span></code></pre>
 
-<p><a href="#table-of-contents">Back to top</a></p>
-
 <h2 id="ocr">OCR</h2>
 
 <p>Optical Character Recognition extracts text from images and
@@ -1925,12 +1962,10 @@ containing the extracted text.</p>
 </span><span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span><span class='period'>.</span><span class='id identifier rubyid_ocr'>ocr</span><span class='lparen'>(</span><span class='label'>document_url:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://example.com/report.pdf</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
 <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_pages'>pages</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_page'>page</span><span class='op'>|</span> <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_markdown'>markdown</span> <span class='rbrace'>}</span>
 </code></pre>
-
-<p><a href="#table-of-contents">Back to top</a></p>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jul 21 20:04:19 2026 by
+  Generated on Wed Jul 22 23:00:51 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

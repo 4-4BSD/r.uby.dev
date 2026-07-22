@@ -93,7 +93,7 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     <p>The <span class='object_link'><a href="" title="LLM::Function::Array (module)">Array</a></span> module extends the array
-returned by Context#functions with methods
+returned by <span class='object_link'><a href="../Context.html#pending_functions-instance_method" title="LLM::Context#pending_functions (method)">Context#pending_functions</a></span> with methods
 that can call all pending functions sequentially or
 concurrently. The return values can be reported back
 to the LLM on the next turn.</p>
@@ -426,9 +426,9 @@ and waits for the return values.</p>
         <div class='inline'><p>Controls concurrency strategy:</p>
 
 <ul>
-<li><code>:call</code>: Call each function sequentially through a call group</li>
+<li><code>:sequential</code>: Call functions sequentially without spawning</li>
 <li><code>:thread</code>: Use threads</li>
-<li><code>:task</code>: Use async tasks (requires async gem)</li>
+<li><code>:async</code>: Use async tasks (requires async gem)</li>
 <li><code>:fiber</code>: Use scheduler-backed fibers (requires Fiber.scheduler)</li>
 <li><code>:fork</code>: Use forked child processes</li>
 <li><code>:ractor</code>: Use Ruby ractors (class-based tools only; MCP tools are not supported)</li>
@@ -535,7 +535,7 @@ and waits for the return values.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 21 20:04:20 2026 by
+  Generated on Wed Jul 22 23:00:52 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

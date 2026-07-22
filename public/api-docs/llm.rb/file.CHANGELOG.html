@@ -82,7 +82,60 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
-<p><em>No unreleased changes yet.</em></p>
+<h3 id="agent">Agent</h3>
+
+<ul>
+<li><strong>add <code>description</code> class DSL and instance method</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> now
+has a <code>description</code> class DSL (<code>description &quot;release engineer&quot;</code>) and a
+corresponding <code>#description</code> instance method. The description is an
+optional self-documenting string that serves as a brief summary of the
+agent&#39;s purpose. It can be set via the class DSL,
+<code>LLM::Agent.set(description: ...)</code>, or <code>LLM::Agent.new(description: ...)</code>.</li>
+</ul>
+
+<h3 id="skills">Skills</h3>
+
+<ul>
+<li><p><strong>accept a path to a markdown file</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Skill.html#load-class_method"><code>LLM::Skill.load</code></a>
+now accepts a path to a markdown file in addition to a directory path.
+When given a file path, the file is read directly instead of looking for
+a <code>SKILL.md</code> inside a directory. This makes it possible to load a single
+markdown file as a skill without placing it in a dedicated directory.</p></li>
+<li><p><strong>extend with <code>all</code> keyword for loading the full tool registry</strong> <br>
+<code>LLM::Skill</code> now supports <code>tools: all</code> (or <code>tools: &quot;*&quot;</code>) in the frontmatter
+to load all tools from the global
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#registry-class_method"><code>LLM::Tool.registry</code></a>.
+Previously, the <code>tools:</code> frontmatter only accepted <code>inherit</code>, an array of tool
+names, or nothing. The new <code>all</code> keyword makes it possible to give a skill
+access to every registered tool without listing them individually.</p></li>
+</ul>
+
+<h3 id="tools">Tools</h3>
+
+<ul>
+<li><strong>add <code>LLM::Tool::Ruby</code> for executing Ruby code in a subprocess</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html"><code>LLM::Tool::Ruby</code></a>
+is a new built-in tool that runs a string of Ruby code in a separate
+Ruby process with a configurable timeout (default 15s). The code runs
+in an isolated address space unaware of its parent, making it useful
+for safe(ish) dynamic code execution. It must be required explicitly
+with <code>require &quot;llm/tools/ruby&quot;</code> and requires the <code>test-cmd.rb</code> gem.</li>
+</ul>
+
+<h3 id="fix">Fix</h3>
+
+<ul>
+<li><strong>tools: rescue <code>LLM::Interrupt</code> in shell-based tools</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html"><code>LLM::Tool::Shell</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html"><code>LLM::Tool::Git</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html"><code>LLM::Tool::Mkdir</code></a>,
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html"><code>LLM::Tool::Rg</code></a>
+now rescue <code>LLM::Interrupt</code> and kill their running command, preventing
+orphaned child processes when a tool is interrupted during execution.</li>
+</ul>
 
 <h2 id="v13-0-0">v13.0.0</h2>
 
@@ -3222,7 +3275,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jul 21 20:04:19 2026 by
+  Generated on Wed Jul 22 23:00:51 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

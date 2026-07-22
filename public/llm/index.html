@@ -59,7 +59,7 @@
         <p>
           llm.rb is an advanced runtime for building capable AI applications
           on CRuby. By default it has zero runtime dependencies although certain
-          functionality &ndash; such as ActiveRecord support &ndash; require
+          functionality (such as ActiveRecord support) require
           optional dependencies that are opt-in.
         </p>
         <p>
@@ -84,10 +84,6 @@
           so once you learn the fundamentals, everything else falls into place naturally. And once
           you learn llm.rb, you will also be able to use <a href="/mruby-llm">mruby-llm</a> and
           <a href="/wasm-llm">wasm-llm</a> because the API is pretty much identical.
-        </p>
-        <p>
-          For detailed explanations, configuration, and advanced patterns, see the
-          <a href="/llm/deepdive/">deepdive</a>.
         </p>
       </section>
 
@@ -351,7 +347,7 @@ agent.talk "Run the tools in parallel"
           The runtime
           includes first-class support for both ActiveRecord <i>and</i> Sequel, and
           for both Rack-based applications <i>and</i> Rails-based applications. On
-          databases where it is supported, such as PostgresSQL, the column can be
+          databases where it is supported, such as PostgreSQL, the column can be
           optimized by using the <code>jsonb</code> type.
         </p>
                         <pre><code class="language-ruby">require "active_record"
@@ -367,22 +363,14 @@ class Agent < ApplicationRecord
 
   private
 
-  ##
-  # By convention, this method defines the provider
-  # for a model. If neccessary, it can be renamed and
-  # configured via `provider: :your_method` instead.
+  # By convention, this method defines the provider for a model.
+  # If necessary, it can be renamed with: provider: :your_method.
   def set_provider
     LLM.deepseek(key: ENV["KEY"])
   end
 
-  ##
-  # By convention, this method should return what is
-  # given as the second argument to `LLM::Context` or
-  # `LLM::Agent`.
-  #
-  # Often, there is no need to set it, so it can be left
-  # undefined or it can be reassigned in the same way as
-  # `set_provider`. For example: `context: :your_method`
+  # By convention, this method returns the context options given
+  # to LLM::Context or LLM::Agent.
   def set_context
     {}
   end
