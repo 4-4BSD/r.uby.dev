@@ -62,6 +62,10 @@
           functionality &ndash; such as ActiveRecord support &ndash; require
           optional dependencies that are opt-in.
         </p>
+        <p>
+          When you want to learn more than what this page covers, checkout
+          the <a href="/llm/deepdive/">deepdive</a>.
+        </p>
       </section>
       <section>
         <h2>Features</h2>
@@ -254,6 +258,32 @@ a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
 agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
 agent.talk "Run the skill"
 </code></pre>
+      </section>
+      <section id="skills">
+        <h3>LLM::Skill</h3>
+        <p>
+          A skill turns a markdown file into a callable tool. When the model
+          calls it, the runtime spawns a subagent with the skill's instructions
+          as its system prompt and the skill's own tool set. The subagent runs
+          one turn and returns the result, then is discarded. Each call
+          is fresh and stateless. For a deeper explanation see the
+          <a href="/llm/deepdive/#skills">deepdive</a>.
+        </p>
+        <p><strong>SKILL.md</strong></p>
+        <pre><code class="language-markdown">---
+name: summary
+description: Reads recent git history and writes a summary
+tools: all
+---
+
+Collect the recent git log, analyze each commit,
+and write a summary to summary.txt.</code></pre>
+        <p><strong>agent.rb</strong></p>
+        <pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, skills: ["./skills/summary"])
+agent.talk "Summarize the last week of work"</code></pre>
       </section>
       <section id="rag">
         <h3>RAG</h3>

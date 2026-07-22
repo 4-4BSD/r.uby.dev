@@ -60,8 +60,10 @@
             </details>
             <details>
               <summary>Skills</summary>
-              <a class="toc-sub" href="#skillmd">SKILL.md</a>
-              <a class="toc-sub" href="#run-it">Run it</a>
+              <a class="toc-sub" href="#overview-1">Overview</a>
+              <a class="toc-sub" href="#how-it-works">How it works</a>
+              <a class="toc-sub" href="#why-this-matters">Why this matters</a>
+              <a class="toc-sub" href="#frontmatter">Frontmatter</a>
             </details>
             <details>
               <summary>Schema</summary>
@@ -274,14 +276,14 @@ agent.talk "What files are in the current working directory?"
 
   ##
   # Returns
-  # {error: true, kind: "RuntimeError", message: "boom"}
+  # {error: true, type: "RuntimeError", message: "boom"}
   def call
     raise "boom"
   end
 end
 </code></pre>
 
-<p>The runtime wraps the exception into <code>{error: true, kind: "RuntimeError", message: "boom"}</code> and returns it to the model as the tool response. From the model’s perspective the tool completed &mdash; it just completed with an error. The model can read the error, decide what went wrong, and try something else. The conversation stays valid.</p>
+<p>The runtime wraps the exception into <code>{error: true, type: "RuntimeError", message: "boom"}</code> and returns it to the model as the tool response. From the model’s perspective the tool completed &mdash; it just completed with an error. The model can read the error, decide what went wrong, and try something else. The conversation stays valid.</p>
 
 <p>You can also handle errors yourself inside <code>call</code>. Rescue the exception and return whatever shape makes sense for your tool:</p>
 
@@ -313,7 +315,7 @@ end
 
   def on_tool_confirmation(fn, strategy)
     print "Run #{fn.name} with #{fn.arguments}? [y/N] "
-    $stdin.gets&amp;.match?(/\Ay\z/i) ? wait(strategy) : fn.cancel
+    $stdin.gets&amp;.match?(/\Ay\z/i) ? fn.task(strategy).wait : fn.cancel
   end
 end
 
@@ -423,39 +425,98 @@ puts res.content
 
 <h2 id="skills">Skills</h2>
 
-<p>The skill concept is borrowed from tools like Claude and Codex, but llm.rb gives it a runtime of its own. A skill is a directory with a <code>SKILL.md</code> file. That file contains frontmatter where the skill’s name, description, and tools can be declared.</p>
+<h4 id="overview-1">Overview</h4>
 
-<h4 id="skillmd">SKILL.md</h4>
+<p>A skill is a markdown file that becomes a tool. When the model calls that tool, the runtime spawns a subagent. The subagent gets its own system prompt (the skill body), its own tool set (from the frontmatter), and a slice of recent parent context. It runs one turn and returns the result, then is discarded.</p>
 
-<p>The <code>SKILL.md</code> file can look like this. When a skill runs, the runtime spawns a subagent with its own context window and message history. Some context is inherited from the parent agent, though.</p>
+<p>This gives you a supervisor/worker architecture with a single parent agent. The parent decides when to delegate work, the skill handles it with focused instructions and limited tools, and the parent evaluates the result. You get isolation without complexity.</p>
 
-<p>By default the subagent can only access the tools declared by the skill. The <code>inherit</code> directive lets it inherit the parent agent’s tools instead, including A2A and MCP tools.</p>
+<h4 id="how-it-works">How it works</h4>
 
-<pre><code class="language-markdown">---
-name: git-skill
-description: reads my git history and writes a summary
-tools: ['git-log', 'git-show', 'write-file']
----
+<p>You have one parent agent, zero or more skill files. Each skill is registered as a tool the model can call.</p>
 
-## Task
+<p>When the model calls a skill, a subagent is created with:</p>
 
-Collect a log of recent history.
-Analyze each commit.
-Write a summary to summary.txt
-</code></pre>
+<ul>
+  <li><strong>Its own system prompt</strong> -- the body of your SKILL.md</li>
+  <li><strong>Limited tools</strong> -- only what you declare in the frontmatter</li>
+  <li><strong>Context awareness</strong> -- the last 8 user/assistant messages from the parent (tool calls stripped)</li>
+</ul>
 
-<h4 id="run-it">Run it</h4>
-
-<p>Given the skill above, llm.rb only needs the path to the directory that contains <code>SKILL.md</code>. Under the hood, a skill is represented as a tool the model can call. That means a skill can be called whenever it satisfies the user’s request – in the same way that a regular tool can.</p>
-
-<p>This feature also works with both the ActiveRecord, and Sequel integrations.</p>
+<p>The subagent runs one turn and returns. The parent sees the result like any other tool return and decides what to do next.</p>
 
 <pre><code class="language-ruby">require "llm"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, skills: [__dir__])
-agent.talk "run the git skill"
+agent = LLM::Agent.new(llm, skills: ["./skills/git-log", "./skills/deploy"])
+agent.talk "Review the recent commits, then deploy if everything looks clean"
 </code></pre>
+
+<h4 id="why-this-matters">Why this matters</h4>
+
+<p>Because each skill spawns a fresh subagent with constrained tools, you can build a clear hierarchy:</p>
+
+<p><strong>The parent supervises.</strong> It decides which skill to call, inspects the result, and can iterate or compose multiple skills together. The parent stays in control.</p>
+
+<p><strong>Each skill is focused.</strong> Give a skill a narrow prompt and only the tools it needs. A changelog skill gets <code>git-log</code> and <code>write-file</code>, not the shell. A deploy skill gets deployment tools, not file readers. The less a subagent has, the less it can wander.</p>
+
+<p><strong>Skills are stateless.</strong> Every call is independent. No carryover, no cross-contamination. If a subagent produces garbage, the parent tries again or moves on.</p>
+
+<h4 id="frontmatter">Frontmatter</h4>
+
+<p>Every skill file begins with YAML frontmatter that sets the skill's identity and tool access. The markdown body that follows the frontmatter becomes the subagent's system prompt.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>A short identifier for the skill. Used as the tool name.</td>
+    </tr>
+    <tr>
+      <td><code>description</code></td>
+      <td>Explains to the model what the skill does. Used as the tool description.</td>
+    </tr>
+    <tr>
+      <td><code>tools</code></td>
+      <td>Controls what the subagent can call. See the table below.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The <code>tools</code> field accepts four forms. Use <code>inherit</code> when the skill should operate with the same capabilities as the parent. Use an explicit list to restrict the subagent to only the tools it needs. The fewer tools a subagent has, the less it can wander.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>inherit</code></td>
+      <td>Copies the parent agent's tools, excluding other skills.</td>
+    </tr>
+    <tr>
+      <td><code>all</code> or <code>"*"</code></td>
+      <td>Every tool in the global registry.</td>
+    </tr>
+    <tr>
+      <td><code>['name1', 'name2']</code></td>
+      <td>Only the named tools. Raises an error if not found.</td>
+    </tr>
+    <tr>
+      <td>(omitted)</td>
+      <td>No tools at all.</td>
+    </tr>
+  </tbody>
+</table>
 
 <h2 id="schema">Schema</h2>
 
