@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= @title %></title>
+    <link rel="canonical" href="<%= @canonical_url %>">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="<%= @description %>">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="<%= @og_type %>">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="<%= @og_title %>">
+    <meta property="og:description" content="<%= @og_description %>">
+    <meta property="og:url" content="<%= @canonical_url %>">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="<%= @og_title %>">
+    <meta name="twitter:description" content="<%= @og_description %>">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <%= yield %>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

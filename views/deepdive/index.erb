@@ -1,0 +1,51 @@
+<main class="deepdive deepdive-index">
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <p class="deepdive-back">Deep dive</p>
+      <details class="deepdive-group-nav" open>
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/" class="is-active">Introduction</a></li>
+        </ul>
+      </details>
+      <% groups.each do |group| %>
+        <details class="deepdive-group-nav">
+          <summary class="deepdive-group-nav-title"><%= h group[:title] %></summary>
+          <ul class="deepdive-group-nav-list">
+            <% group[:topics].each do |t| %>
+              <li>
+                <a href="/llm/deepdive/<%= h t[:group_slug] %>/<%= h t[:topic_slug] %>/"><%= h t[:title] %></a>
+              </li>
+            <% end %>
+          </ul>
+        </details>
+      <% end %>
+    </aside>
+    <article class="deepdive-content">
+      <% if intro_html && !intro_html.empty? %>
+        <%= intro_html %>
+      <% end %>
+      <div class="deepdive-groups">
+        <% groups.each do |group| %>
+          <section class="deepdive-group">
+            <h2><%= h group[:title] %></h2>
+            <ul class="deepdive-list">
+              <% group[:topics].each do |topic| %>
+                <li>
+                  <a href="/llm/deepdive/<%= h topic[:group_slug] %>/<%= h topic[:topic_slug] %>/"><%= h topic[:title] %></a>
+                </li>
+              <% end %>
+            </ul>
+          </section>
+        <% end %>
+      </div>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>

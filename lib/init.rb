@@ -8,6 +8,7 @@ class Command < Test::Cmd
 end
 
 require_relative "clean"
+require_relative "deepdive_page"
 require_relative "find"
 require_relative "rg"
 require_relative "router"

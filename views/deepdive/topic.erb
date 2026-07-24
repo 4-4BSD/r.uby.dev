@@ -1,0 +1,58 @@
+<main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+      <% nav_groups.each do |group| %>
+        <details class="deepdive-group-nav" <%= 'open' if group[:slug] == current_group %>>
+          <summary class="deepdive-group-nav-title"><%= h group[:title] %></summary>
+          <ul class="deepdive-group-nav-list">
+            <% group[:topics].each do |t| %>
+              <li>
+                <a href="/llm/deepdive/<%= h t[:group_slug] %>/<%= h t[:topic_slug] %>/"<% if t[:topic_slug] == current_slug && t[:group_slug] == current_group %> class="is-active"<% end %>><%= h t[:title] %></a>
+              </li>
+            <% end %>
+          </ul>
+        </details>
+      <% end %>
+      <div class="deepdive-sidebar-nav">
+        <% if prev_topic %>
+          <a class="deepdive-prev" href="/llm/deepdive/<%= h prev_topic[:group_slug] %>/<%= h prev_topic[:topic_slug] %>/">← <%= h prev_topic[:title] %></a>
+        <% end %>
+        <% if next_topic %>
+          <a class="deepdive-next" href="/llm/deepdive/<%= h next_topic[:group_slug] %>/<%= h next_topic[:topic_slug] %>/"><%= h next_topic[:title] %> →</a>
+        <% end %>
+      </div>
+    </aside>
+    <article class="deepdive-content">
+      <%= article_html %>
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+        <% if prev_topic %>
+          <a href="/llm/deepdive/<%= h prev_topic[:group_slug] %>/<%= h prev_topic[:topic_slug] %>/">← <%= h prev_topic[:title] %></a>
+        <% end %>
+        <% if next_topic %>
+          <a href="/llm/deepdive/<%= h next_topic[:group_slug] %>/<%= h next_topic[:topic_slug] %>/"><%= h next_topic[:title] %> →</a>
+        <% end %>
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>

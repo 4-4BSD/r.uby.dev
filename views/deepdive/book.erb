@@ -1,0 +1,42 @@
+<main class="deepdive deepdive-book">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Book navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav" open>
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+      <% nav_groups.each do |group| %>
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title"><%= h group[:title] %></summary>
+          <ul class="deepdive-group-nav-list">
+            <% group[:topics].each do |t| %>
+              <li>
+                <a href="/llm/deepdive/<%= h t[:group_slug] %>/<%= h t[:topic_slug] %>/"><%= h t[:title] %></a>
+              </li>
+            <% end %>
+          </ul>
+        </details>
+      <% end %>
+    </aside>
+    <article class="deepdive-content">
+      <%= article_html %>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
