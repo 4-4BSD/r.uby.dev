@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stream · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/fundamentals/stream/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="Streaming delivers model output as it is generated, token by token, instead of waiting for the full response. The user sees text appear in real time, and the application can act on partial results as they arrive.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Stream · llm.rb deep dive">
+    <meta property="og:description" content="Streaming delivers model output as it is generated, token by token, instead of waiting for the full response. The user sees text appear in real time, and the application can act on partial results as they arrive.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/fundamentals/stream/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Stream · llm.rb deep dive">
+    <meta name="twitter:description" content="Streaming delivers model output as it is generated, token by token, instead of waiting for the full response. The user sees text appear in real time, and the application can act on partial results as they arrive.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/" class="is-active">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/fundamentals/skills/">← Skills</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/fundamentals/tools/">Tools →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="stream">Stream</h2>
+
+<h3 id="stream-introduction">Introduction</h3>
+
+<h4 id="stream-introduction-overview">Overview</h4>
+
+<p>Streaming delivers model output as it is generated, token by
+token, instead of waiting for the full response. The user sees
+text appear in real time, and the application can act on partial
+results as they arrive.</p>
+
+<h4 id="stream-introduction-how-it-works">How it works</h4>
+
+<p>The stream target can be any object that responds to <code>#&lt;&lt;</code>. Each
+time the provider emits a token, the runtime calls <code>target &lt;&lt;
+chunk</code> with the raw content. The tokens arrive in order as the
+model generates them, so the output appears character by character
+instead of all at once. When the response is complete, the stream
+closes and control returns to the caller.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "hello world"
+</code></pre>
+
+<h4 id="stream-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Streaming lets users see output sooner and cancel mid-response if
+the model goes off course. It also enables progress indicators and
+partial result processing, things that are not possible with a
+single blocking response.</p>
+
+<h4 id="stream-introduction-notes">Notes</h4>
+
+<p>The IO-like form is equivalent to <code>LLM::Stream#on_content</code> and does
+not include the other hooks. It covers content output (piping to
+stdout or a log file) without the overhead of a full subclass. A
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a>
+subclass gives you visibility into tool calls, compaction events,
+and reasoning content.</p>
+
+<h3 id="stream-callbacks">Callbacks</h3>
+
+<h4 id="stream-callbacks-overview">Overview</h4>
+
+<p>A stream subclass provides structured hooks into content, tool
+calls, compaction, and other runtime events. Each hook fires at
+a specific point in the request lifecycle. This gives you
+fine-grained visibility into what the runtime is doing as it
+happens, from the first token to the final tool return.</p>
+
+<h4 id="stream-callbacks-how-it-works">How it works</h4>
+
+<p>When you want to react to specific runtime events, override the
+hooks on a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a>
+subclass. <code>on_content</code> receives tokens as they arrive.
+<code>on_tool_call</code> fires when the model requests a tool.
+<code>on_tool_return</code> fires when the tool completes. Compaction hooks
+let you show progress or log what was trimmed.</p>
+
+<pre><code class="language-ruby">class MyStream &lt; LLM::Stream
+  def on_content(content)
+    print content
+  end
+
+  def on_reasoning_content(content)
+    warn content
+  end
+
+  def on_tool_call(tool)
+  end
+
+  def on_tool_return(tool, result)
+  end
+
+  def on_compaction(compactor)
+  end
+
+  def on_compaction_finish(compactor)
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: MyStream.new)
+agent.talk "Explain Ruby fibers."
+</code></pre>
+
+<h4 id="stream-callbacks-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A stream subclass gives you visibility into more than just content chunks. React to tool
+calls as they happen, show compaction progress, or integrate with
+an existing observability stack.</p>
+
+<h4 id="stream-callbacks-notes">Notes</h4>
+
+<p>The IO-like form is equivalent to <code>LLM::Stream#on_content</code> and does
+not include the other hooks.</p>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/fundamentals/skills/">← Skills</a>
+
+
+          <a href="/llm/deepdive/fundamentals/tools/">Tools →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

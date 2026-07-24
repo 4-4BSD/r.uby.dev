@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agents · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/fundamentals/agents/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="`LLM::Agent` is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to `LLM::Context`, so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Agents · llm.rb deep dive">
+    <meta property="og:description" content="`LLM::Agent` is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to `LLM::Context`, so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/fundamentals/agents/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Agents · llm.rb deep dive">
+    <meta name="twitter:description" content="`LLM::Agent` is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to `LLM::Context`, so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/" class="is-active">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+
+          <a class="deepdive-next" href="/llm/deepdive/fundamentals/repl/">REPL →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="agents">Agents</h2>
+<h3 id="agents-introduction">Introduction</h3>
+
+<h4 id="agents-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+is the recommended entry point for most use-cases. It provides a
+class-level DSL for defining reusable, preconfigured assistants
+with defaults for model, tools, schema, and instructions. Under
+the hood it delegates to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>,
+so it has the same runtime surface: message history, streaming,
+serialization, compaction, and concurrency.</p>
+
+<h4 id="agents-introduction-how-it-works">How it works</h4>
+
+<p>An agent holds a conversation with a model. You send input with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>,
+the model responds, and if it requests tools the agent
+executes them automatically and feeds the results back. It enables
+a loop guard by default that detects repeated tool-call patterns
+and blocks stuck execution. The default tool attempt budget is 25.
+After that, the agent sends advisory errors back through the model
+and keeps the loop in-band. Instructions are injected once unless
+a system message is already present.</p>
+
+<h4 id="agents-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Agents manage the tool loop for you. They guard against infinite
+loops, keep conversation state across turns, and let you define
+reusable configurations at the class level. If you need manual
+control over the tool loop, use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+directly instead.</p>
+
+<h4 id="agents-introduction-notes">Notes</h4>
+
+<p>Agents support the same concurrency strategies, compaction,
+cancellation, and serialization as contexts. The trade-off between
+a subclass and a direct instance is only in how the agent is
+organized, not in what it can do. Tool loop execution can be
+configured with <code>concurrency: :sequential</code>, <code>:thread</code>, <code>:async</code>,
+<code>:fiber</code>, <code>:fork</code>, or <code>:ractor</code>.</p>
+
+<h3 id="agents-reusable-agents">Reusable agents</h3>
+
+<h4 id="agents-reusable-agents-overview">Overview</h4>
+
+<p>A subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+gives you a reusable agent with its own behavior. You define the model, tools, and other
+attributes at the class level, and each instance picks them up
+as defaults. Attributes can be overridden per-instance, and they
+can be plain values, blocks, or Symbols that resolve to methods.
+The class becomes a self-contained worker that you can instantiate
+and talk to from anywhere.</p>
+
+<h4 id="agents-reusable-agents-how-it-works">How it works</h4>
+
+<p>A subclass declares its defaults with <code>set</code>. Each key is a
+class-level accessor: <code>model</code>, <code>tools</code>, <code>instructions</code>, <code>stream</code>,
+<code>tracer</code>, <code>concurrency</code>, <code>schema</code>, <code>confirm</code>. When you create a
+new instance, any keyword arguments override the class-level
+defaults.</p>
+
+<pre><code class="language-ruby">class Agent &lt; LLM::Agent
+  set model: "deepseek-v4-pro",
+      tools: [Shell]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = Agent.new(llm)
+agent.talk "Run 'date'"
+</code></pre>
+
+<h4 id="agents-reusable-agents-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A subclass is useful when multiple parts of an application need to
+call the same agent. The configuration and any helper methods live in one place. Define a
+<code>research!</code> method that kicks off the agent’s work. The subclass
+becomes a self-contained worker.</p>
+
+<h4 id="agents-reusable-agents-notes">Notes</h4>
+
+<p>Attributes passed to <code>set</code> can be plain values, blocks, or
+Symbols. A Symbol is evaluated as an instance method on the
+subclass, so <code>tracer: :set_tracer</code> calls <code>set_tracer</code> on the
+instance. A block like <code>stream: -&gt; { $stdout }</code> is evaluated
+when the attribute is first accessed.</p>
+
+<h3 id="agents-throwaway-agents">Throwaway agents</h3>
+
+<h4 id="agents-throwaway-agents-overview">Overview</h4>
+
+<p>An
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+instance is the simplest way to get started. You pass a provider and any configuration as keyword
+arguments, and the agent runs the tool loop and manages state
+just like a subclass would. This is the right choice when you
+are prototyping, running a one-off task, or when the agent’s
+configuration is determined at runtime.</p>
+
+<h4 id="agents-throwaway-agents-how-it-works">How it works</h4>
+
+<p>A direct instance takes the same attributes as keyword arguments
+to <code>LLM::Agent.new</code>. The first argument is always the provider.
+Everything else is optional. The agent runs the tool loop
+and manages state under the hood through a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>.</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "Hello world"
+</code></pre>
+
+<h4 id="agents-throwaway-agents-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A direct instance is the right choice for quick experiments, one-shot
+tasks, or when defining a class would be overkill. It is also
+the right choice when the agent’s configuration is determined at
+runtime and building a class hierarchy would be overkill.</p>
+
+<h4 id="agents-throwaway-agents-notes">Notes</h4>
+
+<p>Direct instances accept all the same options as subclasses. The
+difference is only in how the agent is organized, not in what it
+can do. Under the hood,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+creates a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+that manages the message history.</p>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+
+          <a href="/llm/deepdive/fundamentals/repl/">REPL →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

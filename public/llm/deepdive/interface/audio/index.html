@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Audio · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/interface/audio/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="The audio interface covers three things: turning text into speech, transcribing audio into text, and translating spoken language. OpenAI supports all three. Google and DeepInfra support subsets. Each method follows the same pattern: pass input, get output, copy the result somewhere useful.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Audio · llm.rb deep dive">
+    <meta property="og:description" content="The audio interface covers three things: turning text into speech, transcribing audio into text, and translating spoken language. OpenAI supports all three. Google and DeepInfra support subsets. Each method follows the same pattern: pass input, get output, copy the result somewhere useful.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/interface/audio/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Audio · llm.rb deep dive">
+    <meta name="twitter:description" content="The audio interface covers three things: turning text into speech, transcribing audio into text, and translating spoken language. OpenAI supports all three. Google and DeepInfra support subsets. Each method follows the same pattern: pass input, get output, copy the result somewhere useful.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/" class="is-active">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/advanced/transports/">← Transports</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/interface/images/">Images →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="audio">Audio</h2>
+
+<h3 id="audio-introduction">Introduction</h3>
+
+<h4 id="audio-introduction-overview">Overview</h4>
+
+<p>The audio interface covers three things: turning text into speech,
+transcribing audio into text, and translating spoken language.
+OpenAI supports all three. Google and DeepInfra support subsets.
+Each method follows the same pattern: pass input, get output,
+copy the result somewhere useful.</p>
+
+<h4 id="audio-introduction-how-it-works">How it works</h4>
+
+<p>When you want to convert text to speech, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_speech"><code>LLM::Audio#create_speech</code></a>.
+The provider returns an audio clip as a <code>URIData</code> object. The generated audio can be copied
+to a file or streamed directly. Each provider supports different
+output formats and voice options:</p>
+
+<pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"])
+res = llm.audio.create_speech(input: "Hello world")
+IO.copy_stream res.audio.decoded, "helloworld.mp3"
+</code></pre>
+
+<h4 id="audio-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Audio support lets you build voice interfaces, add accessibility
+features, and work across languages without wiring up a separate
+speech service. Generate audio for notifications, narrate written
+content, or add speech output to an existing application with a
+single method call.</p>
+
+<h4 id="audio-introduction-notes">Notes</h4>
+
+<p>OpenAI has full audio support. Google and DeepInfra have partial
+support. The <code>create_speech</code> method returns a <code>URIData</code> object.</p>
+
+<h3 id="audio-transcription">Transcription</h3>
+
+<h4 id="audio-transcription-overview">Overview</h4>
+
+<p>Transcription turns an audio file into text. Pass a file path
+to <code>create_transcription</code> and get back the spoken content as
+a string. OpenAI, Google, and DeepInfra support it. Transcribe
+meeting notes, voice memos, or podcast episodes for search and
+processing. The response is plain text you can feed into any
+downstream pipeline.</p>
+
+<h4 id="audio-transcription-how-it-works">How it works</h4>
+
+<p>When you want to transcribe audio into text, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription"><code>LLM::Audio#create_transcription</code></a>.
+The provider processes the audio and returns the transcribed text. The file
+can be a local path or a URL depending on provider support:</p>
+
+<pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
+res = llm.audio.create_transcription(file: "helloworld.mp3")
+res.text  # =&gt; "Hello world"
+</code></pre>
+
+<h4 id="audio-transcription-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Transcribe recorded meetings, voice memos, or podcast episodes for
+search and processing. The returned text feeds directly into search
+indexes, summarization pipelines, or downstream extraction. Spoken
+content becomes as queryable as written text.</p>
+
+<h4 id="audio-transcription-notes">Notes</h4>
+
+<p>OpenAI has full audio support. Google and DeepInfra have partial
+support.</p>
+
+<h3 id="audio-translation">Translation</h3>
+
+<h4 id="audio-translation-overview">Overview</h4>
+
+<p>Translation transcribes audio and translates it into English in
+one step. Pass a file to <code>create_translation</code> and get back the
+translated text. OpenAI and Google support it. Translate
+multilingual podcasts, interviews, or any audio where you need
+the content in English without running a separate translation
+pipeline.</p>
+
+<h4 id="audio-translation-how-it-works">How it works</h4>
+
+<p>When you want to translate spoken audio into English, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_translation"><code>LLM::Audio#create_translation</code></a>.
+The provider transcribes the spoken language and translates the
+result into English in a single operation. The returned text is the English translation:</p>
+
+<pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
+res = llm.audio.create_translation(file: "bomdia.mp3")
+res.text  # =&gt; "Good day"
+</code></pre>
+
+<h4 id="audio-translation-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Translate a podcast or interview into another language without a
+separate speech service. The provider handles both transcription and
+translation in a single call, so you get English text from any
+supported source language without chaining two operations together.</p>
+
+<h4 id="audio-translation-notes">Notes</h4>
+
+<p>Each method works independently and each provider supports a
+different subset.</p>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/advanced/transports/">← Transports</a>
+
+
+          <a href="/llm/deepdive/interface/images/">Images →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

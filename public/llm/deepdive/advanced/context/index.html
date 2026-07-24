@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Context · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/advanced/context/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="`LLM::Context` is the runtime that powers every agent. When you call `LLM::Agent#talk`, the agent delegates to its internal context. The context manages the message history, sends requests to the provider, tracks pending tool calls, and feeds results back to the model. Everything an agent does, a context does too, but without the automatic tool loop.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Context · llm.rb deep dive">
+    <meta property="og:description" content="`LLM::Context` is the runtime that powers every agent. When you call `LLM::Agent#talk`, the agent delegates to its internal context. The context manages the message history, sends requests to the provider, tracks pending tool calls, and feeds results back to the model. Everything an agent does, a context does too, but without the automatic tool loop.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/advanced/context/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Context · llm.rb deep dive">
+    <meta name="twitter:description" content="`LLM::Context` is the runtime that powers every agent. When you call `LLM::Agent#talk`, the agent delegates to its internal context. The context manages the message history, sends requests to the provider, tracks pending tool calls, and feeds results back to the model. Everything an agent does, a context does too, but without the automatic tool loop.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/" class="is-active">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/advanced/concurrency/">← Concurrency</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/advanced/database/">Database →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="context">Context</h2>
+
+<h3 id="context-introduction">Introduction</h3>
+
+<h4 id="context-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+is the runtime that powers every agent. When you call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>,
+the agent delegates to its internal context. The context manages
+the message history, sends requests to the provider, tracks pending
+tool calls, and feeds results back to the model. Everything an agent
+does, a context does too, but without the automatic tool loop.</p>
+
+<p>Using a context directly gives you finer control over each step
+of the conversation. You decide when to send messages, when to
+execute tools, and when to stop. This is useful for custom
+confirmation flows, mixed concurrency strategies per tool, or
+any workflow where the agent’s automatic loop gets in the way.</p>
+
+<h4 id="context-introduction-how-it-works">How it works</h4>
+
+<p>A context wraps a provider and maintains the conversation state.
+Call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+to send input to the model, check
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?"><code>LLM::Context#pending_functions?</code></a>
+to see if tools were requested, and use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+to execute them. Each call to <code>#talk</code> appends
+to the conversation and returns the model’s response. The context
+serializes its state with <code>to_h</code> and <code>to_json</code>, and restores it
+with <code>restore</code>. This is how the ORM integrations and filesystem
+persistence work under the hood:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+res = ctx.talk "What's the weather in Tokyo?"
+puts res.content
+</code></pre>
+
+<h4 id="context-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A bare context gives you control that the agent
+abstraction does not expose. Pre-flight checks on tool requests,
+per-tool confirmation prompts, mixed concurrency strategies across
+tools, or manual iteration until a condition is met are all easier
+with a bare context.</p>
+
+<h4 id="context-introduction-notes">Notes</h4>
+
+<p>The agent uses <code>LLM::Context</code> internally. Anything you can do with
+a context, you can also do through an agent. The trade-off is
+convenience versus control. Contexts support the same concurrency
+strategies, compaction, cancellation, and serialization as agents.</p>
+
+<h3 id="context-manual-loop">Manual loop</h3>
+
+<h4 id="context-manual-loop-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+manages the tool loop automatically. It calls
+the model, checks for tool requests, runs the tools, feeds results
+back, and repeats until the model produces text. You can bypass
+this and drive
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+directly instead. This
+gives you finer control over each step of the loop at the cost of
+more code.</p>
+
+<h4 id="context-manual-loop-how-it-works">How it works</h4>
+
+<p>When you want to control the tool loop yourself, drive
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+directly instead of using an agent. Start a conversation, check
+for tool requests, execute them, and feed results back. The full
+loop is under your control. Each call to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+appends to the conversation and returns the model’s response, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?"><code>LLM::Context#pending_functions?</code></a>
+tells you whether tools were requested.
+From that foundation you can inspect, iterate, or confirm
+per-tool in a single flow:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+loop do
+  res = ctx.talk("What's the weather in Tokyo?")
+  break unless ctx.pending_functions?
+
+  puts "Model requested #{ctx.pending_functions.size} tool(s)"
+
+  results = ctx.pending_functions.map do |fn|
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    if $stdin.gets&amp;.match?(/\Ay\z/i)
+      fn.task(:thread).wait
+    else
+      fn.cancel(reason: "user declined")
+    end
+  end
+
+  ctx.talk(results)
+end
+
+puts res.content
+</code></pre>
+
+<h4 id="context-manual-loop-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Manual control gives you pre-execution checks, custom confirmation
+flows, different strategies per tool, and fine-grained error
+recovery that the default tool loop does not expose.</p>
+
+<h4 id="context-manual-loop-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+picks up pending functions, spawns them using the chosen
+strategy, waits for results, and records them back in the context.
+Each strategy is supported: <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>,
+<code>:async</code>, <code>:fork</code>, and <code>:ractor</code>. Functions are reset after each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+call. Store the array if you need to
+preserve them.</p>
+
+<h3 id="context-pending-functions">Pending functions</h3>
+
+<h4 id="context-pending-functions-overview">Overview</h4>
+
+<p>After
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+returns, the context may have pending function
+calls if the model requested tools. These are available through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions"><code>LLM::Context#pending_functions</code></a>,
+which returns an array of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function</code></a>
+objects. Each function has a name, arguments, and methods for
+execution or cancellation.</p>
+
+<h4 id="context-pending-functions-how-it-works">How it works</h4>
+
+<p>When you want to check whether the model requested tools, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?"><code>LLM::Context#pending_functions?</code></a>
+after each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+call. Each pending
+function has a name, arguments, and
+methods for execution or cancellation. Call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#task"><code>LLM::Function#task</code></a>
+to execute it or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
+to skip it. Iterate over all
+pending functions to inspect or handle them individually:</p>
+
+<pre><code class="language-ruby">res = ctx.talk "What's the weather in Tokyo?"
+
+if ctx.pending_functions?
+  puts "Model requested #{ctx.pending_functions.size} tool(s)"
+  results = ctx.pending_functions.map do |fn|
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    if $stdin.gets&amp;.match?(/\Ay\z/i)
+      fn.task(:thread).wait
+    else
+      fn.cancel(reason: "user declined")
+    end
+  end
+  ctx.talk(results)
+end
+</code></pre>
+
+<h4 id="context-pending-functions-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Inspecting pending functions lets you decide which tools to run,
+in what order, and with what strategy. This is essential for
+confirmation flows, selective execution, or logging which tools
+the model requested.</p>
+
+<h4 id="context-pending-functions-notes">Notes</h4>
+
+<p>Pending functions are reset after each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+call. If you need to preserve them, store the array before
+executing. Functions that are cancelled still count as completed
+from the model’s perspective; the model sees a cancellation
+result, not a tool error.</p>
+
+<h3 id="context-tool-responses">Tool responses</h3>
+
+<h4 id="context-tool-responses-overview">Overview</h4>
+
+<p>When a tool receives
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>,
+it can either cancel the turn or return a result. The choice
+depends on the situation.
+A hard cancel aborts the request outright and is the default.
+Returning a value lets the model adapt and continue the
+conversation, which can be useful when the interrupt is
+temporary, like a timeout or a user pause.</p>
+
+<h4 id="context-tool-responses-how-it-works">How it works</h4>
+
+<p>When a tool receives
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>,
+re-raise to abort the turn or return a value to continue the loop.
+The model receives the result and decides what to do next.</p>
+
+<pre><code class="language-ruby">def call
+  # do work
+rescue LLM::Interrupt
+  cleanup
+  raise
+end
+
+def call
+  # do work
+rescue LLM::Interrupt
+  cleanup
+  {ok: false, reason: "interrupted"}
+end
+</code></pre>
+
+<h4 id="context-tool-responses-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A hard cancel aborts the request outright. Useful when continuing
+would produce garbage. Returning a value lets the model adapt,
+which can be helpful when the interrupt is temporary.</p>
+
+<h4 id="context-tool-responses-notes">Notes</h4>
+
+<p>The mechanism is the same across all six concurrency strategies.
+The <code>:ractor</code> strategy delivers the interrupt through ractor
+message passing. The <code>:fork</code> strategy delivers it via xchan.</p>
+
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/advanced/concurrency/">← Concurrency</a>
+
+
+          <a href="/llm/deepdive/advanced/database/">Database →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

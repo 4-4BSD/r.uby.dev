@@ -1,0 +1,2265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>llm.rb deep dive book</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/book/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="The complete llm.rb deep dive assembled as a single long-form reference page.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="llm.rb deep dive book">
+    <meta property="og:description" content="The complete llm.rb deep dive assembled as a single long-form reference page.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/book/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="llm.rb deep dive book">
+    <meta name="twitter:description" content="The complete llm.rb deep dive assembled as a single long-form reference page.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-book">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Book navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav" open>
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+    </aside>
+    <article class="deepdive-content">
+      <h2 id="agents">Agents</h2>
+<h3 id="agents-introduction">Introduction</h3>
+
+<h4 id="agents-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+is the recommended entry point for most use-cases. It provides a
+class-level DSL for defining reusable, preconfigured assistants
+with defaults for model, tools, schema, and instructions. Under
+the hood it delegates to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>,
+so it has the same runtime surface: message history, streaming,
+serialization, compaction, and concurrency.</p>
+
+<h4 id="agents-introduction-how-it-works">How it works</h4>
+
+<p>An agent holds a conversation with a model. You send input with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>,
+the model responds, and if it requests tools the agent
+executes them automatically and feeds the results back. It enables
+a loop guard by default that detects repeated tool-call patterns
+and blocks stuck execution. The default tool attempt budget is 25.
+After that, the agent sends advisory errors back through the model
+and keeps the loop in-band. Instructions are injected once unless
+a system message is already present.</p>
+
+<h4 id="agents-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Agents manage the tool loop for you. They guard against infinite
+loops, keep conversation state across turns, and let you define
+reusable configurations at the class level. If you need manual
+control over the tool loop, use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+directly instead.</p>
+
+<h4 id="agents-introduction-notes">Notes</h4>
+
+<p>Agents support the same concurrency strategies, compaction,
+cancellation, and serialization as contexts. The trade-off between
+a subclass and a direct instance is only in how the agent is
+organized, not in what it can do. Tool loop execution can be
+configured with <code>concurrency: :sequential</code>, <code>:thread</code>, <code>:async</code>,
+<code>:fiber</code>, <code>:fork</code>, or <code>:ractor</code>.</p>
+
+<h3 id="agents-reusable-agents">Reusable agents</h3>
+
+<h4 id="agents-reusable-agents-overview">Overview</h4>
+
+<p>A subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+gives you a reusable agent with its own behavior. You define the model, tools, and other
+attributes at the class level, and each instance picks them up
+as defaults. Attributes can be overridden per-instance, and they
+can be plain values, blocks, or Symbols that resolve to methods.
+The class becomes a self-contained worker that you can instantiate
+and talk to from anywhere.</p>
+
+<h4 id="agents-reusable-agents-how-it-works">How it works</h4>
+
+<p>A subclass declares its defaults with <code>set</code>. Each key is a
+class-level accessor: <code>model</code>, <code>tools</code>, <code>instructions</code>, <code>stream</code>,
+<code>tracer</code>, <code>concurrency</code>, <code>schema</code>, <code>confirm</code>. When you create a
+new instance, any keyword arguments override the class-level
+defaults.</p>
+
+<pre><code class="language-ruby">class Agent &lt; LLM::Agent
+  set model: "deepseek-v4-pro",
+      tools: [Shell]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = Agent.new(llm)
+agent.talk "Run 'date'"
+</code></pre>
+
+<h4 id="agents-reusable-agents-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A subclass is useful when multiple parts of an application need to
+call the same agent. The configuration and any helper methods live in one place. Define a
+<code>research!</code> method that kicks off the agent’s work. The subclass
+becomes a self-contained worker.</p>
+
+<h4 id="agents-reusable-agents-notes">Notes</h4>
+
+<p>Attributes passed to <code>set</code> can be plain values, blocks, or
+Symbols. A Symbol is evaluated as an instance method on the
+subclass, so <code>tracer: :set_tracer</code> calls <code>set_tracer</code> on the
+instance. A block like <code>stream: -&gt; { $stdout }</code> is evaluated
+when the attribute is first accessed.</p>
+
+<h3 id="agents-throwaway-agents">Throwaway agents</h3>
+
+<h4 id="agents-throwaway-agents-overview">Overview</h4>
+
+<p>An
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+instance is the simplest way to get started. You pass a provider and any configuration as keyword
+arguments, and the agent runs the tool loop and manages state
+just like a subclass would. This is the right choice when you
+are prototyping, running a one-off task, or when the agent’s
+configuration is determined at runtime.</p>
+
+<h4 id="agents-throwaway-agents-how-it-works">How it works</h4>
+
+<p>A direct instance takes the same attributes as keyword arguments
+to <code>LLM::Agent.new</code>. The first argument is always the provider.
+Everything else is optional. The agent runs the tool loop
+and manages state under the hood through a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>.</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "Hello world"
+</code></pre>
+
+<h4 id="agents-throwaway-agents-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A direct instance is the right choice for quick experiments, one-shot
+tasks, or when defining a class would be overkill. It is also
+the right choice when the agent’s configuration is determined at
+runtime and building a class hierarchy would be overkill.</p>
+
+<h4 id="agents-throwaway-agents-notes">Notes</h4>
+
+<p>Direct instances accept all the same options as subclasses. The
+difference is only in how the agent is organized, not in what it
+can do. Under the hood,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+creates a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+that manages the message history.</p>
+
+<hr />
+
+<h2 id="repl">REPL</h2>
+
+<h3 id="repl-introduction">Introduction</h3>
+
+<h4 id="repl-introduction-overview">Overview</h4>
+
+<p>The REPL drops you into a curses-based TUI for talking to an agent
+interactively. It has a scrollable transcript that renders markdown,
+a multi-line input area, and a status bar showing context usage and
+cost. The UI thread stays responsive while a second thread communicates
+with the model. Think of it as <code>binding.pry</code> but for agents.</p>
+
+<h4 id="repl-introduction-how-it-works">How it works</h4>
+
+<p>The REPL runs on two threads: one for the curses UI (input handling,
+transcript rendering, status bar) and one for model communication.</p>
+
+<p>The <code>name:</code> option labels the agent in the prompt. The <code>path:</code>
+option persists state across sessions. The <code>tools:</code> option attaches
+extra tools for the session.</p>
+
+<p>Commands start with <code>/</code> and are dispatched to registered
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html"><code>LLM::Command</code></a>
+subclasses. Type <code>/compact</code> to free context window
+space, <code>/exit</code> to leave.</p>
+
+<p>When characters arrive faster than a threshold, the REPL detects
+paste mode. In paste mode, pressing Enter inserts a newline instead
+of submitting.</p>
+
+<p>The input area supports several keyboard shortcuts:</p>
+
+<pre><code class="language-ruby">require "llm"
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
+</code></pre>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Enter</code></td>
+      <td>Submit the current prompt</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+A</code></td>
+      <td>Jump to the start of the line</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+E</code></td>
+      <td>Jump to the end of the line</td>
+    </tr>
+    <tr>
+      <td><code>Ctrl+P</code> / <code>Ctrl+N</code></td>
+      <td>Recall previous / next user message</td>
+    </tr>
+    <tr>
+      <td><code>Tab</code></td>
+      <td>Complete <code>/command</code> names</td>
+    </tr>
+    <tr>
+      <td><code>Esc</code></td>
+      <td>Cancel the current request</td>
+    </tr>
+    <tr>
+      <td><code>Up</code> / <code>Down</code></td>
+      <td>Scroll the transcript one line</td>
+    </tr>
+    <tr>
+      <td><code>PgUp</code> / <code>PgDn</code></td>
+      <td>Scroll the transcript by one page</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="repl-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The REPL gives you an interactive environment to test agents, debug
+tool calls, and inspect conversation state without writing a
+separate UI. Drop in after running an agent to confirm it did what
+you expected. Inspect what went wrong when it did not. Keep talking
+to the same agent while its state is still intact. It is
+<code>binding.pry</code> but for agents.</p>
+
+<h4 id="repl-introduction-notes">Notes</h4>
+
+<p>The REPL requires the <code>curses</code> and <code>kramdown</code> gems. By default the
+tracer is disabled during the session. Set <code>tracer: true</code> to keep
+it active.</p>
+
+<p>Commands use the same vocabulary as tools: declare a name,
+description, and parameters with <code>parameter</code> and <code>required</code>.
+Subclassing an existing command inherits its name, description,
+and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>.</p>
+
+<pre><code class="language-ruby">class Greeter &lt; LLM::Command
+  name "greet"
+  description "Greets the given name"
+  parameter :name, String, "The person's name"
+  required %i[name]
+
+  def call(name:)
+    write "Welcome #{name}!\n"
+  end
+end
+</code></pre>
+
+<hr />
+
+<h2 id="schema">Schema</h2>
+
+<h3 id="schema-introduction">Introduction</h3>
+
+<h4 id="schema-introduction-overview">Overview</h4>
+
+<p>A schema describes the shape of a structured response you expect
+from the model. Instead of parsing free-form text, you declare
+the expected structure and the runtime coerces the response into
+an object with typed accessors.</p>
+
+<h4 id="schema-introduction-how-it-works">How it works</h4>
+
+<p>When you want a structured response from the model, subclass
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a>
+and declare properties with types and constraints. When you pass the schema to <code>talk</code>, the runtime
+includes it in the request parameters. The provider returns a
+JSON object matching the schema, which is coerced into an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a> with typed accessors.</p>
+
+<pre><code class="language-ruby">class Estimation &lt; LLM::Schema
+  property :age, Integer, "The estimated age of the person"
+  property :confidence, Number, "Your confidence in the estimate"
+  property :applicable, Boolean, "True when the photo contains a person"
+  property :comments, String, "Any additional comments"
+  required %i[age confidence applicable comments]
+end
+
+llm = LLM.openai(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Estimation)
+res = agent.ask "Given this photo, provide an age estimate", with: "photo.jpg"
+
+estimate = res.content!
+
+if estimate.applicable
+  print "The person is approx ", estimate.age.to_s, " years old"
+else
+  print "This photo is not applicable: ", estimate.comments
+end
+</code></pre>
+
+<h4 id="schema-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Schemas give you structured data instead of free text. Pass the
+result to other code without parsing. Use them for classification,
+extraction, or any workflow where the output needs to feed into
+another system.</p>
+
+<h4 id="schema-introduction-notes">Notes</h4>
+
+<p>Schemas can define objects, arrays, enums, and nested schemas.
+They are also used internally by
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+for parameter definitions, so you already benefit from them
+when you declare tool parameters.</p>
+
+<hr />
+
+<h2 id="skills">Skills</h2>
+
+<h3 id="skills-introduction">Introduction</h3>
+
+<h4 id="skills-introduction-overview">Overview</h4>
+
+<p>A skill turns a markdown file into a callable tool. Write the
+instructions in markdown, declare what tools the subagent needs
+in the frontmatter, and register the file with the parent agent.
+When the model calls the skill, the runtime spawns a fresh subagent
+with those instructions as its system prompt and only the tools
+you gave it. The subagent runs one turn and returns. Then it is
+discarded.</p>
+
+<h4 id="skills-introduction-how-it-works">How it works</h4>
+
+<p>A parent agent works with zero or more skill files. Each skill
+is registered as a tool the model can call.</p>
+
+<p>When the model calls a skill, a subagent is created with:</p>
+
+<ul>
+  <li>Its own system prompt: the body of the SKILL.md file</li>
+  <li>Limited tools: only what you declare in the frontmatter</li>
+  <li>Context awareness: the last 8 user/assistant messages from the
+parent (tool calls stripped)</li>
+</ul>
+
+<p>The subagent runs one turn and returns. The parent sees the result
+like any other tool return.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, skills: ["./skills/git-log", "./skills/deploy"])
+agent.talk "Review the recent commits, then deploy if everything looks clean"
+</code></pre>
+
+<h4 id="skills-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Because each skill spawns a fresh subagent with constrained tools,
+you can build a clear hierarchy. The parent supervises, decides
+which skill to call, inspects the result, and can iterate or
+compose multiple skills.</p>
+
+<p>Each skill is focused. A changelog skill gets <code>git-log</code> and
+<code>write-file</code>, not the shell. A deploy skill gets deployment tools,
+not file readers.</p>
+
+<p>Skills are stateless. Every call is independent. No carryover, no
+cross-contamination.</p>
+
+<h4 id="skills-introduction-notes">Notes</h4>
+
+<p>Skills can also be attached to the REPL session without modifying
+the agent:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(skills: [__dir__])
+</code></pre>
+
+<h3 id="skills-frontmatter">Frontmatter</h3>
+
+<h4 id="skills-frontmatter-overview">Overview</h4>
+
+<p>The frontmatter at the top of a skill file controls how the
+subagent sees itself and what it can reach. It sets the skill’s
+name (which becomes the tool name), a description (which the
+model reads to decide when to call it), and a tool list (which
+limits what the subagent can do). Leave the tools out and the
+subagent has none. Set them to <code>all</code> and it has everything.</p>
+
+<h4 id="skills-frontmatter-how-it-works">How it works</h4>
+
+<p>The frontmatter is parsed from the YAML block at the top of the
+file. The markdown body that follows becomes the subagent’s system
+prompt. The <code>tools</code> field resolves at load time: named tools are
+looked up in the registry, <code>inherit</code> copies from the parent context,
+and <code>all</code> grabs everything available.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>A short identifier for the skill. Used as the tool name.</td>
+    </tr>
+    <tr>
+      <td><code>description</code></td>
+      <td>Explains to the model what the skill does. Used as the tool description.</td>
+    </tr>
+    <tr>
+      <td><code>tools</code></td>
+      <td>Controls what the subagent can call. See below.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The <code>tools</code> field accepts four forms:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>inherit</code></td>
+      <td>Copies the parent agent’s tools, excluding other skills.</td>
+    </tr>
+    <tr>
+      <td><code>all</code> or <code>*</code></td>
+      <td>Every tool in the global registry.</td>
+    </tr>
+    <tr>
+      <td><code>['name1', 'name2']</code></td>
+      <td>Only the named tools. Raises an error if not found.</td>
+    </tr>
+    <tr>
+      <td>(omitted)</td>
+      <td>No tools at all.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="skills-frontmatter-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The frontmatter is how you configure what a skill can do and what
+tools it has access to. <code>inherit</code> copies the parent’s capabilities
+into the skill. An explicit list restricts the subagent to only
+the tools it needs.</p>
+
+<h4 id="skills-frontmatter-notes">Notes</h4>
+
+<p>The fewer tools a subagent has, the less it can wander.</p>
+
+<hr />
+
+<h2 id="stream">Stream</h2>
+
+<h3 id="stream-introduction">Introduction</h3>
+
+<h4 id="stream-introduction-overview">Overview</h4>
+
+<p>Streaming delivers model output as it is generated, token by
+token, instead of waiting for the full response. The user sees
+text appear in real time, and the application can act on partial
+results as they arrive.</p>
+
+<h4 id="stream-introduction-how-it-works">How it works</h4>
+
+<p>The stream target can be any object that responds to <code>#&lt;&lt;</code>. Each
+time the provider emits a token, the runtime calls <code>target &lt;&lt;
+chunk</code> with the raw content. The tokens arrive in order as the
+model generates them, so the output appears character by character
+instead of all at once. When the response is complete, the stream
+closes and control returns to the caller.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.talk "hello world"
+</code></pre>
+
+<h4 id="stream-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Streaming lets users see output sooner and cancel mid-response if
+the model goes off course. It also enables progress indicators and
+partial result processing, things that are not possible with a
+single blocking response.</p>
+
+<h4 id="stream-introduction-notes">Notes</h4>
+
+<p>The IO-like form is equivalent to <code>LLM::Stream#on_content</code> and does
+not include the other hooks. It covers content output (piping to
+stdout or a log file) without the overhead of a full subclass. A
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a>
+subclass gives you visibility into tool calls, compaction events,
+and reasoning content.</p>
+
+<h3 id="stream-callbacks">Callbacks</h3>
+
+<h4 id="stream-callbacks-overview">Overview</h4>
+
+<p>A stream subclass provides structured hooks into content, tool
+calls, compaction, and other runtime events. Each hook fires at
+a specific point in the request lifecycle. This gives you
+fine-grained visibility into what the runtime is doing as it
+happens, from the first token to the final tool return.</p>
+
+<h4 id="stream-callbacks-how-it-works">How it works</h4>
+
+<p>When you want to react to specific runtime events, override the
+hooks on a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a>
+subclass. <code>on_content</code> receives tokens as they arrive.
+<code>on_tool_call</code> fires when the model requests a tool.
+<code>on_tool_return</code> fires when the tool completes. Compaction hooks
+let you show progress or log what was trimmed.</p>
+
+<pre><code class="language-ruby">class MyStream &lt; LLM::Stream
+  def on_content(content)
+    print content
+  end
+
+  def on_reasoning_content(content)
+    warn content
+  end
+
+  def on_tool_call(tool)
+  end
+
+  def on_tool_return(tool, result)
+  end
+
+  def on_compaction(compactor)
+  end
+
+  def on_compaction_finish(compactor)
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: MyStream.new)
+agent.talk "Explain Ruby fibers."
+</code></pre>
+
+<h4 id="stream-callbacks-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A stream subclass gives you visibility into more than just content chunks. React to tool
+calls as they happen, show compaction progress, or integrate with
+an existing observability stack.</p>
+
+<h4 id="stream-callbacks-notes">Notes</h4>
+
+<p>The IO-like form is equivalent to <code>LLM::Stream#on_content</code> and does
+not include the other hooks.</p>
+
+<hr />
+
+<h2 id="tools">Tools</h2>
+
+<h3 id="tools-introduction">Introduction</h3>
+
+<h4 id="tools-introduction-overview">Overview</h4>
+
+<p>A tool is how a model reaches outside its own head. Without tools,
+the model can only produce text. With a tool, it can run a shell
+command, query a database, or fetch a web page. The model decides
+when a tool fits the request; the runtime calls it and sends the
+result back.</p>
+
+<p>A tool is a Ruby class with a name, a description, and a <code>call</code>
+method. The name tells the model what the tool is called. The
+description tells the model when to use it. The <code>call</code> method
+receives the arguments and returns the result. That is the entire
+contract: name, description, parameters, and a method that runs.</p>
+
+<h4 id="tools-introduction-how-it-works">How it works</h4>
+
+<p>A tool is a subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+with a name, description, and optional typed parameters. The model sees the name and
+description and decides whether to call it. When it does, the
+runtime serialises the arguments and passes them to <code>call</code>.</p>
+
+<p>If <code>call</code> raises, the runtime rescues it and returns a structured
+error to the model instead. The conversation stays valid. You can
+also handle errors yourself inside <code>call</code> by rescuing and returning
+a domain-specific error hash.</p>
+
+<pre><code class="language-ruby">class Shell &lt; LLM::Tool
+  name "shell"
+  description "execute a shell command"
+  parameter :name, String, "the command's name"
+  parameter :arguments, Array[String], "One or more arguments"
+  required %i[name]
+  defaults arguments: []
+
+  def call(name:, arguments: [])
+    out = `#{name.shellescape} #{arguments.map(&amp;:shellescape).join(" ")}`
+    {ok: $?.success?, out:}
+  end
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tools: [Shell], stream: $stdout)
+agent.talk "What files are in the current working directory?"
+</code></pre>
+
+<h4 id="tools-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Tools are how the model interacts with the outside world. Without
+them, the model can only produce text. With tools, it can query
+databases, run shell commands, fetch web pages, or call APIs. The
+tool loop stays alive even when a tool fails. One broken tool does
+not derail the conversation.</p>
+
+<h4 id="tools-introduction-notes">Notes</h4>
+
+<p>Confirmation gates tools behind explicit approval. List tool names
+in <code>LLM::Agent.confirm</code> to block execution until you override
+<code>on_tool_confirmation</code>. Confirmation also accepts a Symbol for
+lazy resolution. A Symbol lets the confirmed set change
+per-instance based on runtime conditions:</p>
+
+<pre><code class="language-ruby">class AdminAgent &lt; LLM::Agent
+  set confirm: %w[delete destroy shutdown]
+
+  def on_tool_confirmation(fn, strategy)
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    $stdin.gets&amp;.match?(/\Ay\z/i) ? fn.task(strategy).wait : fn.cancel
+  end
+end
+
+class AdaptiveAgent &lt; LLM::Agent
+  set confirm: :tools_that_need_confirmation
+
+  def tools_that_need_confirmation
+    some_condition ? %w[delete destroy] : %w[delete]
+  end
+end
+</code></pre>
+
+<h3 id="tools-confirmation">Confirmation</h3>
+
+<h4 id="tools-confirmation-overview">Overview</h4>
+
+<p>Tools that perform destructive actions can be gated behind explicit
+approval. List their names in <code>LLM::Agent.confirm</code> to block execution
+until you override <code>on_tool_confirmation</code>. The default handler cancels
+the tool. Override it per-agent to prompt the user, log the decision,
+or auto-approve certain tools.</p>
+
+<h4 id="tools-confirmation-how-it-works">How it works</h4>
+
+<p>When you want to gate destructive tools behind explicit approval,
+list their names in <code>LLM::Agent.confirm</code>.
+Override <code>on_tool_confirmation</code> on the subclass to define your
+own approval flow. The default handler cancels the call.</p>
+
+<pre><code class="language-ruby">class AdminAgent &lt; LLM::Agent
+  set confirm: %w[delete destroy shutdown]
+
+  def on_tool_confirmation(fn, strategy)
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    $stdin.gets&amp;.match?(/\Ay\z/i) ? fn.task(strategy).wait : fn.cancel
+  end
+end
+</code></pre>
+
+<h4 id="tools-confirmation-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Confirmation prevents the model from running dangerous tools
+without user oversight. You decide the approval flow: a terminal
+prompt, a web socket, a background job queue.</p>
+
+<h4 id="tools-confirmation-notes">Notes</h4>
+
+<p>Confirmation also accepts a Symbol for lazy resolution:
+<code>set confirm: :tools_that_need_confirmation</code> with a method that
+returns the list of tool names. This lets the confirmed set change
+per-instance based on runtime conditions.</p>
+
+<h3 id="tools-errors">Errors</h3>
+
+<h4 id="tools-errors-overview">Overview</h4>
+
+<p>A tool that raises does not crash the conversation. The runtime
+catches the exception, wraps it into a structured error, and
+returns it to the model. The model can read the error, decide what
+went wrong, and try something else. The tool loop stays alive no
+matter what.</p>
+
+<h4 id="tools-errors-how-it-works">How it works</h4>
+
+<p>If <code>call</code> raises, the runtime returns <code>{error: true, type: "RuntimeError",
+message: "boom"}</code> to the model. You can also rescue inside <code>call</code> and
+return your own error shape that gives the model more context.</p>
+
+<pre><code class="language-ruby">class Shell &lt; LLM::Tool
+  name "shell"
+  description "execute a shell command"
+
+  def call(name:, arguments: [])
+    out = `#{name} #{arguments.join(" ")}`
+    {ok: $?.success?, out:}
+  rescue Errno::ENOENT
+    {ok: false, error: "command not found: #{name}"}
+  end
+end
+</code></pre>
+
+<h4 id="tools-errors-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Custom error handling gives the model domain-specific detail that
+helps it recover. Instead of a generic “RuntimeError: boom”, the
+model sees <code>{ok: false, error: "command not found: ls"}</code> and knows
+to correct the command name and try again.</p>
+
+<h4 id="tools-errors-notes">Notes</h4>
+
+<p>The principle is the same either way: return something. A tool call
+must complete with a tool response. If you do not return a value and
+you do not raise, the runtime has nothing to send back and the
+conversation is stuck.</p>
+
+<hr />
+
+<h2 id="cancellation">Cancellation</h2>
+
+<h3 id="cancellation-introduction">Introduction</h3>
+
+<h4 id="cancellation-introduction-overview">Overview</h4>
+
+<p>Cancellation lets you abort a model request mid-stream and interrupt
+any tools that are currently executing. The user changes their mind.
+The model goes off course. A tool hangs. In all three cases,
+cancellation stops the work and reclaims the tokens.</p>
+
+<h4 id="cancellation-introduction-how-it-works">How it works</h4>
+
+<p>When you want to cancel an active request or tool call, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#cancel!"><code>LLM::Agent#cancel!</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cancel!"><code>LLM::Context#cancel!</code></a>
+from any thread. Two things
+happen at once:</p>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+is raised on the thread where <code>talk</code> is running, so the caller
+can rescue it and know the request was cancelled.</p>
+
+<p>At the same time,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+is raised on every active tool.
+A tool running in a thread gets it on that thread. A tool in a
+fiber gets it on that fiber. A tool in a forked process gets it
+via a message over the control channel. Pending tools (not yet
+started) are cancelled through <code>Function#cancel</code> without ever
+being executed.</p>
+
+<p>The transport layer also cancels the in-flight HTTP request.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["DEEPSEEK_SECRET"])
+agent = LLM::Agent.new(llm)
+queue = Queue.new
+
+Thread.new do
+  queue.push(nil)
+  sleep(2)
+  agent.cancel!
+end
+
+begin
+  queue.pop
+  agent.talk "write me a very long poem", stream: $stdout
+rescue LLM::Interrupt
+  puts "request cancelled!"
+end
+</code></pre>
+
+<h4 id="cancellation-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Cancellation prevents wasted time and tokens when the model goes
+off course, the user changes their mind, or a tool hangs. A forked
+tool that enters an infinite loop would run forever without it.</p>
+
+<h4 id="cancellation-introduction-notes">Notes</h4>
+
+<p>The <code>:ractor</code> strategy delivers the interrupt through ractor
+message passing. The <code>:fork</code> strategy delivers it via a message
+over the xchan control channel. All other strategies raise the
+exception directly on the executing thread or fiber.</p>
+
+<hr />
+
+<h2 id="compaction">Compaction</h2>
+
+<h3 id="compaction-introduction">Introduction</h3>
+
+<h4 id="compaction-introduction-overview">Overview</h4>
+
+<p>Long-running conversations consume tokens. Without intervention,
+every turn pushes toward the model’s context window limit. Compaction
+drops old messages to keep the conversation alive. The runtime runs
+a compactor automatically before each <code>talk</code> call, trimming the
+oldest messages when the conversation exceeds a configured size.
+This keeps the context window healthy without manual intervention.</p>
+
+<h4 id="compaction-introduction-how-it-works">How it works</h4>
+
+<p>Compactors run automatically before each <code>talk</code> call.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html"><code>LLM::Compactor::Truncate</code></a>
+strategy drops the oldest messages, keeping only the N most recent.
+It preserves tool call/return pairs so the conversation never
+contains an orphaned result.</p>
+
+<p>The <code>keep:</code> parameter accepts an integer count or a percentage
+string like <code>"80%"</code>. The default compactor is
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a>,
+which does nothing. A compactor can also be used standalone.
+The REPL provides a <code>/compact</code> command that accepts a count
+or percentage.</p>
+
+<pre><code class="language-ruby">ctx = LLM::Context.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 64}
+)
+
+agent = LLM::Agent.new(
+  llm,
+  compactor: LLM::Compactor::Truncate,
+  compactor_options: {keep: 128}
+)
+
+compactor = LLM::Compactor::Truncate.new(agent)
+compactor.call(keep: 200)
+
+# /compact        # keep last 128 messages
+# /compact 50     # keep last 50 messages
+# /compact 75%    # keep approximately 75% of messages
+</code></pre>
+
+<h4 id="compaction-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Without compaction, the provider eventually rejects requests because
+the context window is full. Compaction keeps the conversation alive
+by discarding old messages before they cause a problem.</p>
+
+<p>Long-running agents that span hundreds of turns need this. A bug
+investigation that bounces back and forth between diagnosis and
+fix cannot fit every exchange in memory. Compaction trims the
+unimportant parts and keeps the conversation alive.</p>
+
+<h4 id="compaction-introduction-notes">Notes</h4>
+
+<p>The Truncate strategy is fast and has no dependencies. It operates
+entirely in memory with a single pass over the message list. The
+trade-off is that dropped messages are gone, so information may be
+lost. Set <code>keep</code> to a higher number to retain more context.</p>
+
+<p>Both strategies emit <code>on_compaction</code> and <code>on_compaction_finish</code>
+stream callbacks so the UI can show progress. The context’s
+<code>compacted?</code> flag is <code>true</code> between compaction and the next model
+response.</p>
+
+<hr />
+
+<h2 id="concurrency">Concurrency</h2>
+
+<h3 id="concurrency-introduction">Introduction</h3>
+
+<h4 id="concurrency-introduction-overview">Overview</h4>
+
+<p>llm.rb supports six concurrency strategies for tool execution:
+<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and
+<code>:ractor</code>. Each implements the same interface (<code>spawn</code>, <code>wait</code>,
+<code>alive?</code>, <code>interrupt!</code>), so the caller never has to care which
+strategy is behind a given task.</p>
+
+<h4 id="concurrency-introduction-how-it-works">How it works</h4>
+
+<p>Each strategy creates a task object that wraps a function call.
+<code>spawn</code> starts execution, <code>wait</code> collects the result, <code>alive?</code>
+checks whether the task is still running, and <code>interrupt!</code> signals
+the task to stop.</p>
+
+<p>Interruption is reliable across all six.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+reaches the tool regardless of whether it runs on a thread, fiber, process,
+or ractor. The tool can rescue, clean up, and either re-raise to
+cancel the turn or return a value to continue.</p>
+
+<pre><code class="language-ruby">agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
+
+fn = FetchStocks.function
+fn.task(:thread).wait
+</code></pre>
+
+<h4 id="concurrency-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Different tools have different execution requirements. IO-bound
+tools benefit from thread or async concurrency. CPU-bound tools
+benefit from ractors or forks. Tools that might crash the process
+should run in a fork for isolation.</p>
+
+<p>The common interface means you can change strategies without
+changing your tool code.</p>
+
+<h4 id="concurrency-introduction-notes">Notes</h4>
+
+<p><strong>sequential</strong>: Tools run one at a time on the calling thread. No
+overhead. Best for simple agents or when tool order matters.</p>
+
+<p><strong>thread</strong>: Each tool runs in its own Thread. Releases the GVL
+during blocking IO. Best for IO-bound tools like HTTP calls and
+database queries.</p>
+
+<p><strong>fiber</strong>: Each tool runs in a scheduler-backed Fiber. Requires
+<code>Fiber.scheduler</code>. Best for IO-bound tools inside an async
+framework. Much lighter than threads.</p>
+
+<p><strong>async</strong>: Each tool runs as an <code>Async::Task</code> inside a managed
+background reactor. Best for IO-bound tools when you want Async’s
+structured concurrency model without running your whole application
+inside a reactor. Requires the <code>async</code> gem.</p>
+
+<p><strong>fork</strong>: Each tool runs in a forked child process. True parallelism
+and process isolation. Best for shell commands, native extensions,
+or anything you do not want touching the parent’s memory. Requires
+the <code>xchan</code> gem.</p>
+
+<p><strong>ractor</strong>: Each class-based tool runs in a Ruby Ractor. True
+parallelism without the overhead of forking full processes. Only
+class-based tools are supported. Arguments must be ractor-shareable.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Strategy</th>
+      <th>Backing</th>
+      <th>Parallel?</th>
+      <th>Isolation?</th>
+      <th>Requires</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>:sequential</code></td>
+      <td>direct call</td>
+      <td>No</td>
+      <td>No</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code>:thread</code></td>
+      <td><code>Thread</code></td>
+      <td>IO only (GVL)</td>
+      <td>No</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code>:fiber</code></td>
+      <td><code>Fiber.schedule</code></td>
+      <td>Cooperative</td>
+      <td>No</td>
+      <td><code>Fiber.scheduler</code></td>
+    </tr>
+    <tr>
+      <td><code>:async</code></td>
+      <td><code>Async::Reactor</code></td>
+      <td>Cooperative</td>
+      <td>No</td>
+      <td><code>async</code> gem</td>
+    </tr>
+    <tr>
+      <td><code>:fork</code></td>
+      <td><code>Kernel.fork</code></td>
+      <td>Yes (process)</td>
+      <td>Yes (memory)</td>
+      <td><code>xchan</code> gem</td>
+    </tr>
+    <tr>
+      <td><code>:ractor</code></td>
+      <td><code>Ractor</code></td>
+      <td>Yes (CPU)</td>
+      <td>Limited</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="context">Context</h2>
+
+<h3 id="context-introduction">Introduction</h3>
+
+<h4 id="context-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+is the runtime that powers every agent. When you call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>,
+the agent delegates to its internal context. The context manages
+the message history, sends requests to the provider, tracks pending
+tool calls, and feeds results back to the model. Everything an agent
+does, a context does too, but without the automatic tool loop.</p>
+
+<p>Using a context directly gives you finer control over each step
+of the conversation. You decide when to send messages, when to
+execute tools, and when to stop. This is useful for custom
+confirmation flows, mixed concurrency strategies per tool, or
+any workflow where the agent’s automatic loop gets in the way.</p>
+
+<h4 id="context-introduction-how-it-works">How it works</h4>
+
+<p>A context wraps a provider and maintains the conversation state.
+Call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+to send input to the model, check
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?"><code>LLM::Context#pending_functions?</code></a>
+to see if tools were requested, and use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+to execute them. Each call to <code>#talk</code> appends
+to the conversation and returns the model’s response. The context
+serializes its state with <code>to_h</code> and <code>to_json</code>, and restores it
+with <code>restore</code>. This is how the ORM integrations and filesystem
+persistence work under the hood:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+res = ctx.talk "What's the weather in Tokyo?"
+puts res.content
+</code></pre>
+
+<h4 id="context-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A bare context gives you control that the agent
+abstraction does not expose. Pre-flight checks on tool requests,
+per-tool confirmation prompts, mixed concurrency strategies across
+tools, or manual iteration until a condition is met are all easier
+with a bare context.</p>
+
+<h4 id="context-introduction-notes">Notes</h4>
+
+<p>The agent uses <code>LLM::Context</code> internally. Anything you can do with
+a context, you can also do through an agent. The trade-off is
+convenience versus control. Contexts support the same concurrency
+strategies, compaction, cancellation, and serialization as agents.</p>
+
+<h3 id="context-manual-loop">Manual loop</h3>
+
+<h4 id="context-manual-loop-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+manages the tool loop automatically. It calls
+the model, checks for tool requests, runs the tools, feeds results
+back, and repeats until the model produces text. You can bypass
+this and drive
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+directly instead. This
+gives you finer control over each step of the loop at the cost of
+more code.</p>
+
+<h4 id="context-manual-loop-how-it-works">How it works</h4>
+
+<p>When you want to control the tool loop yourself, drive
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+directly instead of using an agent. Start a conversation, check
+for tool requests, execute them, and feed results back. The full
+loop is under your control. Each call to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+appends to the conversation and returns the model’s response, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?"><code>LLM::Context#pending_functions?</code></a>
+tells you whether tools were requested.
+From that foundation you can inspect, iterate, or confirm
+per-tool in a single flow:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+
+loop do
+  res = ctx.talk("What's the weather in Tokyo?")
+  break unless ctx.pending_functions?
+
+  puts "Model requested #{ctx.pending_functions.size} tool(s)"
+
+  results = ctx.pending_functions.map do |fn|
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    if $stdin.gets&amp;.match?(/\Ay\z/i)
+      fn.task(:thread).wait
+    else
+      fn.cancel(reason: "user declined")
+    end
+  end
+
+  ctx.talk(results)
+end
+
+puts res.content
+</code></pre>
+
+<h4 id="context-manual-loop-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Manual control gives you pre-execution checks, custom confirmation
+flows, different strategies per tool, and fine-grained error
+recovery that the default tool loop does not expose.</p>
+
+<h4 id="context-manual-loop-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+picks up pending functions, spawns them using the chosen
+strategy, waits for results, and records them back in the context.
+Each strategy is supported: <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>,
+<code>:async</code>, <code>:fork</code>, and <code>:ractor</code>. Functions are reset after each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+call. Store the array if you need to
+preserve them.</p>
+
+<h3 id="context-pending-functions">Pending functions</h3>
+
+<h4 id="context-pending-functions-overview">Overview</h4>
+
+<p>After
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+returns, the context may have pending function
+calls if the model requested tools. These are available through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions"><code>LLM::Context#pending_functions</code></a>,
+which returns an array of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function</code></a>
+objects. Each function has a name, arguments, and methods for
+execution or cancellation.</p>
+
+<h4 id="context-pending-functions-how-it-works">How it works</h4>
+
+<p>When you want to check whether the model requested tools, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?"><code>LLM::Context#pending_functions?</code></a>
+after each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+call. Each pending
+function has a name, arguments, and
+methods for execution or cancellation. Call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#task"><code>LLM::Function#task</code></a>
+to execute it or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
+to skip it. Iterate over all
+pending functions to inspect or handle them individually:</p>
+
+<pre><code class="language-ruby">res = ctx.talk "What's the weather in Tokyo?"
+
+if ctx.pending_functions?
+  puts "Model requested #{ctx.pending_functions.size} tool(s)"
+  results = ctx.pending_functions.map do |fn|
+    print "Run #{fn.name} with #{fn.arguments}? [y/N] "
+    if $stdin.gets&amp;.match?(/\Ay\z/i)
+      fn.task(:thread).wait
+    else
+      fn.cancel(reason: "user declined")
+    end
+  end
+  ctx.talk(results)
+end
+</code></pre>
+
+<h4 id="context-pending-functions-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Inspecting pending functions lets you decide which tools to run,
+in what order, and with what strategy. This is essential for
+confirmation flows, selective execution, or logging which tools
+the model requested.</p>
+
+<h4 id="context-pending-functions-notes">Notes</h4>
+
+<p>Pending functions are reset after each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+call. If you need to preserve them, store the array before
+executing. Functions that are cancelled still count as completed
+from the model’s perspective; the model sees a cancellation
+result, not a tool error.</p>
+
+<h3 id="context-tool-responses">Tool responses</h3>
+
+<h4 id="context-tool-responses-overview">Overview</h4>
+
+<p>When a tool receives
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>,
+it can either cancel the turn or return a result. The choice
+depends on the situation.
+A hard cancel aborts the request outright and is the default.
+Returning a value lets the model adapt and continue the
+conversation, which can be useful when the interrupt is
+temporary, like a timeout or a user pause.</p>
+
+<h4 id="context-tool-responses-how-it-works">How it works</h4>
+
+<p>When a tool receives
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>,
+re-raise to abort the turn or return a value to continue the loop.
+The model receives the result and decides what to do next.</p>
+
+<pre><code class="language-ruby">def call
+  # do work
+rescue LLM::Interrupt
+  cleanup
+  raise
+end
+
+def call
+  # do work
+rescue LLM::Interrupt
+  cleanup
+  {ok: false, reason: "interrupted"}
+end
+</code></pre>
+
+<h4 id="context-tool-responses-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A hard cancel aborts the request outright. Useful when continuing
+would produce garbage. Returning a value lets the model adapt,
+which can be helpful when the interrupt is temporary.</p>
+
+<h4 id="context-tool-responses-notes">Notes</h4>
+
+<p>The mechanism is the same across all six concurrency strategies.
+The <code>:ractor</code> strategy delivers the interrupt through ractor
+message passing. The <code>:fork</code> strategy delivers it via xchan.</p>
+
+<hr />
+
+<h2 id="database">Database</h2>
+<h3 id="database-introduction">Introduction</h3>
+
+<h4 id="database-introduction-overview">Overview</h4>
+
+<p>Persistence lets an agent outlive a single session. The conversation
+history, model name, and compaction status are serialized as JSON
+that can be stored in a file, a database column, or transmitted
+over a network. Three storage backends are available:</p>
+
+<ul>
+  <li><strong>Filesystem</strong>: save and restore from a JSON file on disk</li>
+  <li><strong>ActiveRecord</strong>: persist state in a database column using <code>acts_as_agent</code></li>
+  <li><strong>Sequel</strong>: persist state in a database column using <code>plugin :agent</code></li>
+</ul>
+
+<p>All three use the same serialization mechanism under the hood.</p>
+
+<h4 id="database-introduction-how-it-works">How it works</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+implements <code>to_h</code> and <code>to_json</code> for serialization and <code>restore</code>
+for deserialization. Save writes the current state, restore loads
+it back and picks up where the conversation left off. The ORM
+wrappers automate this; each <code>talk</code> or <code>ask</code> call persists the
+updated state back to the column automatically.</p>
+
+<h4 id="database-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Without persistence, every agent starts with a blank conversation.
+Persistence enables long-running agents that survive process
+restarts, debugging sessions that resume mid-investigation, and
+conversation history that can be queried alongside application
+data.</p>
+
+<h4 id="database-introduction-notes">Notes</h4>
+
+<p>The saved JSON can be stored in a file, a database column, or
+transmitted over the network. The ORM integrations use the same
+underlying serialization as filesystem persistence.</p>
+
+<h3 id="database-filesystem">Filesystem</h3>
+
+<h4 id="database-filesystem-overview">Overview</h4>
+
+<p>A conversation that ends when the process exits is not very useful.
+Serialization saves the context (message history, model name,
+compaction status) as JSON that can be stored in a string, a
+file, or a database column. Restore it later, in a different
+process or on a different machine, and pick up where you left off.</p>
+
+<h4 id="database-filesystem-how-it-works">How it works</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+implements <code>to_h</code> and <code>to_json</code> for serialization
+and <code>restore</code> for deserialization. The serialized state includes
+the message history, model name, and compaction status. Save and
+restore work with file paths or in-memory strings. You can also
+serialize to a JSON string for database storage or network
+transmission:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+
+# Save to file
+agent1 = LLM::Agent.new(llm)
+agent1.talk "remember my name is robert"
+agent1.save(path: "agent.json")
+
+# Restore from file
+agent2 = LLM::Agent.new(llm, stream: $stdout)
+agent2.restore(path: "agent.json")
+agent2.talk "what's my name?"
+
+# Or serialize to a JSON string
+json = agent1.save
+agent3.restore(string: json)
+</code></pre>
+
+<h4 id="database-filesystem-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Filesystem persistence is the foundation for long-running agents
+that outlive a single session. Save a debugging session
+mid-investigation and resume it tomorrow. Store a completed
+conversation as evidence or training data. Pass context between
+processes, between machines, or through a job queue.</p>
+
+<h4 id="database-filesystem-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+delegates serialization to its internal context. The
+saved JSON can be stored in a file, a database column, or
+transmitted over the network.</p>
+
+<h3 id="database-activerecord">ActiveRecord</h3>
+
+<h4 id="database-activerecord-overview">Overview</h4>
+
+<p>ActiveRecord models use <code>acts_as_agent</code> to install the agent
+wrapper. The method accepts a block for configuring agent defaults
+and an options hash for storage format. Most defaults such as
+<code>model</code>, <code>tools</code>, <code>instructions</code>, <code>schema</code>, and <code>concurrency</code> can
+be set through the block. Tracer and stream can also be set here
+rather than through legacy convention methods.</p>
+
+<h4 id="database-activerecord-how-it-works">How it works</h4>
+
+<p>When you want to add agent persistence to an ActiveRecord model,
+call <code>acts_as_agent</code> in the model class. The <code>data</code> column stores
+the full agent state (conversation history, model name, compaction
+status) as JSON. On first call, a fresh agent is created and the
+conversation starts from scratch.</p>
+
+<p>On subsequent calls, the stored state is restored and the
+conversation continues. Every <code>talk</code> or <code>ask</code> call persists the
+updated state back to the column automatically.</p>
+
+<p>The <code>data_column:</code> option lets you use a different column name.
+The <code>format:</code> option controls the storage type. Use <code>:string</code> for
+a text column (any database) or <code>:jsonb</code> for a native PostgreSQL
+JSONB column (recommended for PostgreSQL). For <code>:jsonb</code>,
+ActiveRecord handles JSON typecasting automatically.</p>
+
+<p>The block yields an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+instance. Set agent defaults in the block using the <code>set</code> method
+or individual accessors. Anything you can set on an agent can be
+configured here – model, tools, instructions, schema, concurrency,
+tracer, stream, and confirm:</p>
+
+<p>Note that <code>tracer</code> and <code>stream</code> are set directly in the block
+rather than through legacy <code>set_tracer</code> / <code>set_context</code> convention
+methods. The block style is the recommended approach for all agent
+configuration. Only <code>set_provider</code> is required as a private method.</p>
+
+<pre><code class="language-ruby"># Migration for the data column
+class CreateAgents &lt; ActiveRecord::Migration[7.1]
+  def change
+    create_table :agents do |t|
+      t.string :name
+      t.text :data   # stores the serialized agent state
+      t.timestamps
+    end
+  end
+end
+
+# Or with PostgreSQL JSONB
+class CreateAgents &lt; ActiveRecord::Migration[7.1]
+  def change
+    create_table :agents do |t|
+      t.string :name
+      t.jsonb :data  # native JSON storage, supports indexing
+      t.timestamps
+    end
+  end
+end
+
+# Model setup
+require "active_record"
+require "llm"
+require "llm/active_record"
+
+class Agent &lt; ApplicationRecord
+  acts_as_agent(format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+    agent.tracer LLM::Tracer::Logger.new(llm, io: $stdout)
+  end
+
+  private
+
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+end
+
+agent = Agent.create!(name: "researcher")
+agent.talk "perform research"
+# state is saved to the data column automatically
+</code></pre>
+
+<h4 id="database-activerecord-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The ActiveRecord wrapper integrates with your existing models.
+Agent state is automatically persisted after each conversation turn
+using the same <code>create!</code>, <code>save!</code>, and query methods you already
+use.</p>
+
+<h4 id="database-activerecord-notes">Notes</h4>
+
+<p>The <code>format</code> option defaults to <code>:string</code>. Use <code>:json</code> or <code>:jsonb</code>
+for PostgreSQL. JSONB is recommended; it supports indexing and
+is more efficient for querying. The <code>data_column</code> option defaults
+to <code>:data</code> – create a migration to add a <code>TEXT</code> or <code>JSONB</code> column
+to your table.</p>
+
+<p>The model requires a <code>set_provider</code> private method that returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>
+instance. Legacy <code>set_context</code> and <code>set_tracer</code> convention methods
+also work for backwards compatibility, but the block style
+(<code>agent.tracer ...</code>, <code>agent.stream ...</code>) is preferred for all
+agent-level configuration.</p>
+
+<h3 id="database-sequel">Sequel</h3>
+
+<h4 id="database-sequel-overview">Overview</h4>
+
+<p>Sequel models use <code>plugin :agent</code> to install the agent wrapper.
+The plugin accepts the same options as <code>acts_as_agent</code> and follows
+the same conventions for provider resolution and state persistence.
+On first call, a fresh agent is created and the conversation starts
+from scratch. On subsequent calls, the stored state is restored and
+the conversation continues automatically.</p>
+
+<h4 id="database-sequel-how-it-works">How it works</h4>
+
+<p>When you want to add agent persistence to a Sequel model, register
+the plugin in the model class. The <code>data</code> column stores
+the full agent state as JSON, same structure as ActiveRecord.
+On first call, a fresh agent is created. On subsequent calls,
+the stored state is restored and the conversation continues.
+Every <code>talk</code> or <code>ask</code> call persists the updated state.</p>
+
+<p>The <code>data_column:</code> and <code>format:</code> options work identically to
+ActiveRecord. For <code>:jsonb</code>, Sequel loads the <code>pg_json</code> extension
+automatically and handles JSON typecasting. The block yields an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+instance. Configure agent defaults in the block – model, tools,
+instructions, tracer, stream, and confirm all go here:</p>
+
+<p>As with ActiveRecord, <code>tracer</code> and <code>stream</code> are configured in the
+block rather than through legacy convention methods. The block
+style is the recommended approach.</p>
+
+<pre><code class="language-ruby">require "sequel"
+require "llm"
+require "llm/sequel/plugin"
+
+# Migration for the data column
+DB.create_table :agents do
+  primary_key :id
+  String :name
+  String :data       # stores the serialized agent state
+  DateTime :created_at
+  DateTime :updated_at
+end
+
+# Or with PostgreSQL JSONB
+DB.create_table :agents do
+  primary_key :id
+  String :name
+  column :data, :jsonb  # native JSON storage
+  DateTime :created_at
+  DateTime :updated_at
+end
+
+# Model setup
+class Agent &lt; Sequel::Model
+  plugin(:agent, format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+    agent.tracer LLM::Tracer::Logger.new(llm, io: $stdout)
+  end
+
+  private
+
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+end
+
+agent = Agent.create(name: "researcher")
+agent.talk "perform research"
+# state is saved to the data column automatically
+</code></pre>
+
+<h4 id="database-sequel-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The Sequel plugin integrates with your existing models.
+It follows the same conventions as ActiveRecord, so
+switching between the two requires minimal code changes.</p>
+
+<h4 id="database-sequel-notes">Notes</h4>
+
+<p>The <code>format</code> option defaults to <code>:string</code>. Use <code>:json</code> or <code>:jsonb</code>
+for PostgreSQL. Sequel loads the <code>pg_json</code> extension automatically
+and wraps JSON values for native storage. JSONB is recommended.
+The <code>data_column</code> option defaults to <code>:data</code>.</p>
+
+<p>The model requires a <code>set_provider</code> private method that returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>
+instance. Legacy <code>set_context</code> and <code>set_tracer</code> convention methods
+also work for backwards compatibility, but configuring tracer,
+stream, and other agent options in the block is the preferred
+approach.</p>
+
+<hr />
+
+<h2 id="tracer">Tracer</h2>
+
+<h3 id="tracer-introduction">Introduction</h3>
+
+<h4 id="tracer-introduction-overview">Overview</h4>
+
+<p>Tracers let you observe what the runtime is doing. They hook into
+requests, tool calls, compactions, and other events. Debug a
+misbehaving agent, monitor request latency, or export spans to
+an observability backend. A provider-wide tracer intercepts every
+request through that provider. An agent-local tracer only covers
+requests made by that agent.</p>
+
+<h4 id="tracer-introduction-how-it-works">How it works</h4>
+
+<p>When you want to observe runtime events, subclass
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a>
+and implement the hooks you need.
+The built-in tracers include <code>LLM::Tracer::Logger</code> (writes to
+stdout or a file) and <code>LLM::Tracer::Telemetry</code> (exports spans
+via OTLP for OpenTelemetry).</p>
+
+<h4 id="tracer-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Tracers give you visibility into what the runtime is doing. Debug
+a misbehaving agent by tracing every request it makes. Monitor
+request latency and token usage across providers. Export spans to
+OpenTelemetry for integration with existing observability pipelines.</p>
+
+<h4 id="tracer-introduction-notes">Notes</h4>
+
+<p>The tracer is extensible. You can implement custom hooks for any
+runtime event. The scope can be an individual agent or every
+request a provider makes.</p>
+
+<h3 id="tracer-provider">Provider</h3>
+
+<h4 id="tracer-provider-overview">Overview</h4>
+
+<p>A provider-wide tracer intercepts every request made through that
+provider. All agents sharing the same provider share the same
+tracer. Use this to trace at the infrastructure level without
+configuring each agent individually.</p>
+
+<h4 id="tracer-provider-how-it-works">How it works</h4>
+
+<p>When you want every request through a provider to be traced, set
+the tracer on the provider directly. Every request made through
+that provider, regardless of which agent initiates it, flows
+through the same tracer hooks. The provider holds a reference to the
+tracer and passes it to every new context it creates. This ensures
+consistent observability without configuring each agent individually.</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::Logger.new(llm, io: $stdout)
+</code></pre>
+
+<h4 id="tracer-provider-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A provider-wide tracer captures every request at the infrastructure level.
+All agents sharing the same provider share the same tracer.</p>
+
+<h4 id="tracer-provider-notes">Notes</h4>
+
+<p>The tracer can also write to a file: <code>LLM::Tracer::Logger.new(llm,
+path: "deepseek.log")</code>.</p>
+
+<h3 id="tracer-agent">Agent</h3>
+
+<h4 id="tracer-agent-overview">Overview</h4>
+
+<p>An agent-local tracer only covers requests made by that agent.
+Attach it via <code>LLM::Agent.new(llm, tracer: ...)</code> and it follows
+that agent wherever it goes. Different agents can have different
+tracers.</p>
+
+<h4 id="tracer-agent-how-it-works">How it works</h4>
+
+<p>When you want a tracer for a specific agent, pass it to the agent
+on creation. Only requests made by
+that agent flow through the tracer, leaving other agents on the
+same provider unaffected.</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer::Logger.new(llm, io: $stdout))
+</code></pre>
+
+<h4 id="tracer-agent-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Agent-local tracers let each agent log differently.
+One agent might log to stdout, another to a file, a third to
+OpenTelemetry.</p>
+
+<h4 id="tracer-agent-notes">Notes</h4>
+
+<p>The tracer can also write to a file: <code>LLM::Tracer::Logger.new(llm,
+path: "deepseek-agent.log")</code>.</p>
+
+<hr />
+
+<h2 id="transports">Transports</h2>
+
+<h3 id="transports-introduction">Introduction</h3>
+
+<h4 id="transports-introduction-overview">Overview</h4>
+
+<p>The transport option selects which HTTP library is used for network
+communication.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html"><code>LLM::MCP</code></a>, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html"><code>LLM::A2A</code></a>
+all accept this option. Three backends are available out of the box:
+<code>net/http</code> is always there, <code>net/http/persistent</code> pools connections,
+and <code>curb</code> wraps libcurl. Each implements the same internal interface
+so switching between them is a one-word change.</p>
+
+<h4 id="transports-introduction-how-it-works">How it works</h4>
+
+<p><strong>Net/HTTP</strong> (<code>:net_http</code>) is the
+default and is always available. <strong>Net/HTTP/Persistent</strong>
+(<code>:net_http_persistent</code>) maintains a connection pool so the cost
+of tearing down and setting up connections is kept low. <strong>Curb</strong>
+(<code>:curb</code>) provides bindings for libcurl.</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: "...", transport: :net_http)
+mcp = LLM::MCP.http(url: "...", transport: :net_http_persistent)
+a2a = LLM::A2A.rest(url: "...", transport: :curb)
+</code></pre>
+
+<h4 id="transports-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Different environments have different HTTP needs.</p>
+
+<p>The default <code>net/http</code> transport is always available and works
+everywhere. The persistent transport reduces connection overhead
+when your agent makes many requests to the same provider in quick
+succession. Curb gives you libcurl bindings for environments where
+that is already configured or preferred.</p>
+
+<h4 id="transports-introduction-notes">Notes</h4>
+
+<p>The persistent transport is built on top of <code>net/http</code>. Curb
+requires the <code>curb</code> gem.</p>
+
+<hr />
+
+<h2 id="audio">Audio</h2>
+
+<h3 id="audio-introduction">Introduction</h3>
+
+<h4 id="audio-introduction-overview">Overview</h4>
+
+<p>The audio interface covers three things: turning text into speech,
+transcribing audio into text, and translating spoken language.
+OpenAI supports all three. Google and DeepInfra support subsets.
+Each method follows the same pattern: pass input, get output,
+copy the result somewhere useful.</p>
+
+<h4 id="audio-introduction-how-it-works">How it works</h4>
+
+<p>When you want to convert text to speech, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_speech"><code>LLM::Audio#create_speech</code></a>.
+The provider returns an audio clip as a <code>URIData</code> object. The generated audio can be copied
+to a file or streamed directly. Each provider supports different
+output formats and voice options:</p>
+
+<pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"])
+res = llm.audio.create_speech(input: "Hello world")
+IO.copy_stream res.audio.decoded, "helloworld.mp3"
+</code></pre>
+
+<h4 id="audio-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Audio support lets you build voice interfaces, add accessibility
+features, and work across languages without wiring up a separate
+speech service. Generate audio for notifications, narrate written
+content, or add speech output to an existing application with a
+single method call.</p>
+
+<h4 id="audio-introduction-notes">Notes</h4>
+
+<p>OpenAI has full audio support. Google and DeepInfra have partial
+support. The <code>create_speech</code> method returns a <code>URIData</code> object.</p>
+
+<h3 id="audio-transcription">Transcription</h3>
+
+<h4 id="audio-transcription-overview">Overview</h4>
+
+<p>Transcription turns an audio file into text. Pass a file path
+to <code>create_transcription</code> and get back the spoken content as
+a string. OpenAI, Google, and DeepInfra support it. Transcribe
+meeting notes, voice memos, or podcast episodes for search and
+processing. The response is plain text you can feed into any
+downstream pipeline.</p>
+
+<h4 id="audio-transcription-how-it-works">How it works</h4>
+
+<p>When you want to transcribe audio into text, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription"><code>LLM::Audio#create_transcription</code></a>.
+The provider processes the audio and returns the transcribed text. The file
+can be a local path or a URL depending on provider support:</p>
+
+<pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
+res = llm.audio.create_transcription(file: "helloworld.mp3")
+res.text  # =&gt; "Hello world"
+</code></pre>
+
+<h4 id="audio-transcription-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Transcribe recorded meetings, voice memos, or podcast episodes for
+search and processing. The returned text feeds directly into search
+indexes, summarization pipelines, or downstream extraction. Spoken
+content becomes as queryable as written text.</p>
+
+<h4 id="audio-transcription-notes">Notes</h4>
+
+<p>OpenAI has full audio support. Google and DeepInfra have partial
+support.</p>
+
+<h3 id="audio-translation">Translation</h3>
+
+<h4 id="audio-translation-overview">Overview</h4>
+
+<p>Translation transcribes audio and translates it into English in
+one step. Pass a file to <code>create_translation</code> and get back the
+translated text. OpenAI and Google support it. Translate
+multilingual podcasts, interviews, or any audio where you need
+the content in English without running a separate translation
+pipeline.</p>
+
+<h4 id="audio-translation-how-it-works">How it works</h4>
+
+<p>When you want to translate spoken audio into English, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_translation"><code>LLM::Audio#create_translation</code></a>.
+The provider transcribes the spoken language and translates the
+result into English in a single operation. The returned text is the English translation:</p>
+
+<pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
+res = llm.audio.create_translation(file: "bomdia.mp3")
+res.text  # =&gt; "Good day"
+</code></pre>
+
+<h4 id="audio-translation-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Translate a podcast or interview into another language without a
+separate speech service. The provider handles both transcription and
+translation in a single call, so you get English text from any
+supported source language without chaining two operations together.</p>
+
+<h4 id="audio-translation-notes">Notes</h4>
+
+<p>Each method works independently and each provider supports a
+different subset.</p>
+
+<hr />
+
+<h2 id="images">Images</h2>
+
+<h3 id="images-introduction">Introduction</h3>
+
+<h4 id="images-introduction-overview">Overview</h4>
+
+<p>A handful of providers can generate images from a text prompt.
+OpenAI, Google, xAI, DeepInfra, and DeepSeek all support it.
+OpenAI, xAI, and DeepInfra also let you edit existing images.
+The API is the same across providers, so switching between them
+requires no code changes.</p>
+
+<h4 id="images-introduction-how-it-works">How it works</h4>
+
+<p>The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#create"><code>LLM::Images#create</code></a>
+method sends a prompt to the provider and
+returns the result as a <code>URIData</code> object. The same API works
+across providers: swap <code>LLM.openai</code> for <code>LLM.xai</code> and the rest
+of the code is identical.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+res = llm.images.create(prompt: "a dog on a rocket to the moon")
+IO.copy_stream res.images[0], "dogrocket.png"
+</code></pre>
+
+<h4 id="images-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Image generation and editing let the model produce visual output
+directly from your prompts. The API is the same across providers,
+so switching between OpenAI and xAI requires changing one line.
+Prototype visual concepts, generate assets, or augment datasets
+without wiring up a separate image API.</p>
+
+<h4 id="images-introduction-notes">Notes</h4>
+
+<p>Google only supports image generation, not edits. DeepSeek
+generates SVGs rather than raster images. DeepSeek can also
+maintain a session across multiple generations through the
+<code>agent</code> parameter on the response object.</p>
+
+<h3 id="images-editing">Editing</h3>
+
+<h4 id="images-editing-overview">Overview</h4>
+
+<p>Image editing takes an existing image and a text prompt, then
+produces a modified version. You can add objects, change colours,
+or alter the scene while keeping the original composition.
+OpenAI, xAI, and DeepInfra support raster image edits. DeepSeek
+generates SVG documents which can be refined with follow-up
+text-to-image prompts, giving you iterative vector editing.</p>
+
+<h4 id="images-editing-how-it-works">How it works</h4>
+
+<p>The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#edit"><code>LLM::Images#edit</code></a>
+method takes a prompt and an image path. It
+returns a modified image as a <code>URIData</code> object. Copy the result
+to a file the same way you would with generated images.</p>
+
+<pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"])
+res = llm.images.edit(prompt: "add a mustache", image: "self.jpg")
+IO.copy_stream res.images[0], "mustache.png"
+</code></pre>
+
+<h4 id="images-editing-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Editing lets the model modify existing images rather than starting
+from scratch. DeepSeek’s SVG output is particularly useful here
+because vector graphics can be refined iteratively. Make targeted
+adjustments: add objects, change colours, or alter the scene,
+all while keeping the original composition intact.</p>
+
+<h4 id="images-editing-notes">Notes</h4>
+
+<p>Google does not support image edits. DeepSeek can maintain a
+session across multiple generations through the <code>agent</code> parameter
+on the response object.</p>
+
+<hr />
+
+<h2 id="ocr">OCR</h2>
+
+<h3 id="ocr-introduction">Introduction</h3>
+
+<h4 id="ocr-introduction-overview">Overview</h4>
+
+<p>OCR pulls text out of images and PDFs so you can search, index,
+or process scanned content. Mistral is the only provider with a
+dedicated OCR endpoint, and it accepts both image URLs and
+document URLs.</p>
+
+<h4 id="ocr-introduction-how-it-works">How it works</h4>
+
+<p>Mistral is the only provider with a dedicated OCR endpoint. The
+<code>ocr</code> method accepts an <code>image_url:</code> or <code>document_url:</code> parameter.
+Document URLs can point to PDFs.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.mistral(key: ENV["KEY"])
+
+# Extract text from an image
+res = llm.ocr(image_url: "https://example.com/photo.png")
+res.pages.each { |page| puts page.markdown }
+
+# Extract text from a PDF
+res = llm.ocr(document_url: "https://example.com/report.pdf")
+res.pages.each { |page| puts page.markdown }
+</code></pre>
+
+<h4 id="ocr-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>OCR extracts text from scanned documents and images. The result
+feeds into search indexes, extraction pipelines that pull out dates
+and amounts, or archives so scanned contracts become searchable
+records. PDFs and images both work, and the response is structured
+per page with markdown.</p>
+
+<h4 id="ocr-introduction-notes">Notes</h4>
+
+<p>Only Mistral currently supports OCR through the llm.rb runtime.
+The response exposes pages through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/OCR/Response.html#pages"><code>LLM::OCR::Response#pages</code></a>,
+where each page
+has a <code>markdown</code> field containing the extracted text.</p>
+
+<hr />
+
+<h2 id="a2a">A2A</h2>
+
+<h3 id="a2a-introduction">Introduction</h3>
+
+<h4 id="a2a-introduction-overview">Overview</h4>
+
+<p>The Agent-to-Agent (A2A) protocol lets agents communicate directly
+over a network. Unlike MCP, which connects an agent to external
+tools, A2A connects agents to other agents. A remote agent advertises
+its skills through a card. The calling agent loads those skills as
+local tools and calls them the same way it calls any other tool.
+One agent can research, another can code, a third can review.</p>
+
+<h4 id="a2a-introduction-how-it-works">How it works</h4>
+
+<p>The REST transport communicates over standard HTTP and JSON. Both
+transports expose the remote agent’s skills as local
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+subclasses.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h4 id="a2a-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A2A lets you compose autonomous agents that delegate and collaborate.
+One agent researches a topic. Another writes code. A third reviews
+the result. Each agent runs independently and communicates over
+the network.</p>
+
+<h4 id="a2a-introduction-notes">Notes</h4>
+
+<p>An agent’s capabilities are advertised through a card. Use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
+to discover which transports a remote agent
+supports.</p>
+
+<h3 id="a2a-json-rpc">JSON-RPC</h3>
+
+<h4 id="a2a-json-rpc-overview">Overview</h4>
+
+<p>JSON-RPC is an alternative transport for A2A agents. It uses a
+more structured protocol than REST, with request and response
+objects that follow the JSON-RPC 2.0 spec. Some agents advertise
+only JSON-RPC, others advertise both. Check
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
+to
+see what a remote agent supports before choosing a transport.</p>
+
+<h4 id="a2a-json-rpc-how-it-works">How it works</h4>
+
+<p>When you want to connect to a remote A2A agent using JSON-RPC,
+provide a URL and optional headers. The agent’s skill list is
+fetched and translated into
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> subclasses the model can call.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.jsonrpc(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h4 id="a2a-json-rpc-why-would-i-use-it">Why would I use it?</h4>
+
+<p>JSON-RPC provides typed request and response objects that follow
+the 2.0 spec, offering a more structured protocol than REST. Some
+agents advertise only JSON-RPC, while others advertise both. Check
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
+to see what a remote agent supports before
+choosing a transport.</p>
+
+<h4 id="a2a-json-rpc-notes">Notes</h4>
+
+<p>Both transports expose the remote agent’s skills as local
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+subclasses, so the calling agent calls them the same way it
+calls any other tool.</p>
+
+<hr />
+
+<h2 id="mcp">MCP</h2>
+
+<h3 id="mcp-introduction">Introduction</h3>
+
+<h4 id="mcp-introduction-overview">Overview</h4>
+
+<p>The Model Context Protocol (MCP) connects agents to external tools
+and data sources through a standardized interface. Instead of
+wiring each service directly into your agent, you run an MCP
+server that exposes its capabilities. The runtime translates the
+server’s tool list into
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+subclasses the model can call.</p>
+
+<h4 id="mcp-introduction-how-it-works">How it works</h4>
+
+<p>The stdio transport runs the server as a child process and
+communicates over stdin/stdout. Use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+to avoid launching the same process multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
+agent = LLM::Agent.new(llm)
+
+mcp.session do
+  agent.talk "What's happening on forgejo?", tools: mcp.tools
+end
+</code></pre>
+
+<h4 id="mcp-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>MCP decouples tool implementation from the agent. Add tools by
+launching a new MCP server. Update them by restarting an existing
+one. Remove them without touching the agent’s code.</p>
+
+<h4 id="mcp-introduction-notes">Notes</h4>
+
+<p>For stdio, use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+to avoid launching the same process multiple times. For HTTP,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+carries little benefit.</p>
+
+<h3 id="mcp-http">HTTP</h3>
+
+<h4 id="mcp-http-overview">Overview</h4>
+
+<p>The HTTP transport connects to a remote MCP server over HTTP.
+It is the right choice for cloud-hosted servers like GitHub’s
+MCP endpoint. Tools exposed by the server become <code>LLM::Tool</code>
+subclasses the model can call. The server does not need to run
+locally or even on the same machine. Configure headers for
+authentication and pick a transport backend for connection
+management.</p>
+
+<h4 id="mcp-http-how-it-works">How it works</h4>
+
+<p>When you want to connect to a remote MCP server, provide a URL and
+optional headers. The server’s tool list is fetched and translated
+into
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> subclasses the model can call.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {
+    "Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"
+  },
+  transport: :net_http_persistent
+)
+agent = LLM::Agent.new(llm)
+agent.talk "What's happening on GitHub?", tools: mcp.tools
+</code></pre>
+
+<h4 id="mcp-http-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The HTTP transport connects to remote MCP servers. This matters
+when the server is not running locally or when tools are maintained
+by a different team and exposed as a service.</p>
+
+<h4 id="mcp-http-notes">Notes</h4>
+
+<p>For HTTP,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+carries little benefit. Use the
+<code>net_http_persistent</code> transport to avoid tearing down connections
+repeatedly.</p>
+
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

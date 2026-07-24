@@ -18,24 +18,6 @@ class Router < Roda
       r.get("index.html") { resume! }
     end
 
-    r.on "llm", "deepdive" do
-      r.get(true) { deepdive_index! }
-      r.root { deepdive_index! }
-      r.get("index.html") { deepdive_index! }
-
-      r.on "book" do
-        r.get(true) { deepdive_book! }
-        r.root { deepdive_book! }
-        r.get("index.html") { deepdive_book! }
-      end
-
-      r.on String, String do |group, topic|
-        r.get(true) { deepdive_topic!(group, topic) }
-        r.root { deepdive_topic!(group, topic) }
-        r.get("index.html") { deepdive_topic!(group, topic) }
-      end
-    end
-
     r.on "api", "guides" do
       r.get "search" do
         rg(guides).search(r.params["q"])
@@ -138,22 +120,4 @@ class Router < Roda
     view("resume", engine: "md", layout: "resume")
   end
 
-  def deepdive_index!
-    response["content-type"] = "text/html"
-    DeepdivePage.new.render
-  end
-
-  def deepdive_book!
-    response["content-type"] = "text/html"
-    DeepdivePage.new.render_book
-  end
-
-  def deepdive_topic!(group, topic)
-    response["content-type"] = "text/html"
-    body = DeepdivePage.new.render_topic(group, topic)
-    return body if body
-
-    response.status = 404
-    "Not found"
-  end
 end

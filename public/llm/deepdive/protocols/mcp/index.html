@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MCP · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/protocols/mcp/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="The Model Context Protocol (MCP) connects agents to external tools and data sources through a standardized interface. Instead of wiring each service directly into your agent, you run an MCP server that exposes its capabilities. The runtime translates the server's tool list into `LLM::Tool` subclasses the model can call.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="MCP · llm.rb deep dive">
+    <meta property="og:description" content="The Model Context Protocol (MCP) connects agents to external tools and data sources through a standardized interface. Instead of wiring each service directly into your agent, you run an MCP server that exposes its capabilities. The runtime translates the server's tool list into `LLM::Tool` subclasses the model can call.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/protocols/mcp/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="MCP · llm.rb deep dive">
+    <meta name="twitter:description" content="The Model Context Protocol (MCP) connects agents to external tools and data sources through a standardized interface. Instead of wiring each service directly into your agent, you run an MCP server that exposes its capabilities. The runtime translates the server's tool list into `LLM::Tool` subclasses the model can call.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/" class="is-active">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/protocols/a2a/">← A2A</a>
+
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="mcp">MCP</h2>
+
+<h3 id="mcp-introduction">Introduction</h3>
+
+<h4 id="mcp-introduction-overview">Overview</h4>
+
+<p>The Model Context Protocol (MCP) connects agents to external tools
+and data sources through a standardized interface. Instead of
+wiring each service directly into your agent, you run an MCP
+server that exposes its capabilities. The runtime translates the
+server’s tool list into
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+subclasses the model can call.</p>
+
+<h4 id="mcp-introduction-how-it-works">How it works</h4>
+
+<p>The stdio transport runs the server as a child process and
+communicates over stdin/stdout. Use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+to avoid launching the same process multiple times.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.stdio(argv: ["npx", "-y", "@forgejo/mcp-server"])
+agent = LLM::Agent.new(llm)
+
+mcp.session do
+  agent.talk "What's happening on forgejo?", tools: mcp.tools
+end
+</code></pre>
+
+<h4 id="mcp-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>MCP decouples tool implementation from the agent. Add tools by
+launching a new MCP server. Update them by restarting an existing
+one. Remove them without touching the agent’s code.</p>
+
+<h4 id="mcp-introduction-notes">Notes</h4>
+
+<p>For stdio, use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+to avoid launching the same process multiple times. For HTTP,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+carries little benefit.</p>
+
+<h3 id="mcp-http">HTTP</h3>
+
+<h4 id="mcp-http-overview">Overview</h4>
+
+<p>The HTTP transport connects to a remote MCP server over HTTP.
+It is the right choice for cloud-hosted servers like GitHub’s
+MCP endpoint. Tools exposed by the server become <code>LLM::Tool</code>
+subclasses the model can call. The server does not need to run
+locally or even on the same machine. Configure headers for
+authentication and pick a transport backend for connection
+management.</p>
+
+<h4 id="mcp-http-how-it-works">How it works</h4>
+
+<p>When you want to connect to a remote MCP server, provide a URL and
+optional headers. The server’s tool list is fetched and translated
+into
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> subclasses the model can call.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+mcp   = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {
+    "Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"
+  },
+  transport: :net_http_persistent
+)
+agent = LLM::Agent.new(llm)
+agent.talk "What's happening on GitHub?", tools: mcp.tools
+</code></pre>
+
+<h4 id="mcp-http-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The HTTP transport connects to remote MCP servers. This matters
+when the server is not running locally or when tools are maintained
+by a different team and exposed as a service.</p>
+
+<h4 id="mcp-http-notes">Notes</h4>
+
+<p>For HTTP,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
+carries little benefit. Use the
+<code>net_http_persistent</code> transport to avoid tearing down connections
+repeatedly.</p>
+
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/protocols/a2a/">← A2A</a>
+
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

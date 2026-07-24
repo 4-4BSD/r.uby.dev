@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="A deeper tour of llm.rb, organized into focused topic pages covering fundamentals, advanced runtime behavior, interfaces, and protocols.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="llm.rb deep dive">
+    <meta property="og:description" content="A deeper tour of llm.rb, organized into focused topic pages covering fundamentals, advanced runtime behavior, interfaces, and protocols.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="llm.rb deep dive">
+    <meta name="twitter:description" content="A deeper tour of llm.rb, organized into focused topic pages covering fundamentals, advanced runtime behavior, interfaces, and protocols.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-index">
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <p class="deepdive-back">Deep dive</p>
+      <details class="deepdive-group-nav" open>
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/" class="is-active">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav">
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav">
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav">
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav">
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+    </aside>
+    <article class="deepdive-content">
+
+        <p align="center">
+  <a href="https://r.uby.dev/llm/">
+    <img src="https://github.com/r-uby-dev/llm.rb/raw/main/rubydev.svg" width="400" height="200" border="0" alt="a r.uby.dev project" />
+  </a>
+</p>
+
+<blockquote>
+  <p>A <a href="https://r.uby.dev">r.uby.dev</a> project.</p>
+</blockquote>
+
+<h2 id="welcome">Welcome</h2>
+
+<h3 id="introduction">Introduction</h3>
+
+<h4 id="overview">Overview</h4>
+
+<p>Welcome to the llm.rb deepdive. This document is a continuation
+of the <a href="https://r.uby.dev/llm">homepage documentation</a>. It assumes
+you are familiar with the basics already, and focuses on features
+that didn’t make it into the homepage documentation.</p>
+
+<p>An optimized version exists
+at <a href="https://r.uby.dev/llm/deepdive">https://r.uby.dev/llm/deepdive</a>
+that is both easier to read and navigate.</p>
+
+<h4 id="how-it-works">How it works</h4>
+
+<p>Each topic file follows a consistent four-part pattern:
+<code>#### Overview</code> introduces the concept, <code>#### How it works</code> shows
+code, <code>#### Why would I use it?</code> explains the use case, and
+<code>#### Notes</code> covers caveats and edge cases.</p>
+
+<h4 id="why-would-i-use-it">Why would I use it?</h4>
+
+<p>The deepdive documents everything the homepage leaves out:
+advanced patterns, configuration options, ORM integrations,
+protocol support, and edge cases. Read it when you need to go
+beyond the basics.</p>
+
+<h4 id="notes">Notes</h4>
+
+<p>The deepdive is a living document. Sections are added as new
+features land. The <a href="https://r.uby.dev/llm">homepage</a> is the best
+place to start if you are new to llm.rb.</p>
+
+
+      <div class="deepdive-groups">
+
+          <section class="deepdive-group">
+            <h2>Fundamentals</h2>
+            <ul class="deepdive-list">
+
+                <li>
+                  <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+                </li>
+
+            </ul>
+          </section>
+
+          <section class="deepdive-group">
+            <h2>Advanced</h2>
+            <ul class="deepdive-list">
+
+                <li>
+                  <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/advanced/context/">Context</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/advanced/database/">Database</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/advanced/transports/">Transports</a>
+                </li>
+
+            </ul>
+          </section>
+
+          <section class="deepdive-group">
+            <h2>Interface</h2>
+            <ul class="deepdive-list">
+
+                <li>
+                  <a href="/llm/deepdive/interface/audio/">Audio</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/interface/images/">Images</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/interface/ocr/">OCR</a>
+                </li>
+
+            </ul>
+          </section>
+
+          <section class="deepdive-group">
+            <h2>Protocols</h2>
+            <ul class="deepdive-list">
+
+                <li>
+                  <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+                </li>
+
+                <li>
+                  <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+                </li>
+
+            </ul>
+          </section>
+
+      </div>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

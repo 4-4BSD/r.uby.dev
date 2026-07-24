@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Images · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/interface/images/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="A handful of providers can generate images from a text prompt. OpenAI, Google, xAI, DeepInfra, and DeepSeek all support it. OpenAI, xAI, and DeepInfra also let you edit existing images. The API is the same across providers, so switching between them requires no code changes.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Images · llm.rb deep dive">
+    <meta property="og:description" content="A handful of providers can generate images from a text prompt. OpenAI, Google, xAI, DeepInfra, and DeepSeek all support it. OpenAI, xAI, and DeepInfra also let you edit existing images. The API is the same across providers, so switching between them requires no code changes.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/interface/images/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Images · llm.rb deep dive">
+    <meta name="twitter:description" content="A handful of providers can generate images from a text prompt. OpenAI, Google, xAI, DeepInfra, and DeepSeek all support it. OpenAI, xAI, and DeepInfra also let you edit existing images. The API is the same across providers, so switching between them requires no code changes.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/" class="is-active">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/interface/audio/">← Audio</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/interface/ocr/">OCR →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="images">Images</h2>
+
+<h3 id="images-introduction">Introduction</h3>
+
+<h4 id="images-introduction-overview">Overview</h4>
+
+<p>A handful of providers can generate images from a text prompt.
+OpenAI, Google, xAI, DeepInfra, and DeepSeek all support it.
+OpenAI, xAI, and DeepInfra also let you edit existing images.
+The API is the same across providers, so switching between them
+requires no code changes.</p>
+
+<h4 id="images-introduction-how-it-works">How it works</h4>
+
+<p>The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#create"><code>LLM::Images#create</code></a>
+method sends a prompt to the provider and
+returns the result as a <code>URIData</code> object. The same API works
+across providers: swap <code>LLM.openai</code> for <code>LLM.xai</code> and the rest
+of the code is identical.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+res = llm.images.create(prompt: "a dog on a rocket to the moon")
+IO.copy_stream res.images[0], "dogrocket.png"
+</code></pre>
+
+<h4 id="images-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Image generation and editing let the model produce visual output
+directly from your prompts. The API is the same across providers,
+so switching between OpenAI and xAI requires changing one line.
+Prototype visual concepts, generate assets, or augment datasets
+without wiring up a separate image API.</p>
+
+<h4 id="images-introduction-notes">Notes</h4>
+
+<p>Google only supports image generation, not edits. DeepSeek
+generates SVGs rather than raster images. DeepSeek can also
+maintain a session across multiple generations through the
+<code>agent</code> parameter on the response object.</p>
+
+<h3 id="images-editing">Editing</h3>
+
+<h4 id="images-editing-overview">Overview</h4>
+
+<p>Image editing takes an existing image and a text prompt, then
+produces a modified version. You can add objects, change colours,
+or alter the scene while keeping the original composition.
+OpenAI, xAI, and DeepInfra support raster image edits. DeepSeek
+generates SVG documents which can be refined with follow-up
+text-to-image prompts, giving you iterative vector editing.</p>
+
+<h4 id="images-editing-how-it-works">How it works</h4>
+
+<p>The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Images.html#edit"><code>LLM::Images#edit</code></a>
+method takes a prompt and an image path. It
+returns a modified image as a <code>URIData</code> object. Copy the result
+to a file the same way you would with generated images.</p>
+
+<pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"])
+res = llm.images.edit(prompt: "add a mustache", image: "self.jpg")
+IO.copy_stream res.images[0], "mustache.png"
+</code></pre>
+
+<h4 id="images-editing-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Editing lets the model modify existing images rather than starting
+from scratch. DeepSeek’s SVG output is particularly useful here
+because vector graphics can be refined iteratively. Make targeted
+adjustments: add objects, change colours, or alter the scene,
+all while keeping the original composition intact.</p>
+
+<h4 id="images-editing-notes">Notes</h4>
+
+<p>Google does not support image edits. DeepSeek can maintain a
+session across multiple generations through the <code>agent</code> parameter
+on the response object.</p>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/interface/audio/">← Audio</a>
+
+
+          <a href="/llm/deepdive/interface/ocr/">OCR →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

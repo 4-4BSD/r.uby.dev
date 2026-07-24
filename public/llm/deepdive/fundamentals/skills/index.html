@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Skills · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/fundamentals/skills/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="A skill turns a markdown file into a callable tool. Write the instructions in markdown, declare what tools the subagent needs in the frontmatter, and register the file with the parent agent. When the model calls the skill, the runtime spawns a fresh subagent with those instructions as its system prompt and only the tools you gave it. The subagent runs one turn and returns. Then it is discarded.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Skills · llm.rb deep dive">
+    <meta property="og:description" content="A skill turns a markdown file into a callable tool. Write the instructions in markdown, declare what tools the subagent needs in the frontmatter, and register the file with the parent agent. When the model calls the skill, the runtime spawns a fresh subagent with those instructions as its system prompt and only the tools you gave it. The subagent runs one turn and returns. Then it is discarded.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/fundamentals/skills/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Skills · llm.rb deep dive">
+    <meta name="twitter:description" content="A skill turns a markdown file into a callable tool. Write the instructions in markdown, declare what tools the subagent needs in the frontmatter, and register the file with the parent agent. When the model calls the skill, the runtime spawns a fresh subagent with those instructions as its system prompt and only the tools you gave it. The subagent runs one turn and returns. Then it is discarded.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/" class="is-active">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/fundamentals/schema/">← Schema</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/fundamentals/stream/">Stream →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="skills">Skills</h2>
+
+<h3 id="skills-introduction">Introduction</h3>
+
+<h4 id="skills-introduction-overview">Overview</h4>
+
+<p>A skill turns a markdown file into a callable tool. Write the
+instructions in markdown, declare what tools the subagent needs
+in the frontmatter, and register the file with the parent agent.
+When the model calls the skill, the runtime spawns a fresh subagent
+with those instructions as its system prompt and only the tools
+you gave it. The subagent runs one turn and returns. Then it is
+discarded.</p>
+
+<h4 id="skills-introduction-how-it-works">How it works</h4>
+
+<p>A parent agent works with zero or more skill files. Each skill
+is registered as a tool the model can call.</p>
+
+<p>When the model calls a skill, a subagent is created with:</p>
+
+<ul>
+  <li>Its own system prompt: the body of the SKILL.md file</li>
+  <li>Limited tools: only what you declare in the frontmatter</li>
+  <li>Context awareness: the last 8 user/assistant messages from the
+parent (tool calls stripped)</li>
+</ul>
+
+<p>The subagent runs one turn and returns. The parent sees the result
+like any other tool return.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, skills: ["./skills/git-log", "./skills/deploy"])
+agent.talk "Review the recent commits, then deploy if everything looks clean"
+</code></pre>
+
+<h4 id="skills-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Because each skill spawns a fresh subagent with constrained tools,
+you can build a clear hierarchy. The parent supervises, decides
+which skill to call, inspects the result, and can iterate or
+compose multiple skills.</p>
+
+<p>Each skill is focused. A changelog skill gets <code>git-log</code> and
+<code>write-file</code>, not the shell. A deploy skill gets deployment tools,
+not file readers.</p>
+
+<p>Skills are stateless. Every call is independent. No carryover, no
+cross-contamination.</p>
+
+<h4 id="skills-introduction-notes">Notes</h4>
+
+<p>Skills can also be attached to the REPL session without modifying
+the agent:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.repl(skills: [__dir__])
+</code></pre>
+
+<h3 id="skills-frontmatter">Frontmatter</h3>
+
+<h4 id="skills-frontmatter-overview">Overview</h4>
+
+<p>The frontmatter at the top of a skill file controls how the
+subagent sees itself and what it can reach. It sets the skill’s
+name (which becomes the tool name), a description (which the
+model reads to decide when to call it), and a tool list (which
+limits what the subagent can do). Leave the tools out and the
+subagent has none. Set them to <code>all</code> and it has everything.</p>
+
+<h4 id="skills-frontmatter-how-it-works">How it works</h4>
+
+<p>The frontmatter is parsed from the YAML block at the top of the
+file. The markdown body that follows becomes the subagent’s system
+prompt. The <code>tools</code> field resolves at load time: named tools are
+looked up in the registry, <code>inherit</code> copies from the parent context,
+and <code>all</code> grabs everything available.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>A short identifier for the skill. Used as the tool name.</td>
+    </tr>
+    <tr>
+      <td><code>description</code></td>
+      <td>Explains to the model what the skill does. Used as the tool description.</td>
+    </tr>
+    <tr>
+      <td><code>tools</code></td>
+      <td>Controls what the subagent can call. See below.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The <code>tools</code> field accepts four forms:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Behavior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>inherit</code></td>
+      <td>Copies the parent agent’s tools, excluding other skills.</td>
+    </tr>
+    <tr>
+      <td><code>all</code> or <code>*</code></td>
+      <td>Every tool in the global registry.</td>
+    </tr>
+    <tr>
+      <td><code>['name1', 'name2']</code></td>
+      <td>Only the named tools. Raises an error if not found.</td>
+    </tr>
+    <tr>
+      <td>(omitted)</td>
+      <td>No tools at all.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="skills-frontmatter-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The frontmatter is how you configure what a skill can do and what
+tools it has access to. <code>inherit</code> copies the parent’s capabilities
+into the skill. An explicit list restricts the subagent to only
+the tools it needs.</p>
+
+<h4 id="skills-frontmatter-notes">Notes</h4>
+
+<p>The fewer tools a subagent has, the less it can wander.</p>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/fundamentals/schema/">← Schema</a>
+
+
+          <a href="/llm/deepdive/fundamentals/stream/">Stream →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

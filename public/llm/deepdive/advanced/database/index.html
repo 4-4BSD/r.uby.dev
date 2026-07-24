@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Database · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/advanced/database/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Three storage backends are available:">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Database · llm.rb deep dive">
+    <meta property="og:description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Three storage backends are available:">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/advanced/database/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Database · llm.rb deep dive">
+    <meta name="twitter:description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Three storage backends are available:">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/" class="is-active">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/advanced/context/">← Context</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/advanced/tracer/">Tracer →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="database">Database</h2>
+<h3 id="database-introduction">Introduction</h3>
+
+<h4 id="database-introduction-overview">Overview</h4>
+
+<p>Persistence lets an agent outlive a single session. The conversation
+history, model name, and compaction status are serialized as JSON
+that can be stored in a file, a database column, or transmitted
+over a network. Three storage backends are available:</p>
+
+<ul>
+  <li><strong>Filesystem</strong>: save and restore from a JSON file on disk</li>
+  <li><strong>ActiveRecord</strong>: persist state in a database column using <code>acts_as_agent</code></li>
+  <li><strong>Sequel</strong>: persist state in a database column using <code>plugin :agent</code></li>
+</ul>
+
+<p>All three use the same serialization mechanism under the hood.</p>
+
+<h4 id="database-introduction-how-it-works">How it works</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+implements <code>to_h</code> and <code>to_json</code> for serialization and <code>restore</code>
+for deserialization. Save writes the current state, restore loads
+it back and picks up where the conversation left off. The ORM
+wrappers automate this; each <code>talk</code> or <code>ask</code> call persists the
+updated state back to the column automatically.</p>
+
+<h4 id="database-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Without persistence, every agent starts with a blank conversation.
+Persistence enables long-running agents that survive process
+restarts, debugging sessions that resume mid-investigation, and
+conversation history that can be queried alongside application
+data.</p>
+
+<h4 id="database-introduction-notes">Notes</h4>
+
+<p>The saved JSON can be stored in a file, a database column, or
+transmitted over the network. The ORM integrations use the same
+underlying serialization as filesystem persistence.</p>
+
+<h3 id="database-filesystem">Filesystem</h3>
+
+<h4 id="database-filesystem-overview">Overview</h4>
+
+<p>A conversation that ends when the process exits is not very useful.
+Serialization saves the context (message history, model name,
+compaction status) as JSON that can be stored in a string, a
+file, or a database column. Restore it later, in a different
+process or on a different machine, and pick up where you left off.</p>
+
+<h4 id="database-filesystem-how-it-works">How it works</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
+implements <code>to_h</code> and <code>to_json</code> for serialization
+and <code>restore</code> for deserialization. The serialized state includes
+the message history, model name, and compaction status. Save and
+restore work with file paths or in-memory strings. You can also
+serialize to a JSON string for database storage or network
+transmission:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+
+# Save to file
+agent1 = LLM::Agent.new(llm)
+agent1.talk "remember my name is robert"
+agent1.save(path: "agent.json")
+
+# Restore from file
+agent2 = LLM::Agent.new(llm, stream: $stdout)
+agent2.restore(path: "agent.json")
+agent2.talk "what's my name?"
+
+# Or serialize to a JSON string
+json = agent1.save
+agent3.restore(string: json)
+</code></pre>
+
+<h4 id="database-filesystem-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Filesystem persistence is the foundation for long-running agents
+that outlive a single session. Save a debugging session
+mid-investigation and resume it tomorrow. Store a completed
+conversation as evidence or training data. Pass context between
+processes, between machines, or through a job queue.</p>
+
+<h4 id="database-filesystem-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+delegates serialization to its internal context. The
+saved JSON can be stored in a file, a database column, or
+transmitted over the network.</p>
+
+<h3 id="database-activerecord">ActiveRecord</h3>
+
+<h4 id="database-activerecord-overview">Overview</h4>
+
+<p>ActiveRecord models use <code>acts_as_agent</code> to install the agent
+wrapper. The method accepts a block for configuring agent defaults
+and an options hash for storage format. Most defaults such as
+<code>model</code>, <code>tools</code>, <code>instructions</code>, <code>schema</code>, and <code>concurrency</code> can
+be set through the block. Tracer and stream can also be set here
+rather than through legacy convention methods.</p>
+
+<h4 id="database-activerecord-how-it-works">How it works</h4>
+
+<p>When you want to add agent persistence to an ActiveRecord model,
+call <code>acts_as_agent</code> in the model class. The <code>data</code> column stores
+the full agent state (conversation history, model name, compaction
+status) as JSON. On first call, a fresh agent is created and the
+conversation starts from scratch.</p>
+
+<p>On subsequent calls, the stored state is restored and the
+conversation continues. Every <code>talk</code> or <code>ask</code> call persists the
+updated state back to the column automatically.</p>
+
+<p>The <code>data_column:</code> option lets you use a different column name.
+The <code>format:</code> option controls the storage type. Use <code>:string</code> for
+a text column (any database) or <code>:jsonb</code> for a native PostgreSQL
+JSONB column (recommended for PostgreSQL). For <code>:jsonb</code>,
+ActiveRecord handles JSON typecasting automatically.</p>
+
+<p>The block yields an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+instance. Set agent defaults in the block using the <code>set</code> method
+or individual accessors. Anything you can set on an agent can be
+configured here – model, tools, instructions, schema, concurrency,
+tracer, stream, and confirm:</p>
+
+<p>Note that <code>tracer</code> and <code>stream</code> are set directly in the block
+rather than through legacy <code>set_tracer</code> / <code>set_context</code> convention
+methods. The block style is the recommended approach for all agent
+configuration. Only <code>set_provider</code> is required as a private method.</p>
+
+<pre><code class="language-ruby"># Migration for the data column
+class CreateAgents &lt; ActiveRecord::Migration[7.1]
+  def change
+    create_table :agents do |t|
+      t.string :name
+      t.text :data   # stores the serialized agent state
+      t.timestamps
+    end
+  end
+end
+
+# Or with PostgreSQL JSONB
+class CreateAgents &lt; ActiveRecord::Migration[7.1]
+  def change
+    create_table :agents do |t|
+      t.string :name
+      t.jsonb :data  # native JSON storage, supports indexing
+      t.timestamps
+    end
+  end
+end
+
+# Model setup
+require "active_record"
+require "llm"
+require "llm/active_record"
+
+class Agent &lt; ApplicationRecord
+  acts_as_agent(format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+    agent.tracer LLM::Tracer::Logger.new(llm, io: $stdout)
+  end
+
+  private
+
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+end
+
+agent = Agent.create!(name: "researcher")
+agent.talk "perform research"
+# state is saved to the data column automatically
+</code></pre>
+
+<h4 id="database-activerecord-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The ActiveRecord wrapper integrates with your existing models.
+Agent state is automatically persisted after each conversation turn
+using the same <code>create!</code>, <code>save!</code>, and query methods you already
+use.</p>
+
+<h4 id="database-activerecord-notes">Notes</h4>
+
+<p>The <code>format</code> option defaults to <code>:string</code>. Use <code>:json</code> or <code>:jsonb</code>
+for PostgreSQL. JSONB is recommended; it supports indexing and
+is more efficient for querying. The <code>data_column</code> option defaults
+to <code>:data</code> – create a migration to add a <code>TEXT</code> or <code>JSONB</code> column
+to your table.</p>
+
+<p>The model requires a <code>set_provider</code> private method that returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>
+instance. Legacy <code>set_context</code> and <code>set_tracer</code> convention methods
+also work for backwards compatibility, but the block style
+(<code>agent.tracer ...</code>, <code>agent.stream ...</code>) is preferred for all
+agent-level configuration.</p>
+
+<h3 id="database-sequel">Sequel</h3>
+
+<h4 id="database-sequel-overview">Overview</h4>
+
+<p>Sequel models use <code>plugin :agent</code> to install the agent wrapper.
+The plugin accepts the same options as <code>acts_as_agent</code> and follows
+the same conventions for provider resolution and state persistence.
+On first call, a fresh agent is created and the conversation starts
+from scratch. On subsequent calls, the stored state is restored and
+the conversation continues automatically.</p>
+
+<h4 id="database-sequel-how-it-works">How it works</h4>
+
+<p>When you want to add agent persistence to a Sequel model, register
+the plugin in the model class. The <code>data</code> column stores
+the full agent state as JSON, same structure as ActiveRecord.
+On first call, a fresh agent is created. On subsequent calls,
+the stored state is restored and the conversation continues.
+Every <code>talk</code> or <code>ask</code> call persists the updated state.</p>
+
+<p>The <code>data_column:</code> and <code>format:</code> options work identically to
+ActiveRecord. For <code>:jsonb</code>, Sequel loads the <code>pg_json</code> extension
+automatically and handles JSON typecasting. The block yields an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+instance. Configure agent defaults in the block – model, tools,
+instructions, tracer, stream, and confirm all go here:</p>
+
+<p>As with ActiveRecord, <code>tracer</code> and <code>stream</code> are configured in the
+block rather than through legacy convention methods. The block
+style is the recommended approach.</p>
+
+<pre><code class="language-ruby">require "sequel"
+require "llm"
+require "llm/sequel/plugin"
+
+# Migration for the data column
+DB.create_table :agents do
+  primary_key :id
+  String :name
+  String :data       # stores the serialized agent state
+  DateTime :created_at
+  DateTime :updated_at
+end
+
+# Or with PostgreSQL JSONB
+DB.create_table :agents do
+  primary_key :id
+  String :name
+  column :data, :jsonb  # native JSON storage
+  DateTime :created_at
+  DateTime :updated_at
+end
+
+# Model setup
+class Agent &lt; Sequel::Model
+  plugin(:agent, format: :jsonb) do |agent|
+    agent.model "deepseek-v4-pro"
+    agent.instructions "solve the user's query"
+    agent.tools [Research, FinalizeResearch, ActOnResearch]
+    agent.tracer LLM::Tracer::Logger.new(llm, io: $stdout)
+  end
+
+  private
+
+  def set_provider
+    LLM.deepseek(key: ENV["KEY"])
+  end
+end
+
+agent = Agent.create(name: "researcher")
+agent.talk "perform research"
+# state is saved to the data column automatically
+</code></pre>
+
+<h4 id="database-sequel-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The Sequel plugin integrates with your existing models.
+It follows the same conventions as ActiveRecord, so
+switching between the two requires minimal code changes.</p>
+
+<h4 id="database-sequel-notes">Notes</h4>
+
+<p>The <code>format</code> option defaults to <code>:string</code>. Use <code>:json</code> or <code>:jsonb</code>
+for PostgreSQL. Sequel loads the <code>pg_json</code> extension automatically
+and wraps JSON values for native storage. JSONB is recommended.
+The <code>data_column</code> option defaults to <code>:data</code>.</p>
+
+<p>The model requires a <code>set_provider</code> private method that returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html"><code>LLM::Provider</code></a>
+instance. Legacy <code>set_context</code> and <code>set_tracer</code> convention methods
+also work for backwards compatibility, but configuring tracer,
+stream, and other agent options in the block is the preferred
+approach.</p>
+
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/advanced/context/">← Context</a>
+
+
+          <a href="/llm/deepdive/advanced/tracer/">Tracer →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

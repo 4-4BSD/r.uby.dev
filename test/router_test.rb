@@ -65,38 +65,6 @@ class RouterTest < Minitest::Test
     assert_includes body["contents"], "JavaScript Object Notation"
   end
 
-  def test_llm_deepdive
-    get "/llm/deepdive/"
-    assert_equal last_response.status, 200
-    assert_equal last_response.headers["content-type"], "text/html"
-    assert_includes last_response.body, "llm.rb deep dive"
-    assert_includes last_response.body, "/llm/deepdive/fundamentals/agents/"
-    assert_includes last_response.body, "Fundamentals"
-  end
-
-  def test_llm_deepdive_topic
-    get "/llm/deepdive/fundamentals/agents/"
-    assert_equal last_response.status, 200
-    assert_equal last_response.headers["content-type"], "text/html"
-    assert_includes last_response.body, "Deep dive"
-    assert_includes last_response.body, "Reusable agents"
-    assert_includes last_response.body, "Throwaway agents"
-  end
-
-  def test_llm_deepdive_topic_not_found
-    get "/llm/deepdive/fundamentals/nope/"
-    assert_equal last_response.status, 404
-  end
-
-  def test_llm_deepdive_book
-    get "/llm/deepdive/book/"
-    assert_equal last_response.status, 200
-    assert_equal last_response.headers["content-type"], "text/html"
-    assert_includes last_response.body, "Deep dive"
-    assert_includes last_response.body, "Reusable agents"
-    assert_includes last_response.body, "Pending functions"
-  end
-
   private
 
   def app

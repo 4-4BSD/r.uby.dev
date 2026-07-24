@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A2A · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/protocols/a2a/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="The Agent-to-Agent (A2A) protocol lets agents communicate directly over a network. Unlike MCP, which connects an agent to external tools, A2A connects agents to other agents. A remote agent advertises its skills through a card. The calling agent loads those skills as local tools and calls them the same way it calls any other tool. One agent can research, another can code, a third can review.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="A2A · llm.rb deep dive">
+    <meta property="og:description" content="The Agent-to-Agent (A2A) protocol lets agents communicate directly over a network. Unlike MCP, which connects an agent to external tools, A2A connects agents to other agents. A remote agent advertises its skills through a card. The calling agent loads those skills as local tools and calls them the same way it calls any other tool. One agent can research, another can code, a third can review.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/protocols/a2a/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="A2A · llm.rb deep dive">
+    <meta name="twitter:description" content="The Agent-to-Agent (A2A) protocol lets agents communicate directly over a network. Unlike MCP, which connects an agent to external tools, A2A connects agents to other agents. A remote agent advertises its skills through a card. The calling agent loads those skills as local tools and calls them the same way it calls any other tool. One agent can research, another can code, a third can review.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/" class="is-active">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/interface/ocr/">← OCR</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/protocols/mcp/">MCP →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="a2a">A2A</h2>
+
+<h3 id="a2a-introduction">Introduction</h3>
+
+<h4 id="a2a-introduction-overview">Overview</h4>
+
+<p>The Agent-to-Agent (A2A) protocol lets agents communicate directly
+over a network. Unlike MCP, which connects an agent to external
+tools, A2A connects agents to other agents. A remote agent advertises
+its skills through a card. The calling agent loads those skills as
+local tools and calls them the same way it calls any other tool.
+One agent can research, another can code, a third can review.</p>
+
+<h4 id="a2a-introduction-how-it-works">How it works</h4>
+
+<p>The REST transport communicates over standard HTTP and JSON. Both
+transports expose the remote agent’s skills as local
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+subclasses.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.rest(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h4 id="a2a-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A2A lets you compose autonomous agents that delegate and collaborate.
+One agent researches a topic. Another writes code. A third reviews
+the result. Each agent runs independently and communicates over
+the network.</p>
+
+<h4 id="a2a-introduction-notes">Notes</h4>
+
+<p>An agent’s capabilities are advertised through a card. Use
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
+to discover which transports a remote agent
+supports.</p>
+
+<h3 id="a2a-json-rpc">JSON-RPC</h3>
+
+<h4 id="a2a-json-rpc-overview">Overview</h4>
+
+<p>JSON-RPC is an alternative transport for A2A agents. It uses a
+more structured protocol than REST, with request and response
+objects that follow the JSON-RPC 2.0 spec. Some agents advertise
+only JSON-RPC, others advertise both. Check
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
+to
+see what a remote agent supports before choosing a transport.</p>
+
+<h4 id="a2a-json-rpc-how-it-works">How it works</h4>
+
+<p>When you want to connect to a remote A2A agent using JSON-RPC,
+provide a URL and optional headers. The agent’s skill list is
+fetched and translated into
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a> subclasses the model can call.</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+a2a   = LLM::A2A.jsonrpc(url: "https://agent.example.com")
+agent = LLM::Agent.new(llm, tools: a2a.skills)
+agent.talk "What's happening, fellow agent?"
+</code></pre>
+
+<h4 id="a2a-json-rpc-why-would-i-use-it">Why would I use it?</h4>
+
+<p>JSON-RPC provides typed request and response objects that follow
+the 2.0 spec, offering a more structured protocol than REST. Some
+agents advertise only JSON-RPC, while others advertise both. Check
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
+to see what a remote agent supports before
+choosing a transport.</p>
+
+<h4 id="a2a-json-rpc-notes">Notes</h4>
+
+<p>Both transports expose the remote agent’s skills as local
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+subclasses, so the calling agent calls them the same way it
+calls any other tool.</p>
+
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/interface/ocr/">← OCR</a>
+
+
+          <a href="/llm/deepdive/protocols/mcp/">MCP →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

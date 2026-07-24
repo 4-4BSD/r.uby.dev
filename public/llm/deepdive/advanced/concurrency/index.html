@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Concurrency · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/advanced/concurrency/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="llm.rb supports six concurrency strategies for tool execution: `:sequential`, `:thread`, `:fiber`, `:async`, `:fork`, and `:ractor`. Each implements the same interface (`spawn`, `wait`, `alive?`, `interrupt!`), so the caller never has to care which strategy is behind a given task.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Concurrency · llm.rb deep dive">
+    <meta property="og:description" content="llm.rb supports six concurrency strategies for tool execution: `:sequential`, `:thread`, `:fiber`, `:async`, `:fork`, and `:ractor`. Each implements the same interface (`spawn`, `wait`, `alive?`, `interrupt!`), so the caller never has to care which strategy is behind a given task.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/advanced/concurrency/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Concurrency · llm.rb deep dive">
+    <meta name="twitter:description" content="llm.rb supports six concurrency strategies for tool execution: `:sequential`, `:thread`, `:fiber`, `:async`, `:fork`, and `:ractor`. Each implements the same interface (`spawn`, `wait`, `alive?`, `interrupt!`), so the caller never has to care which strategy is behind a given task.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/concurrency/" class="is-active">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Interface</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/interface/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/interface/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/advanced/compaction/">← Compaction</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/advanced/context/">Context →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="concurrency">Concurrency</h2>
+
+<h3 id="concurrency-introduction">Introduction</h3>
+
+<h4 id="concurrency-introduction-overview">Overview</h4>
+
+<p>llm.rb supports six concurrency strategies for tool execution:
+<code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and
+<code>:ractor</code>. Each implements the same interface (<code>spawn</code>, <code>wait</code>,
+<code>alive?</code>, <code>interrupt!</code>), so the caller never has to care which
+strategy is behind a given task.</p>
+
+<h4 id="concurrency-introduction-how-it-works">How it works</h4>
+
+<p>Each strategy creates a task object that wraps a function call.
+<code>spawn</code> starts execution, <code>wait</code> collects the result, <code>alive?</code>
+checks whether the task is still running, and <code>interrupt!</code> signals
+the task to stop.</p>
+
+<p>Interruption is reliable across all six.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+reaches the tool regardless of whether it runs on a thread, fiber, process,
+or ractor. The tool can rescue, clean up, and either re-raise to
+cancel the turn or return a value to continue.</p>
+
+<pre><code class="language-ruby">agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
+
+fn = FetchStocks.function
+fn.task(:thread).wait
+</code></pre>
+
+<h4 id="concurrency-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Different tools have different execution requirements. IO-bound
+tools benefit from thread or async concurrency. CPU-bound tools
+benefit from ractors or forks. Tools that might crash the process
+should run in a fork for isolation.</p>
+
+<p>The common interface means you can change strategies without
+changing your tool code.</p>
+
+<h4 id="concurrency-introduction-notes">Notes</h4>
+
+<p><strong>sequential</strong>: Tools run one at a time on the calling thread. No
+overhead. Best for simple agents or when tool order matters.</p>
+
+<p><strong>thread</strong>: Each tool runs in its own Thread. Releases the GVL
+during blocking IO. Best for IO-bound tools like HTTP calls and
+database queries.</p>
+
+<p><strong>fiber</strong>: Each tool runs in a scheduler-backed Fiber. Requires
+<code>Fiber.scheduler</code>. Best for IO-bound tools inside an async
+framework. Much lighter than threads.</p>
+
+<p><strong>async</strong>: Each tool runs as an <code>Async::Task</code> inside a managed
+background reactor. Best for IO-bound tools when you want Async’s
+structured concurrency model without running your whole application
+inside a reactor. Requires the <code>async</code> gem.</p>
+
+<p><strong>fork</strong>: Each tool runs in a forked child process. True parallelism
+and process isolation. Best for shell commands, native extensions,
+or anything you do not want touching the parent’s memory. Requires
+the <code>xchan</code> gem.</p>
+
+<p><strong>ractor</strong>: Each class-based tool runs in a Ruby Ractor. True
+parallelism without the overhead of forking full processes. Only
+class-based tools are supported. Arguments must be ractor-shareable.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Strategy</th>
+      <th>Backing</th>
+      <th>Parallel?</th>
+      <th>Isolation?</th>
+      <th>Requires</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>:sequential</code></td>
+      <td>direct call</td>
+      <td>No</td>
+      <td>No</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code>:thread</code></td>
+      <td><code>Thread</code></td>
+      <td>IO only (GVL)</td>
+      <td>No</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code>:fiber</code></td>
+      <td><code>Fiber.schedule</code></td>
+      <td>Cooperative</td>
+      <td>No</td>
+      <td><code>Fiber.scheduler</code></td>
+    </tr>
+    <tr>
+      <td><code>:async</code></td>
+      <td><code>Async::Reactor</code></td>
+      <td>Cooperative</td>
+      <td>No</td>
+      <td><code>async</code> gem</td>
+    </tr>
+    <tr>
+      <td><code>:fork</code></td>
+      <td><code>Kernel.fork</code></td>
+      <td>Yes (process)</td>
+      <td>Yes (memory)</td>
+      <td><code>xchan</code> gem</td>
+    </tr>
+    <tr>
+      <td><code>:ractor</code></td>
+      <td><code>Ractor</code></td>
+      <td>Yes (CPU)</td>
+      <td>Limited</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/advanced/compaction/">← Compaction</a>
+
+
+          <a href="/llm/deepdive/advanced/context/">Context →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>
