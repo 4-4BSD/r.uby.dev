@@ -166,8 +166,12 @@ an object with typed accessors.</p>
 
 <p>When you want a structured response from the model, subclass
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a>
-and declare properties with types and constraints. When you pass the schema to <code>talk</code>, the runtime
-includes it in the request parameters. The provider returns a
+and declare properties with types and constraints. When you pass
+the schema to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>,
+the runtime includes it in the request parameters. The provider returns a
 JSON object matching the schema, which is coerced into an
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a> with typed accessors.</p>
 

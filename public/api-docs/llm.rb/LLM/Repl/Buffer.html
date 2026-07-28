@@ -4,7 +4,7 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>
-  Class: LLM::Repl::Transcript
+  Class: LLM::Repl::Buffer
   
     &mdash; Documentation by YARD 0.9.44
   
@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="../../css/rouge.css" type="text/css">
 
 <script type="text/javascript">
-  pathId = "LLM::Repl::Transcript";
+  pathId = "LLM::Repl::Buffer";
   relpath = '../../';
 </script>
 
@@ -42,10 +42,10 @@
       <div id="header">
         <div id="menu">
   
-    <a href="../../_index.html">Index (T)</a> &raquo;
+    <a href="../../_index.html">Index (B)</a> &raquo;
     <span class='title'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Repl.html" title="LLM::Repl (class)">Repl</a></span></span>
      &raquo; 
-    <span class="title">Transcript</span>
+    <span class="title">Buffer</span>
   
 </div>
 
@@ -65,7 +65,7 @@
         <div class="clear"></div>
       </div>
 
-      <div id="content"><h1>Class: LLM::Repl::Transcript
+      <div id="content"><h1>Class: LLM::Repl::Buffer
   
   
   
@@ -80,7 +80,7 @@
         <ul class="fullTree">
           <li>Object</li>
           
-            <li class="next">LLM::Repl::Transcript</li>
+            <li class="next">LLM::Repl::Buffer</li>
           
         </ul>
         <a href="#" class="inheritanceTree">show all</a>
@@ -100,7 +100,7 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/llm/repl/transcript.rb
+    <dd>lib/llm/repl/buffer.rb
 </dd>
   </dl>
   
@@ -128,22 +128,6 @@ row by overwriting its contents repeatedly.</p>
   
 
 </div>
-  
-    <h2>
-      Constant Summary
-      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
-    </h2>
-
-    <dl class="constants">
-      
-        <dt id="WIDTH-constant" class="">WIDTH =
-          
-        </dt>
-        <dd><pre class="code"><span class='int'>80</span></pre></dd>
-      
-    </dl>
-  
-
 
 
 
@@ -205,7 +189,7 @@ row by overwriting its contents repeatedly.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#markdown-instance_method" title="#markdown (instance method)">#<strong>markdown</strong>(chars, method: :append)  </a>
+      <a href="#write_message-instance_method" title="#write_message (instance method)">#<strong>write_message</strong>(user, content, method: :append)  </a>
     
 
     
@@ -219,7 +203,29 @@ row by overwriting its contents repeatedly.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Appends Markdown to the transcript.</p>
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open-instance_method" title="#open (instance method)">#<strong>open</strong>  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Open the buffer.</p>
 </div></span>
   
 </li>
@@ -228,7 +234,7 @@ row by overwriting its contents repeatedly.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#start-instance_method" title="#start (instance method)">#<strong>start</strong>  </a>
+      <a href="#close-instance_method" title="#close (instance method)">#<strong>close</strong>  </a>
     
 
     
@@ -242,30 +248,7 @@ row by overwriting its contents repeatedly.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Start the transcript.</p>
-</div></span>
-  
-</li>
-
-      
-        <li class="public ">
-  <span class="summary_signature">
-    
-      <a href="#finish-instance_method" title="#finish (instance method)">#<strong>finish</strong>  </a>
-    
-
-    
-  </span>
-  
-  
-  
-  
-  
-  
-  
-
-  
-    <span class="summary_desc"><div class='inline'><p>Finish the transcript.</p>
+    <span class="summary_desc"><div class='inline'><p>Close the buffer.</p>
 </div></span>
   
 </li>
@@ -340,7 +323,7 @@ row by overwriting its contents repeatedly.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>  &#x21d2; LLM::Repl::Transcript </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(repl)  &#x21d2; LLM::Repl::Buffer </a>
     
 
     
@@ -371,7 +354,7 @@ row by overwriting its contents repeatedly.</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl::Transcript (class)">LLM::Repl::Transcript</a></span></tt> 
+    #<strong>initialize</strong>(repl)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl::Buffer (class)">LLM::Repl::Buffer</a></span></tt> 
   
 
   
@@ -384,7 +367,26 @@ row by overwriting its contents repeatedly.</p>
   </div>
 </div>
 <div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
   
+    <li>
+      
+        <span class='name'>repl</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Repl.html" title="LLM::Repl (class)">LLM::Repl</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>An instance of <span class='object_link'><a href="../Repl.html" title="LLM::Repl (class)">LLM::Repl</a></span>.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
 
 </div><table class="source_code">
   <tr>
@@ -397,12 +399,14 @@ row by overwriting its contents repeatedly.</p>
 24
 25
 26
-27</pre>
+27
+28</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 22</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 22</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_repl'>repl</span><span class='rparen'>)</span>
+  <span class='ivar'>@repl</span> <span class='op'>=</span> <span class='id identifier rubyid_repl'>repl</span>
   <span class='ivar'>@rows</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='kw'>nil</span>
   <span class='ivar'>@snapshot</span> <span class='op'>=</span> <span class='kw'>nil</span>
@@ -472,15 +476,15 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-87
-88
-89
-90
-91
-92</pre>
+96
+97
+98
+99
+100
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 87</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 96</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_visible'>visible</span><span class='lparen'>(</span><span class='id identifier rubyid_height'>height</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_all'>all</span> <span class='op'>=</span> <span class='id identifier rubyid_rows'>rows</span>
@@ -517,7 +521,7 @@ row by overwriting its contents repeatedly.</p>
         <span class='name'>chars</span>
       
       
-        <span class='type'>(<tt>String</tt>)</span>
+        <span class='type'>(<tt>String</tt>, <tt>Array</tt>)</span>
       
       
       
@@ -558,16 +562,22 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-34
 35
 36
-37</pre>
+37
+38
+39
+40
+41</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 34</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 35</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='comma'>,</span> <span class='id identifier rubyid_attrs'>attrs</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>method:</span> <span class='symbol'>:append</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_chunks'>chunks</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='lbrace'>{</span><span class='label'>text:</span> <span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='label'>attrs:</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span><span class='rbracket'>]</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_chars'>chars</span>
+  <span class='kw'>when</span> <span class='const'>Array</span> <span class='kw'>then</span> <span class='id identifier rubyid_chunks'>chunks</span> <span class='op'>=</span> <span class='id identifier rubyid_chars'>chars</span>
+  <span class='kw'>else</span> <span class='id identifier rubyid_chunks'>chunks</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="Node.html" title="LLM::Repl::Node (class)">Node</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Node.html#initialize-instance_method" title="LLM::Repl::Node#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='id identifier rubyid_attrs'>attrs</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_chunks'>chunks</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -576,9 +586,9 @@ row by overwriting its contents repeatedly.</p>
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="markdown-instance_method">
+  <h3 class="signature " id="write_message-instance_method">
   
-    #<strong>markdown</strong>(chars, method: :append)  
+    #<strong>write_message</strong>(user, content, method: :append)  
   
 
   
@@ -586,8 +596,7 @@ row by overwriting its contents repeatedly.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p><p>Appends Markdown to the transcript.</p>
-
+    <p class="note returns_void">This method returns an undefined value.</p>
 
   </div>
 </div>
@@ -597,10 +606,21 @@ row by overwriting its contents repeatedly.</p>
   
     <li>
       
-        <span class='name'>chars</span>
+        <span class='name'>user</span>
       
       
         <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>content</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Array</tt>)</span>
       
       
       
@@ -628,17 +648,27 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-44
-45
-46
-47</pre>
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 44</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 48</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_markdown'>markdown</span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='comma'>,</span> <span class='label'>method:</span> <span class='symbol'>:append</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_chunks'>chunks</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Repl.html" title="LLM::Repl (class)">Repl</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Markdown.html" title="LLM::Repl::Markdown (class)">Markdown</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Markdown.html#initialize-instance_method" title="LLM::Repl::Markdown#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#WIDTH-constant" title="LLM::Repl::Transcript::WIDTH (constant)">WIDTH</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_ast'><span class='object_link'><a href="Markdown.html#ast-instance_method" title="LLM::Repl::Markdown#ast (method)">ast</a></span></span>
-  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_chunks'>chunks</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_write_message'>write_message</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span> <span class='label'>method:</span> <span class='symbol'>:append</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_chunks'>chunks</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="Node.html" title="LLM::Repl::Node (class)">Node</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Node.html#initialize-instance_method" title="LLM::Repl::Node#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_user'>user</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='const'>Curses</span><span class='op'>::</span><span class='const'>A_BOLD</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_content'>content</span>
+  <span class='kw'>when</span> <span class='const'>Array</span> <span class='kw'>then</span> <span class='id identifier rubyid_chunks'>chunks</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+  <span class='kw'>else</span> <span class='id identifier rubyid_chunks'>chunks</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Node.html" title="LLM::Repl::Node (class)">Node</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Node.html#initialize-instance_method" title="LLM::Repl::Node#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_chunks'>chunks</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Node.html" title="LLM::Repl::Node (class)">Node</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Node.html#initialize-instance_method" title="LLM::Repl::Node#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_chunks'>chunks</span><span class='comma'>,</span> <span class='label'>method:</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -646,9 +676,9 @@ row by overwriting its contents repeatedly.</p>
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="start-instance_method">
+  <h3 class="signature " id="open-instance_method">
   
-    #<strong>start</strong>  
+    #<strong>open</strong>  
   
 
   
@@ -656,7 +686,7 @@ row by overwriting its contents repeatedly.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p><p>Start the transcript.</p>
+    <p class="note returns_void">This method returns an undefined value.</p><p>Open the buffer.</p>
 
 
   </div>
@@ -670,15 +700,15 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-52
-53
-54
-55</pre>
+61
+62
+63
+64</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 52</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 61</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_start'>start</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_open'>open</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='ivar'>@rows</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='int'>1</span>
   <span class='ivar'>@snapshot</span> <span class='op'>=</span> <span class='ivar'>@rows</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:dup</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
@@ -688,9 +718,9 @@ row by overwriting its contents repeatedly.</p>
 </div>
     
       <div class="method_details ">
-  <h3 class="signature " id="finish-instance_method">
+  <h3 class="signature " id="close-instance_method">
   
-    #<strong>finish</strong>  
+    #<strong>close</strong>  
   
 
   
@@ -698,7 +728,7 @@ row by overwriting its contents repeatedly.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p><p>Finish the transcript.</p>
+    <p class="note returns_void">This method returns an undefined value.</p><p>Close the buffer.</p>
 
 
   </div>
@@ -712,15 +742,15 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-60
-61
-62
-63</pre>
+69
+70
+71
+72</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 60</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 69</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_finish'>finish</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
   <span class='ivar'>@cursor</span> <span class='op'>=</span> <span class='kw'>nil</span>
   <span class='ivar'>@snapshot</span> <span class='op'>=</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
@@ -753,13 +783,13 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-67
-68
-69
-70</pre>
+76
+77
+78
+79</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 67</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 76</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_up'>scroll_up</span><span class='lparen'>(</span><span class='id identifier rubyid_height'>height</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_max'>max</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='id identifier rubyid_height'>height</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
@@ -794,12 +824,12 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-74
-75
-76</pre>
+83
+84
+85</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 74</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 83</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_down'>scroll_down</span>
   <span class='ivar'>@offset</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='ivar'>@offset</span> <span class='op'>-</span> <span class='int'>1</span><span class='comma'>,</span> <span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
@@ -833,12 +863,12 @@ row by overwriting its contents repeatedly.</p>
       <pre class="lines">
 
 
-80
-81
-82</pre>
+89
+90
+91</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/transcript.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/buffer.rb', line 89</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_to_bottom'>scroll_to_bottom</span>
   <span class='ivar'>@offset</span> <span class='op'>=</span> <span class='int'>0</span>
@@ -853,7 +883,7 @@ row by overwriting its contents repeatedly.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 22 23:00:57 2026 by
+  Generated on Tue Jul 28 09:55:27 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -658,7 +658,7 @@ OpenAI-compatible API.</p>
       <pre class="code"><span class="info file"># File 'lib/llm/providers/mistral.rb', line 125</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_adapt_function'>adapt_function</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>object</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>properties:</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span>
   <span class='lbrace'>{</span>
     <span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>function</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
     <span class='label'>function:</span> <span class='lbrace'>{</span><span class='label'>name:</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>description:</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span><span class='comma'>,</span> <span class='label'>parameters:</span> <span class='id identifier rubyid_params'>params</span><span class='rbrace'>}</span>
@@ -1374,7 +1374,7 @@ OpenAI-compatible API.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 22 23:00:58 2026 by
+  Generated on Tue Jul 28 09:55:29 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

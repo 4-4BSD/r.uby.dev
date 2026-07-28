@@ -232,6 +232,15 @@ subclass, so <code>tracer: :set_tracer</code> calls <code>set_tracer</code> on t
 instance. A block like <code>stream: -&gt; { $stdout }</code> is evaluated
 when the attribute is first accessed.</p>
 
+<p>Set <code>path:</code> on a subclass or instance for automatic filesystem
+persistence; the agent restores conversation history from the
+file on startup and saves it back after every turn with no
+manual
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>/
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+calls. See the
+<a href="../advanced/database.md">database deepdive</a> for details.</p>
+
 <h3 id="agents-throwaway-agents">Throwaway agents</h3>
 
 <h4 id="agents-throwaway-agents-overview">Overview</h4>
@@ -524,7 +533,8 @@ subagent has none. Set them to <code>all</code> and it has everything.</p>
 file. The markdown body that follows becomes the subagent’s system
 prompt. The <code>tools</code> field resolves at load time: named tools are
 looked up in the registry, <code>inherit</code> copies from the parent context,
-and <code>all</code> grabs everything available.</p>
+and <code>all</code> grabs everything available. The <code>tools</code> field accepts four
+forms:</p>
 
 <table>
   <thead>
@@ -548,8 +558,6 @@ and <code>all</code> grabs everything available.</p>
     </tr>
   </tbody>
 </table>
-
-<p>The <code>tools</code> field accepts four forms:</p>
 
 <table>
   <thead>
@@ -606,8 +614,12 @@ an object with typed accessors.</p>
 
 <p>When you want a structured response from the model, subclass
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a>
-and declare properties with types and constraints. When you pass the schema to <code>talk</code>, the runtime
-includes it in the request parameters. The provider returns a
+and declare properties with types and constraints. When you pass
+the schema to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>,
+the runtime includes it in the request parameters. The provider returns a
 JSON object matching the schema, which is coerced into an
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a> with typed accessors.</p>
 
@@ -784,14 +796,6 @@ of submitting.</p>
 
 <p>The input area supports several keyboard shortcuts:</p>
 
-<pre><code class="language-ruby">require "llm"
-require "llm/tools"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
-</code></pre>
-
 <table>
   <thead>
     <tr>
@@ -834,6 +838,16 @@ agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
     </tr>
   </tbody>
 </table>
+
+<p>Start a session with:</p>
+
+<pre><code class="language-ruby">require "llm"
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
+</code></pre>
 
 <h4 id="repl-introduction-why-would-i-use-it">Why would I use it?</h4>
 
@@ -898,10 +912,14 @@ to send input to the model, check
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions?"><code>LLM::Context#pending_functions?</code></a>
 to see if tools were requested, and use
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#wait"><code>LLM::Context#wait</code></a>
-to execute them. Each call to <code>#talk</code> appends
+to execute them. Each call to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+appends
 to the conversation and returns the model’s response. The context
 serializes its state with <code>to_h</code> and <code>to_json</code>, and restores it
-with <code>restore</code>. This is how the ORM integrations and filesystem
+with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore"><code>LLM::Context#restore</code></a>.
+This is how the ORM integrations and filesystem
 persistence work under the hood:</p>
 
 <pre><code class="language-ruby">require "llm"
@@ -1009,7 +1027,7 @@ preserve them.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
 returns, the context may have pending function
 calls if the model requested tools. These are available through
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions"><code>LLM::Context#pending_functions</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#pending_functions"><code>LLM::Context#pending_functions</code></a>
 which returns an array of
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function</code></a>
 objects. Each function has a name, arguments, and methods for
@@ -1248,13 +1266,16 @@ class-based tools are supported. Arguments must be ractor-shareable.</p>
 <p>Long-running conversations consume tokens. Without intervention,
 every turn pushes toward the model’s context window limit. Compaction
 drops old messages to keep the conversation alive. The runtime runs
-a compactor automatically before each <code>talk</code> call, trimming the
-oldest messages when the conversation exceeds a configured size.
+a compactor automatically before each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+call, trimming the oldest messages when the conversation exceeds a configured size.
 This keeps the context window healthy without manual intervention.</p>
 
 <h4 id="compaction-introduction-how-it-works">How it works</h4>
 
-<p>Compactors run automatically before each <code>talk</code> call.
+<p>Compactors run automatically before each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+call.
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html"><code>LLM::Compactor::Truncate</code></a>
 strategy drops the oldest messages, keeping only the N most recent.
 It preserves tool call/return pairs so the conversation never
@@ -1333,7 +1354,11 @@ from any thread. Two things
 happen at once:</p>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
-is raised on the thread where <code>talk</code> is running, so the caller
+is raised on the thread where
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+is running, so the caller
 can rescue it and know the request was cancelled.</p>
 
 <p>At the same time,
@@ -1536,9 +1561,12 @@ path: "deepseek-agent.log")</code>.</p>
 <p>Persistence lets an agent outlive a single session. The conversation
 history, model name, and compaction status are serialized as JSON
 that can be stored in a file, a database column, or transmitted
-over a network. Three storage backends are available:</p>
+over a network. Four storage options are available:</p>
 
 <ul>
+  <li><strong>Automatic filesystem persistence</strong>: set <code>path:</code> on an agent
+for transparent auto-save after every turn (recommended for
+most file-based use-cases)</li>
   <li><strong>Filesystem</strong>: save and restore from a JSON file on disk</li>
   <li><strong>ActiveRecord</strong>: persist state in a database column using <code>acts_as_agent</code></li>
   <li><strong>Sequel</strong>: persist state in a database column using <code>plugin :agent</code></li>
@@ -1549,10 +1577,19 @@ over a network. Three storage backends are available:</p>
 <h4 id="database-introduction-how-it-works">How it works</h4>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
-implements <code>to_h</code> and <code>to_json</code> for serialization and <code>restore</code>
+implements
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h"><code>LLM::Context#to_h</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_json"><code>LLM::Context#to_json</code></a>
+for serialization and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore"><code>LLM::Context#restore</code></a>
 for deserialization. Save writes the current state, restore loads
 it back and picks up where the conversation left off. The ORM
-wrappers automate this; each <code>talk</code> or <code>ask</code> call persists the
+wrappers automate this; each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+call persists the
 updated state back to the column automatically.</p>
 
 <h4 id="database-introduction-why-would-i-use-it">Why would I use it?</h4>
@@ -1569,6 +1606,93 @@ data.</p>
 transmitted over the network. The ORM integrations use the same
 underlying serialization as filesystem persistence.</p>
 
+<h3 id="database-automatic-filesystem-persistence">Automatic filesystem persistence</h3>
+
+<h4 id="database-automatic-filesystem-persistence-overview">Overview</h4>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#path"><code>LLM::Agent#path</code></a>
+attribute provides transparent auto-persistence. Set a file path once
+and the agent restores conversation history from that file on startup
+and saves it back after every
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+turn. No manual
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>/
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+calls needed.</p>
+
+<p>The feature is available on subclasses via the class DSL and on
+direct instances via the <code>path:</code> keyword argument.</p>
+
+<h4 id="database-automatic-filesystem-persistence-how-it-works">How it works</h4>
+
+<p>When a <code>path</code> is set, the agent loads existing state from the file
+during initialization. After each turn
+(<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>),
+the updated
+state is written back automatically. If the file does not exist yet,
+the agent starts with a blank conversation and creates the file on
+the first save.</p>
+
+<p>You can set the path using any of these approaches:</p>
+
+<h5 id="database-automatic-filesystem-persistence-how-it-works-class-dsl">Class DSL</h5>
+
+<pre><code class="language-ruby">class PersistentAgent &lt; LLM::Agent
+  set model: "deepseek-v4-pro",
+      path: "session.json"
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = PersistentAgent.new(llm)
+agent.talk "remember my name is robert"
+# state saved automatically to session.json
+
+agent2 = PersistentAgent.new(llm)
+agent2.talk "what's my name?"
+# restored from session.json; prints "robert"
+</code></pre>
+
+<h5 id="database-automatic-filesystem-persistence-how-it-works-keyword-argument">Keyword argument</h5>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, path: "session.json", stream: $stdout)
+agent.talk "remember my name is robert"
+# state saved automatically
+</code></pre>
+
+<h5 id="database-automatic-filesystem-persistence-how-it-works-lazy-resolution">Lazy resolution</h5>
+
+<pre><code class="language-ruby">class DynamicAgent &lt; LLM::Agent
+  set path: -&gt; { "sessions/#{name}.json" }
+end
+</code></pre>
+
+<h4 id="database-automatic-filesystem-persistence-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Auto-persistence eliminates boilerplate. You set the path once and
+forget about serialization entirely. The agent picks up where it
+left off across process restarts, REPL sessions, or debugging runs
+without a single
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+call in your code.</p>
+
+<h4 id="database-automatic-filesystem-persistence-notes">Notes</h4>
+
+<p>The auto-path feature is a strict superset of manual filesystem
+persistence. If you need fine-grained control over when state is
+saved (e.g. batch several turns before persisting), use the manual
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+methods described in the Filesystem section below. The <code>path</code>
+attribute delegates to the same underlying serialization.</p>
+
 <h3 id="database-filesystem">Filesystem</h3>
 
 <h4 id="database-filesystem-overview">Overview</h4>
@@ -1582,8 +1706,14 @@ process or on a different machine, and pick up where you left off.</p>
 <h4 id="database-filesystem-how-it-works">How it works</h4>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
-implements <code>to_h</code> and <code>to_json</code> for serialization
-and <code>restore</code> for deserialization. The serialized state includes
+implements
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h"><code>LLM::Context#to_h</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_json"><code>LLM::Context#to_json</code></a>
+for serialization
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore"><code>LLM::Context#restore</code></a>
+for deserialization. The serialized state includes
 the message history, model name, and compaction status. Save and
 restore work with file paths or in-memory strings. You can also
 serialize to a JSON string for database storage or network
@@ -1641,7 +1771,11 @@ status) as JSON. On first call, a fresh agent is created and the
 conversation starts from scratch.</p>
 
 <p>On subsequent calls, the stored state is restored and the
-conversation continues. Every <code>talk</code> or <code>ask</code> call persists the
+conversation continues. Every
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+call persists the
 updated state back to the column automatically.</p>
 
 <p>The <code>data_column:</code> option lets you use a different column name.
@@ -1749,7 +1883,11 @@ the plugin in the model class. The <code>data</code> column stores
 the full agent state as JSON, same structure as ActiveRecord.
 On first call, a fresh agent is created. On subsequent calls,
 the stored state is restored and the conversation continues.
-Every <code>talk</code> or <code>ask</code> call persists the updated state.</p>
+Every
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+call persists the updated state.</p>
 
 <p>The <code>data_column:</code> and <code>format:</code> options work identically to
 ActiveRecord. For <code>:jsonb</code>, Sequel loads the <code>pg_json</code> extension
@@ -2145,7 +2283,8 @@ downstream pipeline.</p>
 
 <p>When you want to transcribe audio into text, call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription"><code>LLM::Audio#create_transcription</code></a>.
-The provider processes the audio and returns the transcribed text. The file
+The provider processes the audio and returns the
+transcribed text. The file
 can be a local path or a URL depending on provider support:</p>
 
 <pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])

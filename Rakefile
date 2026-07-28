@@ -1,3 +1,5 @@
+require "bundler/setup"
+
 namespace :docs do
   desc "Generate API docs for llm.rb"
   task :"llm.rb" do
@@ -6,6 +8,10 @@ namespace :docs do
     template = File.join(__dir__, "..", "blog", "yardtmpl")
     rm_rf(outdir)
     yardoc(chdir:, outdir:, template:)
+  end
+
+  task :deepdive do
+    sh "scripts/build_deepdive.rb"
   end
 end
 

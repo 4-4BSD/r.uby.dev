@@ -492,7 +492,7 @@ command is accessible via the <code>/</code> prefix: eg <code>/exit</code>.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#write-instance_method" title="#write (instance method)">#<strong>write</strong>(str, who: &quot;command(#{self.class.name}): &quot;)  </a>
+      <a href="#write-instance_method" title="#write (instance method)">#<strong>write</strong>(content)  </a>
     
 
     
@@ -506,8 +506,30 @@ command is accessible via the <code>/</code> prefix: eg <code>/exit</code>.</p>
   
 
   
-    <span class="summary_desc"><div class='inline'><p>Write a string to the transcript.</p>
+    <span class="summary_desc"><div class='inline'><p>Write a string to the buffer.</p>
 </div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_message-instance_method" title="#write_message (instance method)">#<strong>write_message</strong>(user, content)  </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
   
 </li>
 
@@ -1376,23 +1398,23 @@ description, and parameter details.</p>
       <pre class="lines">
 
 
-192
-193
-194
-195
-196
-197
-198
 199
 200
 201
 202
 203
 204
-205</pre>
+205
+206
+207
+208
+209
+210
+211
+212</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 192</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 199</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_help'>help</span>
   <span class='id identifier rubyid_lines'>lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
@@ -1536,12 +1558,12 @@ description, and parameter details.</p>
       <pre class="lines">
 
 
-216
-217
-218</pre>
+223
+224
+225</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 216</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 223</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_parameters'>parameters</span>
   <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_parameters'>parameters</span>
@@ -1554,7 +1576,7 @@ description, and parameter details.</p>
       <div class="method_details ">
   <h3 class="signature " id="write-instance_method">
   
-    #<strong>write</strong>(str, who: &quot;command(#{self.class.name}): &quot;)  
+    #<strong>write</strong>(content)  
   
 
   
@@ -1562,7 +1584,7 @@ description, and parameter details.</p>
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p><p>Write a string to the transcript</p>
+    <p class="note returns_void">This method returns an undefined value.</p><p>Write a string to the buffer</p>
 
 
   </div>
@@ -1573,7 +1595,7 @@ description, and parameter details.</p>
   
     <li>
       
-        <span class='name'>str</span>
+        <span class='name'>content</span>
       
       
         <span class='type'>(<tt>String</tt>)</span>
@@ -1593,15 +1615,78 @@ description, and parameter details.</p>
 
 182
 183
-184
-185</pre>
+184</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 182</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='label'>who:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>command(</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>): </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-  <span class='ivar'>@repl</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_who'>who</span><span class='comma'>,</span> <span class='const'>Curses</span><span class='op'>::</span><span class='const'>A_BOLD</span><span class='rparen'>)</span>
-  <span class='ivar'>@repl</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write_message'>write_message</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>command(</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_message-instance_method">
+  
+    #<strong>write_message</strong>(user, content)  
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>user</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>content</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+190
+191
+192</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 190</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_message'>write_message</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+  <span class='ivar'>@repl</span><span class='period'>.</span><span class='id identifier rubyid_write_message'>write_message</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1646,12 +1731,12 @@ description, and parameter details.</p>
       <pre class="lines">
 
 
-210
-211
-212</pre>
+217
+218
+219</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 210</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/command.rb', line 217</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>#call is not implemented</span><span class='tstring_end'>&quot;</span></span>
@@ -1666,7 +1751,7 @@ description, and parameter details.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 22 23:00:56 2026 by
+  Generated on Tue Jul 28 09:55:28 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

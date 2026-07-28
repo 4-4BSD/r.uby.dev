@@ -4,7 +4,7 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>
-  Class: LLM::Tool::SwapText
+  Class: LLM::Tool::EditFile
   
     &mdash; Documentation by YARD 0.9.44
   
@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="../../css/rouge.css" type="text/css">
 
 <script type="text/javascript">
-  pathId = "LLM::Tool::SwapText";
+  pathId = "LLM::Tool::EditFile";
   relpath = '../../';
 </script>
 
@@ -42,10 +42,10 @@
       <div id="header">
         <div id="menu">
   
-    <a href="../../_index.html">Index (S)</a> &raquo;
+    <a href="../../_index.html">Index (E)</a> &raquo;
     <span class='title'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Tool.html" title="LLM::Tool (class)">Tool</a></span></span>
      &raquo; 
-    <span class="title">SwapText</span>
+    <span class="title">EditFile</span>
   
 </div>
 
@@ -65,7 +65,7 @@
         <div class="clear"></div>
       </div>
 
-      <div id="content"><h1>Class: LLM::Tool::SwapText
+      <div id="content"><h1>Class: LLM::Tool::EditFile
   
   
   
@@ -82,7 +82,7 @@
           
             <li class="next"><span class='object_link'><a href="../Tool.html" title="LLM::Tool (class)">LLM::Tool</a></span></li>
           
-            <li class="next">LLM::Tool::SwapText</li>
+            <li class="next">LLM::Tool::EditFile</li>
           
         </ul>
         <a href="#" class="inheritanceTree">show all</a>
@@ -102,7 +102,7 @@
   
   <dl>
     <dt>Defined in:</dt>
-    <dd>lib/llm/tools/swap_text.rb
+    <dd>lib/llm/tools/edit-file.rb
 </dd>
   </dl>
   
@@ -110,7 +110,7 @@
 
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
-    <p>The <span class='object_link'><a href="" title="LLM::Tool::SwapText (class)">LLM::Tool::SwapText</a></span> class
+    <p>The <span class='object_link'><a href="" title="LLM::Tool::EditFile (class)">LLM::Tool::EditFile</a></span> class
 implements a tool that can substitute one piece of
 text for another piece of text in a given file.</p>
 
@@ -299,7 +299,7 @@ text for another piece of text in a given file.</p>
 29</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/tools/swap_text.rb', line 23</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/tools/edit-file.rb', line 23</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='label'>path:</span><span class='comma'>,</span> <span class='label'>before:</span><span class='comma'>,</span> <span class='label'>after:</span><span class='comma'>,</span> <span class='label'>expected_count:</span> <span class='int'>1</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_content'>content</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../File.html" title="LLM::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
@@ -318,7 +318,7 @@ text for another piece of text in a given file.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 22 23:00:57 2026 by
+  Generated on Tue Jul 28 09:55:28 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

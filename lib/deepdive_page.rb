@@ -7,7 +7,6 @@ require "tilt"
 
 class DeepdivePage
   TOPIC_ROOT = File.expand_path("../../llm.rb/resources/deepdive", __dir__)
-  GROUP_ORDER = %w[fundamentals advanced interface protocols].freeze
   VIEW_DIR = File.expand_path("../views/deepdive", __dir__)
 
   def render
@@ -124,28 +123,71 @@ class DeepdivePage
 
   DEEPDIVE_MD = File.expand_path("../../llm.rb/resources/deepdive.md", __dir__)
 
+  # Parse deepdive.md as the single source of truth for structure.
+  # Returns: { intro: "...", groups: [{ title: "Fundamentals", slug: "fundamentals",
+  #             topics: [{ slug: "agents", title: "Agents" }, ...] }, ...] }
+  def parse_deepdive_md
+    @parse_deepdive_md ||= begin
+      source = File.read(DEEPDIVE_MD)
+      groups = []
+      current_group = nil
+      intro_lines = []
+      in_body = false
+
+      source.each_line do |line|
+        if (match = line.match(/^## (.+)$/))
+          title = match[1]
+          # Welcome is part of the intro, not a group
+          if title == "Welcome"
+            intro_lines << line
+            next
+          end
+          in_body = true
+          slug = slugify(title)
+          current_group = {title: title, slug: slug, dir: nil, topics: []}
+          groups << current_group
+        elsif !in_body
+          intro_lines << line
+        elsif current_group && (match = line.match(/^- \[(.+?)\]\(deepdive\/(.+?)\/(.+?)\.md\)$/))
+          current_group[:dir] ||= match[2]
+          current_group[:topics] << {slug: match[3], title: match[1]}
+        end
+      end
+
+      {
+        intro: intro_lines.join,
+        groups: groups
+      }
+    end
+  end
+
   def render_index_intro
-    source = File.read(DEEPDIVE_MD)
-    # Everything before the group listings (before the --- separator)
-    intro = source.split(/\n---\n\n## /, 2).first
-    render_markdown(intro)
+    render_markdown(parse_deepdive_md[:intro])
   end
 
   def nav_groups
     @nav_groups ||= begin
-      group_dirs = Dir.children(TOPIC_ROOT)
-        .select { |entry| File.directory?(File.join(TOPIC_ROOT, entry)) }
-
-      ordered_group_slugs = GROUP_ORDER.select { |slug| group_dirs.include?(slug) } +
-        (group_dirs - GROUP_ORDER).sort
-
-      ordered_group_slugs.map do |group_slug|
-        topic_paths = Dir.glob(File.join(TOPIC_ROOT, group_slug, "*.md")).sort
+      groups = parse_deepdive_md[:groups]
+      groups.map do |group|
+        group_title = group[:title]
+        dir = group[:dir] || group[:slug]
+        topics = group[:topics].map do |topic|
+          source = File.join(TOPIC_ROOT, dir, "#{topic[:slug]}.md")
+          topic_slug = topic[:slug]
+          {
+            title: topic[:title],
+            group_title: group_title,
+            group_slug: group[:slug],
+            topic_slug: topic_slug,
+            source: source,
+            description: topic_description(source)
+          }
+        end
 
         {
-          title: titleize(group_slug),
-          slug: group_slug,
-          topics: topic_paths.map { |source| topic_metadata(group_slug, source) }
+          title: group_title,
+          slug: group[:slug],
+          topics: topics
         }
       end
     end
@@ -174,28 +216,7 @@ class DeepdivePage
     markdown = File.read(source)
     text = markdown[/^#### Overview\n\n(.+?)(?=\n\n#### |\n\n### |\z)/m, 1].to_s
     paragraph = text.split(/\n{2,}/).first.to_s
-    paragraph.gsub(/\[([^\]]+)\]\([^)]+\)/, "\\1").gsub(/\s+/, " ").strip
-  end
-
-  def topic_title(source)
-    File.read(source)[/^## (.+)$/, 1] || titleize(File.basename(source, ".md"))
-  end
-
-  def topic_metadata(group_slug, source)
-    topic_slug = File.basename(source, ".md")
-
-    {
-      title: topic_title(source),
-      group_title: titleize(group_slug),
-      group_slug: group_slug,
-      topic_slug: topic_slug,
-      source: source,
-      description: topic_description(source)
-    }
-  end
-
-  def titleize(text)
-    text.split(/[-_]/).map(&:capitalize).join(" ")
+    paragraph.gsub(/\[([^\]]+)\]\([^)]+\)/, "\1").gsub(/\s+/, " ").strip
   end
 
   def render_topic_article(source)

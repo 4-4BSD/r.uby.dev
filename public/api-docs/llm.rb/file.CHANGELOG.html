@@ -85,13 +85,20 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 <h3 id="agent">Agent</h3>
 
 <ul>
-<li><strong>add <code>description</code> class DSL and instance method</strong> <br>
+<li><p><strong>add <code>description</code> class DSL and instance method</strong> <br>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> now
 has a <code>description</code> class DSL (<code>description &quot;release engineer&quot;</code>) and a
 corresponding <code>#description</code> instance method. The description is an
 optional self-documenting string that serves as a brief summary of the
 agent&#39;s purpose. It can be set via the class DSL,
-<code>LLM::Agent.set(description: ...)</code>, or <code>LLM::Agent.new(description: ...)</code>.</li>
+<code>LLM::Agent.set(description: ...)</code>, or <code>LLM::Agent.new(description: ...)</code>.</p></li>
+<li><p><strong>add <code>path</code> class DSL and instance method</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> now
+has a <code>path</code> class DSL (<code>path &quot;contexts/admin.json&quot;</code>) and a
+corresponding <code>#path</code> instance method. When a path is set, the agent
+automatically restores its conversation history from that file on
+initialization and saves it back after each <code>talk</code> or <code>ask</code> turn,
+making session persistence across process restarts transparent.</p></li>
 </ul>
 
 <h3 id="skills">Skills</h3>
@@ -115,26 +122,92 @@ access to every registered tool without listing them individually.</p></li>
 <h3 id="tools">Tools</h3>
 
 <ul>
-<li><strong>add <code>LLM::Tool::Ruby</code> for executing Ruby code in a subprocess</strong> <br>
+<li><p><strong>add <code>LLM::Tool::Ruby</code> for executing Ruby code in a subprocess</strong> <br>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html"><code>LLM::Tool::Ruby</code></a>
 is a new built-in tool that runs a string of Ruby code in a separate
 Ruby process with a configurable timeout (default 15s). The code runs
 in an isolated address space unaware of its parent, making it useful
 for safe(ish) dynamic code execution. It must be required explicitly
-with <code>require &quot;llm/tools/ruby&quot;</code> and requires the <code>test-cmd.rb</code> gem.</li>
+with <code>require &quot;llm/tools/ruby&quot;</code> and requires the <code>test-cmd.rb</code> gem.</p></li>
+<li><p><strong>rename <code>LLM::Tool::SwapText</code> to <code>LLM::Tool::EditFile</code></strong> <br>
+The <code>SwapText</code> tool has been renamed to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/EditFile.html"><code>LLM::Tool::EditFile</code></a>
+to better match the naming of sibling tools (<code>ReadFile</code>, <code>WriteFile</code>).
+The old <code>require &quot;llm/tools/swap_text&quot;</code> path no longer exists; use
+<code>require &quot;llm/tools/edit-file&quot;</code> instead.</p></li>
+</ul>
+
+<h3 id="tracer">Tracer</h3>
+
+<ul>
+<li><strong>add <code>LLM::Tracer::PrettyLogger</code> for human-readable tracing</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
+is a new tracer that writes human-readable request and tool-call logs to a
+console or file. Unlike the structured JSON output of
+<code>LLM::Tracer::Logger</code>, the pretty logger emits single-line entries with
+inline context, making it easier to follow agent activity at a glance.
+It writes to <code>$stderr</code> by default and accepts an <code>io:</code> option for file
+output.</li>
+</ul>
+
+<h3 id="repl">Repl</h3>
+
+<ul>
+<li><p><strong>rename <code>LLM::Repl::Transcript</code> to <code>LLM::Repl::Buffer</code></strong> <br>
+<code>LLM::Repl::Transcript</code> has been renamed to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Buffer.html"><code>LLM::Repl::Buffer</code></a>
+to better reflect its role as a conversation state manager. The old
+<code>start</code> and <code>finish</code> methods have been renamed to <code>open</code> and <code>close</code>
+respectively. The public accessor on
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html"><code>LLM::Repl</code></a> has been
+renamed from <code>transcript</code> to <code>buffer</code>.</p></li>
+<li><p><strong>add <code>write_message</code> for formatted message writing</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Buffer.html#write_message-instance_method"><code>LLM::Repl::Buffer#write_message</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#write_message-instance_method"><code>LLM::Repl#write_message</code></a>
+provide a convenience method that takes a username and content string,
+formatting the output with a bold <code>user:</code> label and a trailing newline.
+This is simpler than the equivalent sequence of <code>write</code> calls.</p></li>
+<li><p><strong>add <code>Command#write_message</code> and refactor <code>Command#write</code></strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Command.html#write_message-instance_method"><code>LLM::Command#write_message</code></a>
+provides a convenience method that takes a username and content string,
+matching the same interface on <code>LLM::Repl</code> and <code>LLM::Buffer</code>. The
+<code>Command#write</code> method is now implemented on top of <code>write_message</code>,
+always prefixing output with <code>command(&lt;name&gt;):</code>. The <code>who:</code> keyword
+argument previously accepted by <code>write</code> has been removed; use
+<code>write_message</code> instead.</p></li>
+<li><p><strong>display pre-existing agent messages when the repl starts</strong> <br>
+When
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method"><code>LLM::Agent#repl</code></a>
+starts, any messages already in the agent&#39;s buffer are now rendered
+in the REPL window. Previously the REPL started with an empty
+transcript even when the agent carried prior conversation history,
+making it harder to resume a session. Tool-call and tool-return
+messages are skipped to avoid visual noise.</p></li>
 </ul>
 
 <h3 id="fix">Fix</h3>
 
 <ul>
-<li><strong>tools: rescue <code>LLM::Interrupt</code> in shell-based tools</strong> <br>
+<li><p><strong>tools: rescue <code>LLM::Interrupt</code> in shell-based tools</strong> <br>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html"><code>LLM::Tool::Shell</code></a>,
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html"><code>LLM::Tool::Git</code></a>,
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html"><code>LLM::Tool::Mkdir</code></a>,
 and
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html"><code>LLM::Tool::Rg</code></a>
 now rescue <code>LLM::Interrupt</code> and kill their running command, preventing
-orphaned child processes when a tool is interrupted during execution.</li>
+orphaned child processes when a tool is interrupted during execution.</p></li>
+<li><p><strong>agent: fix default name derivation</strong> <br>
+Fix a bug where <code>LLM::Agent</code> used without a subclass derived its default
+name as <code>&quot;l-lm-agent&quot;</code> instead of <code>&quot;agent&quot;</code>. The fix replaces the
+regex-based parameterization with a pattern that correctly handles
+single-word class names and multi-word namespaced names.</p></li>
+<li><p><strong>function: <code>#params</code> always returns an <code>LLM::Object</code></strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#params-instance_method"><code>LLM::Function#params</code></a>
+now always returns an <code>LLM::Object</code> representing the function&#39;s parameter
+schema. Previously it returned <code>nil</code> when a function defined no parameters,
+forcing every caller to guard against <code>nil</code>. All provider adapters now use
+<code>fn.params.to_h</code> instead of <code>fn.params || {type: &quot;object&quot;, properties: {}}</code>.</p></li>
 </ul>
 
 <h2 id="v13-0-0">v13.0.0</h2>
@@ -563,7 +636,7 @@ tool&#39;s return value.</p></li>
 
 <p>Changes since <code>v12.5.1</code>.</p>
 
-<p>This release adds bulk defaults for tools and agents — <code>LLM::Tool.defaults</code>
+<p>This release adds bulk defaults for tools and agents: <code>LLM::Tool.defaults</code>
 for setting parameter defaults and <code>LLM::Agent.set</code> for mass-assigning
 class-level defaults, both mirrored on ActiveRecord and Sequel agent models.</p>
 
@@ -599,7 +672,7 @@ agent class-level defaults.</p></li>
 On cancel, <code>LLM::Interrupt</code> is now raised on the thread that is
 running a tool. The tool can rescue <code>LLM::Interrupt</code> and gracefully
 terminate (e.g., clean up resources). The previous approach used
-<code>Thread#interrupt</code> which was less reliable — it did not interrupt a
+<code>Thread#interrupt</code> which was less reliable. It did not interrupt a
 sleeping thread.</p></li>
 <li><p><strong>function: suppress thread exception reporting in <code>:thread</code> concurrency</strong> <br>
 Threads spawned by the <code>:thread</code> concurrency strategy now have
@@ -621,14 +694,14 @@ interruption of the <code>:call</code> concurrency strategy just like the existi
 <code>LLM::Interrupt</code> is now raised on the active fiber via <code>Fiber#raise</code>
 when interrupting <code>:fiber</code>-concurrency tools.
 <br><br>
-<code>Task#interrupt!</code> now dispatches by task type — <code>Thread#raise</code> for
-threads, <code>Fiber#raise</code> for fibers — making interruption reliable
+<code>Task#interrupt!</code> now dispatches by task type: <code>Thread#raise</code> for
+threads, <code>Fiber#raise</code> for fibers. Making interruption reliable
 across all concurrency strategies.</p></li>
 <li><p><strong>function: raise <code>LLM::Interrupt</code> on fork-backed tool tasks</strong> <br>
 <code>LLM::Interrupt</code> is now raised on the main thread of a fork child
 process via <code>Thread.main.raise(LLM::Interrupt)</code> when interrupting
 <code>:fork</code>-concurrency tools, and the fork <code>Task#wait</code> re-raises the
-interrupt on the parent side — making interruption reliable across
+interrupt on the parent side. Making interruption reliable across
 all concurrency strategies including <code>:fork</code>.</p></li>
 <li><p><strong>function: raise <code>LLM::Interrupt</code> on <code>Async::Task</code>-backed tool tasks</strong> <br>
 <code>LLM::Interrupt</code> is now raised on the underlying fiber of an
@@ -644,7 +717,7 @@ ractor waits for an interrupt message via <code>Ractor.receive</code> and
 raises <code>LLM::Interrupt</code> on the ractor&#39;s main thread.
 <br><br>
 <code>Task#interrupt!</code> delegates to the mailbox to send the interrupt
-message — extending reliable interruption to the <code>:ractor</code>
+message. Extending reliable interruption to the <code>:ractor</code>
 concurrency strategy.</p></li>
 </ul>
 
@@ -798,7 +871,7 @@ through their <code>#initialize</code> method, making it possible to
 interact with the repl window from within a command.</p></li>
 <li><p><strong>repl: display command errors in the curses UI</strong> <br>
 Commands invoked with too few arguments now display an error
-message — <code>command(&lt;name&gt;): too few arguments</code> — directly in
+message: <code>command(&lt;name&gt;): too few arguments</code>. Displayed directly in
 the curses transcript area, giving immediate feedback instead
 of silently failing.</p></li>
 <li><p><strong>repl: add <code>LLM::Command</code> convenience constant</strong> <br>
@@ -928,7 +1001,7 @@ a command system foundation with the <code>/exit</code> command, and several new
 keybindings (Ctrl+F, Ctrl+K, Ctrl+Y). Tool calls are rendered with a
 compact function-call syntax in the status bar.</p>
 
-<p>Two new built-in tools — <code>LLM::Tool::Ls</code> and <code>LLM::Tool::Which</code> — are
+<p>Two new built-in tools: <code>LLM::Tool::Ls</code> and <code>LLM::Tool::Which</code> are
 available as opt-in additions for file listing and executable lookup.</p>
 
 <p>Model metadata has been refreshed across providers, the REPL loop
@@ -988,7 +1061,7 @@ automatically registered when the command file is loaded.</p></li>
 The curses-based REPL input now detects paste operations by tracking
 the rate at which characters arrive. A paste rate of ≤50ms is
 assumed to be a burst of characters that could only be explained by
-a paste — no human types that fast. Multiline pastes are supported
+a paste. No human types that fast. Multiline pastes are supported
 through internal refactoring of the input handling logic.</p></li>
 <li><p><strong>repl: optimize paste mode rendering</strong> <br>
 Track the paste state with an internal <code>@paste</code> variable and switch
@@ -1007,7 +1080,7 @@ attempting to run it, avoiding failed subprocess calls. <br>
 It must be required explicitly with <code>require &quot;llm/tools/which&quot;</code>.</p></li>
 <li><p><strong>repl: render tool calls in a function-call syntax</strong> <br>
 The curses-based REPL status bar now renders tool calls with a
-compact function-call syntax — <code>tool(key: value)</code> instead of
+compact function-call syntax: <code>tool(key: value)</code> instead of
 <code>tool: name</code>. Strings are quoted and truncated, arrays show their
 first two elements, and hashes collapse to <code>{…}</code>, making it easier
 to see what arguments the model is passing. The <code>tool done</code> status
@@ -1135,8 +1208,8 @@ streamed content via <code>#&lt;&lt;</code>. <code>LLM::Stream::Disabled</code> 
 disabled stream with no-op callbacks.</p></li>
 </ul>
 
-<p>This is part of an internal refactoring that lets all stream values — IO
-  objects, <code>true</code>, <code>false</code>, <code>nil</code>, and <code>LLM::Stream</code> instances themselves —
+<p>This is part of an internal refactoring that lets all stream values: IO
+  objects, <code>true</code>, <code>false</code>, <code>nil</code>, and <code>LLM::Stream</code> instances themselves
   be represented by the same <code>LLM::Stream</code> interface via the new
   <code>LLM::Stream.try</code> factory method.</p>
 
@@ -1197,7 +1270,7 @@ of persisted agent state at runtime. Note that changes made during a
 repl session do not persist back to the database.</p></li>
 <li><p><strong>repl: add extra padding between markdown nodes</strong> <br>
 The curses-based REPL markdown renderer now adds extra vertical spacing
-between certain markdown elements — paragraphs, headers, and codeblocks —
+between certain markdown elements: paragraphs, headers, and codeblocks
 for improved readability of model responses.</p></li>
 <li><p><strong>repl: add a visual divider between transcript and the rows below it</strong> <br>
 The curses-based REPL now draws a horizontal divider line (using a unicode
@@ -3275,7 +3348,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Wed Jul 22 23:00:51 2026 by
+  Generated on Tue Jul 28 09:55:23 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

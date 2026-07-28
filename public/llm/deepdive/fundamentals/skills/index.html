@@ -230,7 +230,8 @@ subagent has none. Set them to <code>all</code> and it has everything.</p>
 file. The markdown body that follows becomes the subagent’s system
 prompt. The <code>tools</code> field resolves at load time: named tools are
 looked up in the registry, <code>inherit</code> copies from the parent context,
-and <code>all</code> grabs everything available.</p>
+and <code>all</code> grabs everything available. The <code>tools</code> field accepts four
+forms:</p>
 
 <table>
   <thead>
@@ -254,8 +255,6 @@ and <code>all</code> grabs everything available.</p>
     </tr>
   </tbody>
 </table>
-
-<p>The <code>tools</code> field accepts four forms:</p>
 
 <table>
   <thead>

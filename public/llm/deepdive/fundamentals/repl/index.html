@@ -183,14 +183,6 @@ of submitting.</p>
 
 <p>The input area supports several keyboard shortcuts:</p>
 
-<pre><code class="language-ruby">require "llm"
-require "llm/tools"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
-</code></pre>
-
 <table>
   <thead>
     <tr>
@@ -233,6 +225,16 @@ agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
     </tr>
   </tbody>
 </table>
+
+<p>Start a session with:</p>
+
+<pre><code class="language-ruby">require "llm"
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, name: "my-agent")
+agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
+</code></pre>
 
 <h4 id="repl-introduction-why-would-i-use-it">Why would I use it?</h4>
 

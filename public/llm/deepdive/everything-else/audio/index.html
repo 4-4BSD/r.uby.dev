@@ -204,7 +204,8 @@ downstream pipeline.</p>
 
 <p>When you want to transcribe audio into text, call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription"><code>LLM::Audio#create_transcription</code></a>.
-The provider processes the audio and returns the transcribed text. The file
+The provider processes the audio and returns the
+transcribed text. The file
 can be a local path or a URL depending on provider support:</p>
 
 <pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])

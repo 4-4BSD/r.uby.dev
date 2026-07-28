@@ -239,6 +239,15 @@ subclass, so <code>tracer: :set_tracer</code> calls <code>set_tracer</code> on t
 instance. A block like <code>stream: -&gt; { $stdout }</code> is evaluated
 when the attribute is first accessed.</p>
 
+<p>Set <code>path:</code> on a subclass or instance for automatic filesystem
+persistence; the agent restores conversation history from the
+file on startup and saves it back after every turn with no
+manual
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>/
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+calls. See the
+<a href="../advanced/database.md">database deepdive</a> for details.</p>
+
 <h3 id="agents-throwaway-agents">Throwaway agents</h3>
 
 <h4 id="agents-throwaway-agents-overview">Overview</h4>

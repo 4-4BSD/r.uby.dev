@@ -6,17 +6,17 @@
     <title>Compaction · llm.rb deep dive</title>
     <link rel="canonical" href="https://r.uby.dev/llm/deepdive/advanced/compaction/">
     <link rel="icon" href="/favicon.ico" sizes="any">
-    <meta name="description" content="Long-running conversations consume tokens. Without intervention, every turn pushes toward the model's context window limit. Compaction drops old messages to keep the conversation alive. The runtime runs a compactor automatically before each `talk` call, trimming the oldest messages when the conversation exceeds a configured size. This keeps the context window healthy without manual intervention.">
+    <meta name="description" content="Long-running conversations consume tokens. Without intervention, every turn pushes toward the model's context window limit. Compaction drops old messages to keep the conversation alive. The runtime runs a compactor automatically before each  call, trimming the oldest messages when the conversation exceeds a configured size. This keeps the context window healthy without manual intervention.">
     <meta name="robots" content="index,follow">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="Compaction · llm.rb deep dive">
-    <meta property="og:description" content="Long-running conversations consume tokens. Without intervention, every turn pushes toward the model's context window limit. Compaction drops old messages to keep the conversation alive. The runtime runs a compactor automatically before each `talk` call, trimming the oldest messages when the conversation exceeds a configured size. This keeps the context window healthy without manual intervention.">
+    <meta property="og:description" content="Long-running conversations consume tokens. Without intervention, every turn pushes toward the model's context window limit. Compaction drops old messages to keep the conversation alive. The runtime runs a compactor automatically before each  call, trimming the oldest messages when the conversation exceeds a configured size. This keeps the context window healthy without manual intervention.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/advanced/compaction/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Compaction · llm.rb deep dive">
-    <meta name="twitter:description" content="Long-running conversations consume tokens. Without intervention, every turn pushes toward the model's context window limit. Compaction drops old messages to keep the conversation alive. The runtime runs a compactor automatically before each `talk` call, trimming the oldest messages when the conversation exceeds a configured size. This keeps the context window healthy without manual intervention.">
+    <meta name="twitter:description" content="Long-running conversations consume tokens. Without intervention, every turn pushes toward the model's context window limit. Compaction drops old messages to keep the conversation alive. The runtime runs a compactor automatically before each  call, trimming the oldest messages when the conversation exceeds a configured size. This keeps the context window healthy without manual intervention.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="/css/main.css">
@@ -160,13 +160,16 @@
 <p>Long-running conversations consume tokens. Without intervention,
 every turn pushes toward the model’s context window limit. Compaction
 drops old messages to keep the conversation alive. The runtime runs
-a compactor automatically before each <code>talk</code> call, trimming the
-oldest messages when the conversation exceeds a configured size.
+a compactor automatically before each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+call, trimming the oldest messages when the conversation exceeds a configured size.
 This keeps the context window healthy without manual intervention.</p>
 
 <h4 id="compaction-introduction-how-it-works">How it works</h4>
 
-<p>Compactors run automatically before each <code>talk</code> call.
+<p>Compactors run automatically before each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+call.
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Truncate.html"><code>LLM::Compactor::Truncate</code></a>
 strategy drops the oldest messages, keeping only the N most recent.
 It preserves tool call/return pairs so the conversation never

@@ -6,17 +6,17 @@
     <title>Database · llm.rb deep dive</title>
     <link rel="canonical" href="https://r.uby.dev/llm/deepdive/advanced/database/">
     <link rel="icon" href="/favicon.ico" sizes="any">
-    <meta name="description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Three storage backends are available:">
+    <meta name="description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Four storage options are available:">
     <meta name="robots" content="index,follow">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="Database · llm.rb deep dive">
-    <meta property="og:description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Three storage backends are available:">
+    <meta property="og:description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Four storage options are available:">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/advanced/database/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Database · llm.rb deep dive">
-    <meta name="twitter:description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Three storage backends are available:">
+    <meta name="twitter:description" content="Persistence lets an agent outlive a single session. The conversation history, model name, and compaction status are serialized as JSON that can be stored in a file, a database column, or transmitted over a network. Four storage options are available:">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="/css/main.css">
@@ -159,9 +159,12 @@
 <p>Persistence lets an agent outlive a single session. The conversation
 history, model name, and compaction status are serialized as JSON
 that can be stored in a file, a database column, or transmitted
-over a network. Three storage backends are available:</p>
+over a network. Four storage options are available:</p>
 
 <ul>
+  <li><strong>Automatic filesystem persistence</strong>: set <code>path:</code> on an agent
+for transparent auto-save after every turn (recommended for
+most file-based use-cases)</li>
   <li><strong>Filesystem</strong>: save and restore from a JSON file on disk</li>
   <li><strong>ActiveRecord</strong>: persist state in a database column using <code>acts_as_agent</code></li>
   <li><strong>Sequel</strong>: persist state in a database column using <code>plugin :agent</code></li>
@@ -172,10 +175,19 @@ over a network. Three storage backends are available:</p>
 <h4 id="database-introduction-how-it-works">How it works</h4>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
-implements <code>to_h</code> and <code>to_json</code> for serialization and <code>restore</code>
+implements
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h"><code>LLM::Context#to_h</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_json"><code>LLM::Context#to_json</code></a>
+for serialization and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore"><code>LLM::Context#restore</code></a>
 for deserialization. Save writes the current state, restore loads
 it back and picks up where the conversation left off. The ORM
-wrappers automate this; each <code>talk</code> or <code>ask</code> call persists the
+wrappers automate this; each
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+call persists the
 updated state back to the column automatically.</p>
 
 <h4 id="database-introduction-why-would-i-use-it">Why would I use it?</h4>
@@ -192,6 +204,93 @@ data.</p>
 transmitted over the network. The ORM integrations use the same
 underlying serialization as filesystem persistence.</p>
 
+<h3 id="database-automatic-filesystem-persistence">Automatic filesystem persistence</h3>
+
+<h4 id="database-automatic-filesystem-persistence-overview">Overview</h4>
+
+<p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#path"><code>LLM::Agent#path</code></a>
+attribute provides transparent auto-persistence. Set a file path once
+and the agent restores conversation history from that file on startup
+and saves it back after every
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+turn. No manual
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>/
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+calls needed.</p>
+
+<p>The feature is available on subclasses via the class DSL and on
+direct instances via the <code>path:</code> keyword argument.</p>
+
+<h4 id="database-automatic-filesystem-persistence-how-it-works">How it works</h4>
+
+<p>When a <code>path</code> is set, the agent loads existing state from the file
+during initialization. After each turn
+(<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>),
+the updated
+state is written back automatically. If the file does not exist yet,
+the agent starts with a blank conversation and creates the file on
+the first save.</p>
+
+<p>You can set the path using any of these approaches:</p>
+
+<h5 id="database-automatic-filesystem-persistence-how-it-works-class-dsl">Class DSL</h5>
+
+<pre><code class="language-ruby">class PersistentAgent &lt; LLM::Agent
+  set model: "deepseek-v4-pro",
+      path: "session.json"
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = PersistentAgent.new(llm)
+agent.talk "remember my name is robert"
+# state saved automatically to session.json
+
+agent2 = PersistentAgent.new(llm)
+agent2.talk "what's my name?"
+# restored from session.json; prints "robert"
+</code></pre>
+
+<h5 id="database-automatic-filesystem-persistence-how-it-works-keyword-argument">Keyword argument</h5>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, path: "session.json", stream: $stdout)
+agent.talk "remember my name is robert"
+# state saved automatically
+</code></pre>
+
+<h5 id="database-automatic-filesystem-persistence-how-it-works-lazy-resolution">Lazy resolution</h5>
+
+<pre><code class="language-ruby">class DynamicAgent &lt; LLM::Agent
+  set path: -&gt; { "sessions/#{name}.json" }
+end
+</code></pre>
+
+<h4 id="database-automatic-filesystem-persistence-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Auto-persistence eliminates boilerplate. You set the path once and
+forget about serialization entirely. The agent picks up where it
+left off across process restarts, REPL sessions, or debugging runs
+without a single
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+call in your code.</p>
+
+<h4 id="database-automatic-filesystem-persistence-notes">Notes</h4>
+
+<p>The auto-path feature is a strict superset of manual filesystem
+persistence. If you need fine-grained control over when state is
+saved (e.g. batch several turns before persisting), use the manual
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#save"><code>LLM::Agent#save</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#restore"><code>LLM::Agent#restore</code></a>
+methods described in the Filesystem section below. The <code>path</code>
+attribute delegates to the same underlying serialization.</p>
+
 <h3 id="database-filesystem">Filesystem</h3>
 
 <h4 id="database-filesystem-overview">Overview</h4>
@@ -205,8 +304,14 @@ process or on a different machine, and pick up where you left off.</p>
 <h4 id="database-filesystem-how-it-works">How it works</h4>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
-implements <code>to_h</code> and <code>to_json</code> for serialization
-and <code>restore</code> for deserialization. The serialized state includes
+implements
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h"><code>LLM::Context#to_h</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_json"><code>LLM::Context#to_json</code></a>
+for serialization
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore"><code>LLM::Context#restore</code></a>
+for deserialization. The serialized state includes
 the message history, model name, and compaction status. Save and
 restore work with file paths or in-memory strings. You can also
 serialize to a JSON string for database storage or network
@@ -264,7 +369,11 @@ status) as JSON. On first call, a fresh agent is created and the
 conversation starts from scratch.</p>
 
 <p>On subsequent calls, the stored state is restored and the
-conversation continues. Every <code>talk</code> or <code>ask</code> call persists the
+conversation continues. Every
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+call persists the
 updated state back to the column automatically.</p>
 
 <p>The <code>data_column:</code> option lets you use a different column name.
@@ -372,7 +481,11 @@ the plugin in the model class. The <code>data</code> column stores
 the full agent state as JSON, same structure as ActiveRecord.
 On first call, a fresh agent is created. On subsequent calls,
 the stored state is restored and the conversation continues.
-Every <code>talk</code> or <code>ask</code> call persists the updated state.</p>
+Every
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#ask"><code>LLM::Agent#ask</code></a>
+call persists the updated state.</p>
 
 <p>The <code>data_column:</code> and <code>format:</code> options work identically to
 ActiveRecord. For <code>:jsonb</code>, Sequel loads the <code>pg_json</code> extension

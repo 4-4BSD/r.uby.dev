@@ -158,7 +158,7 @@ curses screen for the REPL.</p>
       <li class="public ">
   <span class="summary_signature">
     
-      <a href="#transcript-instance_method" title="#transcript (instance method)">#<strong>transcript</strong>  &#x21d2; LLM::Repl::Transcript </a>
+      <a href="#buffer-instance_method" title="#buffer (instance method)">#<strong>buffer</strong>  &#x21d2; LLM::Repl::Buffer </a>
     
 
     
@@ -402,7 +402,7 @@ curses screen for the REPL.</p>
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(status, transcript, input)  &#x21d2; LLM::Repl::Window </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(repl)  &#x21d2; LLM::Repl::Window </a>
     
 
     
@@ -433,7 +433,7 @@ curses screen for the REPL.</p>
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>(status, transcript, input)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl::Window (class)">LLM::Repl::Window</a></span></tt> 
+    #<strong>initialize</strong>(repl)  &#x21d2; <tt><span class='object_link'><a href="" title="LLM::Repl::Window (class)">LLM::Repl::Window</a></span></tt> 
   
 
   
@@ -455,34 +455,16 @@ curses screen for the REPL.</p>
   
     <li>
       
-        <span class='name'>status</span>
+        <span class='name'>repl</span>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="Status.html" title="LLM::Repl::Status (class)">LLM::Repl::Status</a></span></tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>transcript</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Transcript.html" title="LLM::Repl::Transcript (class)">LLM::Repl::Transcript</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="../Repl.html" title="LLM::Repl (class)">LLM::Repl</a></span></tt>)</span>
       
       
       
-    </li>
-  
-    <li>
-      
-        <span class='name'>input</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Input.html" title="LLM::Repl::Input (class)">LLM::Repl::Input</a></span></tt>)</span>
-      
-      
+        &mdash;
+        <div class='inline'><p>A read-eval-print loop.</p>
+</div>
       
     </li>
   
@@ -495,19 +477,19 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
+25
 26
 27
 28
-29
-30</pre>
+29</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 26</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 25</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_status'>status</span><span class='comma'>,</span> <span class='id identifier rubyid_transcript'>transcript</span><span class='comma'>,</span> <span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
-  <span class='ivar'>@status</span> <span class='op'>=</span> <span class='id identifier rubyid_status'>status</span>
-  <span class='ivar'>@transcript</span> <span class='op'>=</span> <span class='id identifier rubyid_transcript'>transcript</span>
-  <span class='ivar'>@input</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_repl'>repl</span><span class='rparen'>)</span>
+  <span class='ivar'>@status</span> <span class='op'>=</span> <span class='id identifier rubyid_repl'>repl</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span>
+  <span class='ivar'>@buffer</span> <span class='op'>=</span> <span class='id identifier rubyid_repl'>repl</span><span class='period'>.</span><span class='id identifier rubyid_buffer'>buffer</span>
+  <span class='ivar'>@input</span>  <span class='op'>=</span> <span class='id identifier rubyid_repl'>repl</span><span class='period'>.</span><span class='id identifier rubyid_input'>input</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -580,9 +562,9 @@ curses screen for the REPL.</p>
       
       <span id=""></span>
       <div class="method_details ">
-  <h3 class="signature " id="transcript-instance_method">
+  <h3 class="signature " id="buffer-instance_method">
   
-    #<strong>transcript</strong>  &#x21d2; <tt><span class='object_link'><a href="Transcript.html" title="LLM::Repl::Transcript (class)">LLM::Repl::Transcript</a></span></tt>  <span class="extras">(readonly)</span>
+    #<strong>buffer</strong>  &#x21d2; <tt><span class='object_link'><a href="Buffer.html" title="LLM::Repl::Buffer (class)">LLM::Repl::Buffer</a></span></tt>  <span class="extras">(readonly)</span>
   
 
   
@@ -606,7 +588,7 @@ curses screen for the REPL.</p>
     <li>
       
       
-        <span class='type'>(<tt><span class='object_link'><a href="Transcript.html" title="LLM::Repl::Transcript (class)">LLM::Repl::Transcript</a></span></tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Buffer.html" title="LLM::Repl::Buffer (class)">LLM::Repl::Buffer</a></span></tt>)</span>
       
       
       
@@ -627,8 +609,8 @@ curses screen for the REPL.</p>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 15</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_transcript'>transcript</span>
-  <span class='ivar'>@transcript</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_buffer'>buffer</span>
+  <span class='ivar'>@buffer</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -728,15 +710,15 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
+99
 100
-101
-102</pre>
+101</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 100</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 99</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_to_bottom'>scroll_to_bottom</span>
-  <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_scroll_to_bottom'>scroll_to_bottom</span>
+  <span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_scroll_to_bottom'>scroll_to_bottom</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -784,6 +766,7 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
+34
 35
 36
 37
@@ -792,11 +775,10 @@ curses screen for the REPL.</p>
 40
 41
 42
-43
-44</pre>
+43</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 35</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 34</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_open'>open</span>
   <span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_init_screen'>init_screen</span>
@@ -841,21 +823,21 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
+47
 48
 49
 50
 51
 52
-53
-54</pre>
+53</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 48</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 47</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_redraw'>redraw</span>
   <span class='id identifier rubyid_draw_status'>draw_status</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_height'>height</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_draw_divider'>draw_divider</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='int'>5</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_draw_transcript'>draw_transcript</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_draw_buffer'>draw_buffer</span><span class='lparen'>(</span><span class='label'>offset:</span> <span class='int'>0</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_draw_input'>draw_input</span>
   <span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_refresh'>refresh</span>
 <span class='kw'>end</span></pre>
@@ -905,12 +887,12 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
+57
 58
-59
-60</pre>
+59</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 58</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 57</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_rows'>rows</span>
   <span class='lbracket'>[</span><span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_lines'>lines</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='period'>.</span><span class='id identifier rubyid_height'>height</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
@@ -961,12 +943,12 @@ curses screen for the REPL.</p>
       <pre class="lines">
 
 
+63
 64
-65
-66</pre>
+65</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 63</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_getch'>getch</span>
   <span class='const'>Curses</span><span class='period'>.</span><span class='id identifier rubyid_getch'>getch</span>
@@ -1022,6 +1004,7 @@ processed character-by-character.</p>
       <pre class="lines">
 
 
+74
 75
 76
 77
@@ -1030,11 +1013,10 @@ processed character-by-character.</p>
 80
 81
 82
-83
-84</pre>
+83</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 75</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 74</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_read_paste'>read_paste</span>
   <span class='id identifier rubyid_chars'>chars</span> <span class='op'>=</span> <span class='op'>+</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
@@ -1079,15 +1061,15 @@ processed character-by-character.</p>
       <pre class="lines">
 
 
+87
 88
-89
-90</pre>
+89</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 88</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 87</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_up'>scroll_up</span>
-  <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_scroll_up'>scroll_up</span><span class='lparen'>(</span><span class='id identifier rubyid_rows'>rows</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_scroll_up'>scroll_up</span><span class='lparen'>(</span><span class='id identifier rubyid_rows'>rows</span><span class='rparen'>)</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1122,15 +1104,15 @@ processed character-by-character.</p>
       <pre class="lines">
 
 
+93
 94
-95
-96</pre>
+95</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 94</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/repl/window.rb', line 93</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_scroll_down'>scroll_down</span>
-  <span class='id identifier rubyid_transcript'>transcript</span><span class='period'>.</span><span class='id identifier rubyid_scroll_down'>scroll_down</span>
+  <span class='id identifier rubyid_buffer'>buffer</span><span class='period'>.</span><span class='id identifier rubyid_scroll_down'>scroll_down</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1142,7 +1124,7 @@ processed character-by-character.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 22 23:00:56 2026 by
+  Generated on Tue Jul 28 09:55:27 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

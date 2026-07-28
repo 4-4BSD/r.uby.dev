@@ -172,7 +172,11 @@ from any thread. Two things
 happen at once:</p>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
-is raised on the thread where <code>talk</code> is running, so the caller
+is raised on the thread where
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
+is running, so the caller
 can rescue it and know the request was cancelled.</p>
 
 <p>At the same time,
