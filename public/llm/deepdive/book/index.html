@@ -186,9 +186,9 @@ organized, not in what it can do. Tool loop execution can be
 configured with <code>concurrency: :sequential</code>, <code>:thread</code>, <code>:async</code>,
 <code>:fiber</code>, <code>:fork</code>, or <code>:ractor</code>.</p>
 
-<h3 id="agents-reusable-agents">Reusable agents</h3>
+<h3 id="agents-class-based">Class-based</h3>
 
-<h4 id="agents-reusable-agents-overview">Overview</h4>
+<h4 id="agents-class-based-overview">Overview</h4>
 
 <p>A subclass of
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
@@ -199,7 +199,7 @@ can be plain values, blocks, or Symbols that resolve to methods.
 The class becomes a self-contained worker that you can instantiate
 and talk to from anywhere.</p>
 
-<h4 id="agents-reusable-agents-how-it-works">How it works</h4>
+<h4 id="agents-class-based-how-it-works">How it works</h4>
 
 <p>A subclass declares its defaults with <code>set</code>. Each key is a
 class-level accessor: <code>model</code>, <code>tools</code>, <code>instructions</code>, <code>stream</code>,
@@ -217,14 +217,14 @@ agent = Agent.new(llm)
 agent.talk "Run 'date'"
 </code></pre>
 
-<h4 id="agents-reusable-agents-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="agents-class-based-why-would-i-use-it">Why would I use it?</h4>
 
 <p>A subclass is useful when multiple parts of an application need to
 call the same agent. The configuration and any helper methods live in one place. Define a
 <code>research!</code> method that kicks off the agent’s work. The subclass
 becomes a self-contained worker.</p>
 
-<h4 id="agents-reusable-agents-notes">Notes</h4>
+<h4 id="agents-class-based-notes">Notes</h4>
 
 <p>Attributes passed to <code>set</code> can be plain values, blocks, or
 Symbols. A Symbol is evaluated as an instance method on the
@@ -241,9 +241,9 @@ manual
 calls. See the
 <a href="../advanced/database.md">database deepdive</a> for details.</p>
 
-<h3 id="agents-throwaway-agents">Throwaway agents</h3>
+<h3 id="agents-object-based">Object-based</h3>
 
-<h4 id="agents-throwaway-agents-overview">Overview</h4>
+<h4 id="agents-object-based-overview">Overview</h4>
 
 <p>An
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
@@ -253,7 +253,7 @@ just like a subclass would. This is the right choice when you
 are prototyping, running a one-off task, or when the agent’s
 configuration is determined at runtime.</p>
 
-<h4 id="agents-throwaway-agents-how-it-works">How it works</h4>
+<h4 id="agents-object-based-how-it-works">How it works</h4>
 
 <p>A direct instance takes the same attributes as keyword arguments
 to <code>LLM::Agent.new</code>. The first argument is always the provider.
@@ -266,14 +266,14 @@ agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"
 </code></pre>
 
-<h4 id="agents-throwaway-agents-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="agents-object-based-why-would-i-use-it">Why would I use it?</h4>
 
 <p>A direct instance is the right choice for quick experiments, one-shot
 tasks, or when defining a class would be overkill. It is also
 the right choice when the agent’s configuration is determined at
 runtime and building a class hierarchy would be overkill.</p>
 
-<h4 id="agents-throwaway-agents-notes">Notes</h4>
+<h4 id="agents-object-based-notes">Notes</h4>
 
 <p>Direct instances accept all the same options as subclasses. The
 difference is only in how the agent is organized, not in what it
