@@ -167,7 +167,9 @@ copy the result somewhere useful.</p>
 
 <p>When you want to convert text to speech, call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_speech"><code>LLM::Audio#create_speech</code></a>.
-The provider returns an audio clip as a <code>URIData</code> object. The generated audio can be copied
+The provider returns an audio clip as a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html"><code>LLM::URIData</code></a>
+object. The generated audio can be copied
 to a file or streamed directly. Each provider supports different
 output formats and voice options:</p>
 
@@ -187,14 +189,20 @@ single method call.</p>
 <h4 id="audio-introduction-notes">Notes</h4>
 
 <p>OpenAI has full audio support. Google and DeepInfra have partial
-support. The <code>create_speech</code> method returns a <code>URIData</code> object.</p>
+support. The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_speech"><code>LLM::Audio#create_speech</code></a>
+method returns a
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/URIData.html"><code>LLM::URIData</code></a>
+object.</p>
 
 <h3 id="audio-transcription">Transcription</h3>
 
 <h4 id="audio-transcription-overview">Overview</h4>
 
 <p>Transcription turns an audio file into text. Pass a file path
-to <code>create_transcription</code> and get back the spoken content as
+to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription"><code>LLM::Audio#create_transcription</code></a>
+and get back the spoken content as
 a string. OpenAI, Google, and DeepInfra support it. Transcribe
 meeting notes, voice memos, or podcast episodes for search and
 processing. The response is plain text you can feed into any
@@ -230,7 +238,9 @@ support.</p>
 <h4 id="audio-translation-overview">Overview</h4>
 
 <p>Translation transcribes audio and translates it into English in
-one step. Pass a file to <code>create_translation</code> and get back the
+one step. Pass a file to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_translation"><code>LLM::Audio#create_translation</code></a>
+and get back the
 translated text. OpenAI and Google support it. Translate
 multilingual podcasts, interviews, or any audio where you need
 the content in English without running a separate translation

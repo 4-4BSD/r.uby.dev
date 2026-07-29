@@ -188,10 +188,9 @@ the network.</p>
 
 <h4 id="a2a-introduction-notes">Notes</h4>
 
-<p>An agent’s capabilities are advertised through a card. Use
+<p>An agent’s capabilities are advertised through a card. The
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
-to discover which transports a remote agent
-supports.</p>
+method lists which transports a remote agent supports.</p>
 
 <h3 id="a2a-json-rpc">JSON-RPC</h3>
 
@@ -200,10 +199,9 @@ supports.</p>
 <p>JSON-RPC is an alternative transport for A2A agents. It uses a
 more structured protocol than REST, with request and response
 objects that follow the JSON-RPC 2.0 spec. Some agents advertise
-only JSON-RPC, others advertise both. Check
+only JSON-RPC, others advertise both. The
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
-to
-see what a remote agent supports before choosing a transport.</p>
+method lists which transports a remote agent supports.</p>
 
 <h4 id="a2a-json-rpc-how-it-works">How it works</h4>
 
@@ -224,17 +222,17 @@ agent.talk "What's happening, fellow agent?"
 
 <p>JSON-RPC provides typed request and response objects that follow
 the 2.0 spec, offering a more structured protocol than REST. Some
-agents advertise only JSON-RPC, while others advertise both. Check
+agents advertise only JSON-RPC, while others advertise both. The
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
-to see what a remote agent supports before
-choosing a transport.</p>
+method lists which transports a remote agent supports.</p>
 
 <h4 id="a2a-json-rpc-notes">Notes</h4>
 
-<p>Both transports expose the remote agent’s skills as local
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
-subclasses, so the calling agent calls them the same way it
-calls any other tool.</p>
+<p>JSON-RPC request and response objects are typed and follow the 2.0
+spec. The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A.html#jsonrpc-class_method"><code>LLM::A2A.jsonrpc</code></a>
+transport provides structured message envelopes rather than plain
+HTTP.</p>
 
 
       <nav class="deepdive-nav" aria-label="Topic navigation">

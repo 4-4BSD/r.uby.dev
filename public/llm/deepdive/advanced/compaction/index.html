@@ -220,10 +220,13 @@ entirely in memory with a single pass over the message list. The
 trade-off is that dropped messages are gone, so information may be
 lost. Set <code>keep</code> to a higher number to retain more context.</p>
 
-<p>Both strategies emit <code>on_compaction</code> and <code>on_compaction_finish</code>
+<p>Both strategies emit
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction"><code>LLM::Stream#on_compaction</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_compaction_finish"><code>LLM::Stream#on_compaction_finish</code></a>
 stream callbacks so the UI can show progress. The context’s
-<code>compacted?</code> flag is <code>true</code> between compaction and the next model
-response.</p>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#compacted?"><code>LLM::Context#compacted?</code></a>
+flag is <code>true</code> between compaction and the next model response.</p>
 
       <nav class="deepdive-nav" aria-label="Topic navigation">
 

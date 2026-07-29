@@ -208,7 +208,9 @@ and talk to from anywhere.</p>
 
 <h4 id="agents-class-based-how-it-works">How it works</h4>
 
-<p>A subclass declares its defaults with <code>set</code>. Each key is a
+<p>A subclass declares its defaults with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method"><code>LLM::Agent.set</code></a>.
+Each key is a
 class-level accessor: <code>model</code>, <code>tools</code>, <code>instructions</code>, <code>stream</code>,
 <code>tracer</code>, <code>concurrency</code>, <code>schema</code>, <code>confirm</code>. When you create a
 new instance, any keyword arguments override the class-level
@@ -233,7 +235,9 @@ becomes a self-contained worker.</p>
 
 <h4 id="agents-class-based-notes">Notes</h4>
 
-<p>Attributes passed to <code>set</code> can be plain values, blocks, or
+<p>Attributes passed to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method"><code>LLM::Agent.set</code></a>
+can be plain values, blocks, or
 Symbols. A Symbol is evaluated as an instance method on the
 subclass, so <code>tracer: :set_tracer</code> calls <code>set_tracer</code> on the
 instance. A block like <code>stream: -&gt; { $stdout }</code> is evaluated
@@ -278,7 +282,7 @@ agent.talk "Hello world"
 <p>A direct instance is the right choice for quick experiments, one-shot
 tasks, or when defining a class would be overkill. It is also
 the right choice when the agent’s configuration is determined at
-runtime and building a class hierarchy would be overkill.</p>
+runtime and a class hierarchy adds unnecessary complexity.</p>
 
 <h4 id="agents-object-based-notes">Notes</h4>
 

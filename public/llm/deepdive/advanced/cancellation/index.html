@@ -185,8 +185,9 @@ is raised on every active tool.
 A tool running in a thread gets it on that thread. A tool in a
 fiber gets it on that fiber. A tool in a forked process gets it
 via a message over the control channel. Pending tools (not yet
-started) are cancelled through <code>Function#cancel</code> without ever
-being executed.</p>
+started) are cancelled through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
+without ever being executed.</p>
 
 <p>The transport layer also cancels the in-flight HTTP request.</p>
 

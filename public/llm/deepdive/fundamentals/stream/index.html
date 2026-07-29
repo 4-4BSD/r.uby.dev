@@ -187,9 +187,11 @@ single blocking response.</p>
 
 <h4 id="stream-introduction-notes">Notes</h4>
 
-<p>The IO-like form is equivalent to <code>LLM::Stream#on_content</code> and does
-not include the other hooks. It covers content output (piping to
-stdout or a log file) without the overhead of a full subclass. A
+<p>The IO-like form is equivalent to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_content"><code>LLM::Stream#on_content</code></a>
+and does not include the other hooks. It covers content output
+(piping to stdout or a log file) without the overhead of a full
+subclass. A
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a>
 subclass gives you visibility into tool calls, compaction events,
 and reasoning content.</p>
@@ -209,9 +211,13 @@ happens, from the first token to the final tool return.</p>
 <p>When you want to react to specific runtime events, override the
 hooks on a
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html"><code>LLM::Stream</code></a>
-subclass. <code>on_content</code> receives tokens as they arrive.
-<code>on_tool_call</code> fires when the model requests a tool.
-<code>on_tool_return</code> fires when the tool completes. Compaction hooks
+subclass.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_content"><code>LLM::Stream#on_content</code></a>
+receives tokens as they arrive.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_call"><code>LLM::Stream#on_tool_call</code></a>
+fires when the model requests a tool.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_tool_return"><code>LLM::Stream#on_tool_return</code></a>
+fires when the tool completes. Compaction hooks
 let you show progress or log what was trimmed.</p>
 
 <pre><code class="language-ruby">class MyStream &lt; LLM::Stream
@@ -249,8 +255,9 @@ an existing observability stack.</p>
 
 <h4 id="stream-callbacks-notes">Notes</h4>
 
-<p>The IO-like form is equivalent to <code>LLM::Stream#on_content</code> and does
-not include the other hooks.</p>
+<p>The IO-like form is equivalent to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_content"><code>LLM::Stream#on_content</code></a>
+and does not include the other hooks.</p>
 
       <nav class="deepdive-nav" aria-label="Topic navigation">
 

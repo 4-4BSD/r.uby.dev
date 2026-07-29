@@ -184,7 +184,11 @@ to execute them. Each call to
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
 appends
 to the conversation and returns the model’s response. The context
-serializes its state with <code>to_h</code> and <code>to_json</code>, and restores it
+serializes its state with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_h"><code>LLM::Context#to_h</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#to_json"><code>LLM::Context#to_json</code></a>,
+and restores it
 with
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#restore"><code>LLM::Context#restore</code></a>.
 This is how the ORM integrations and filesystem
@@ -291,7 +295,7 @@ preserve them.</p>
 
 <h4 id="context-pending-functions-overview">Overview</h4>
 
-<p>After
+<p>Pending function calls represent the model’s tool requests. After
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#talk"><code>LLM::Context#talk</code></a>
 returns, the context may have pending function
 calls if the model requested tools. These are available through
@@ -354,7 +358,7 @@ result, not a tool error.</p>
 
 <h4 id="context-tool-responses-overview">Overview</h4>
 
-<p>When a tool receives
+<p>A tool interrupt gives you two choices. When a tool receives
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>,
 it can either cancel the turn or return a result. The choice
 depends on the situation.
