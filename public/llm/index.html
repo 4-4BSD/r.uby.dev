@@ -54,7 +54,7 @@
       <section>
         <h2>Welcome</h2>
         <p>
-          Welcome to the homepage for <a target="_blank" href="https://github.com/r-uby-dev/llm#readme">llm.rb<img class="outbound-icon" src="/images/github-outbound.svg" alt=""></a>
+          Welcome to the canonical <a target="_blank" href="https://github.com/r-uby-dev/llm#readme">llm.rb<img class="outbound-icon" src="/images/github-outbound.svg" alt=""></a> repository.
         </p>
         <p>
           llm.rb is an advanced runtime for building capable AI applications
@@ -112,6 +112,47 @@
 llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"</code></pre>
+
+            <h4>set</h4>
+            <p>
+              <code><a href="/api-docs/llm.rb/LLM/Agent.html#set-class_method">LLM::Agent.set</a></code>
+              is a class-level DSL that accepts a Hash of properties. Each key resolves to a
+              corresponding class accessor: <code>name</code>, <code>description</code>, <code>model</code>, <code>tools</code>,
+              <code>instructions</code>, <code>schema</code>, <code>stream</code>, <code>tracer</code>, <code>concurrency</code>, <code>confirm</code>,
+              <code>path</code>, and <code>skills</code>. All options are optional; zero or more can be set.
+              An error is raised for unknown keys so that typos are caught early.
+            </p>
+            <pre><code class="language-ruby">class SystemAdmin < LLM::Agent
+  set name: "sysadmin",
+      description: "system administration agent",
+      model: "deepseek-v4-pro",
+      tools: [Shell]
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = SystemAdmin.new(llm)
+agent.talk "Run 'date'"</code></pre>
+
+            <h4>Persistence</h4>
+            <p>
+              Set <code>path:</code> on an agent for automatic filesystem persistence;
+              the agent restores conversation history from the file on startup
+              and saves it back after every turn, with no manual serialization
+              code. For database-backed persistence, ActiveRecord and Sequel
+              integrations are also available (see the
+              <a href="/llm/deepdive/advanced/database">database deepdive</a>
+              for details). All persistence options use the same underlying
+              serialization.
+            </p>
+            <pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, path: "session.json")
+agent.talk "remember my name is robert"
+
+# Next time, the conversation is restored automatically:
+agent = LLM::Agent.new(llm, path: "session.json")
+agent.talk "what's my name?"</code></pre>
           </div>
 
           <div class="example">
@@ -128,53 +169,6 @@ agent.talk "Hello world"</code></pre>
 llm = LLM.deepseek(key: ENV["KEY"])
 ctx = LLM::Context.new(llm, stream: $stdout)
 ctx.talk "Hello world"</code></pre>
-          </div>
-
-          <div id="schema" class="example">
-            <h3>LLM::Schema</h3>
-            <p>
-              <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code> subclasses produce typed, structured
-              output from any model call. Pass a schema to <code>LLM::Context#talk</code>,
-              <code>LLM::Agent#talk</code>, or <code>LLM::Provider#complete</code> to receive validated
-              JSON instead of free text. Schemas work alongside tools and streams.
-            </p>
-            <p>
-              <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code> can define objects, arrays, enums,
-              nested schemas, and more. It is also used internally by
-              <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> for parameter definitions.
-            </p>
-            <pre><code class="language-ruby">class Weather < LLM::Schema
-  property :city, String, "The city name"
-  property :temperature, Float, "Current temperature"
-  property :conditions, String, "Weather conditions"
-  required %i[city temperature conditions]
-end
-
-llm = LLM.openai(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, schema: Weather)
-res = agent.talk "Weather in Paris?"
-res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}</code></pre>
-          </div>
-
-          <div id="repl" class="example">
-            <h3>LLM::REPL</h3>
-            <h4>REPL: Agent</h4>
-            <p>
-              The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code>
-              method drops you into a curses-based TUI for talking to an
-              agent interactively. The <code>path:</code> option saves and restores
-              runtime state across sessions. The <code>tools:</code> option attaches
-              extra tools for the duration of the session. It is like
-              <code>binding.pry</code> but for agents. For the full reference see the
-              <a href="/llm/deepdive/#repl">REPL section</a> in the
-              deepdive.
-            </p>
-            <pre><code class="language-ruby">require "llm"
-require "llm/tools"
-
-llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "agent.json", tools: LLM::Tool.subclasses)</code></pre>
           </div>
 
           <div id="tools" class="example">
@@ -199,7 +193,7 @@ end</code></pre>
         </div>
       </section>
 
-            <section id="streaming">
+      <section id="streaming">
         <h3>LLM::Stream</h3>
         <p>
           Streams can be simple IO objects or subclasses of
@@ -221,6 +215,78 @@ agent = LLM::Agent.new(llm, stream: MyStream.new)
 agent.talk "Explain Ruby fibers."</code></pre>
       </section>
 
+      <section id="schema">
+        <h3>LLM::Schema</h3>
+        <p>
+          <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code> subclasses produce typed, structured
+          output from any model call. Pass a schema to <code>LLM::Context#talk</code>,
+          <code>LLM::Agent#talk</code>, or <code>LLM::Provider#complete</code> to receive validated
+          JSON instead of free text. Schemas work alongside tools and streams.
+        </p>
+        <p>
+          <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code>
+          can define objects, arrays, enums, nested schemas,
+          and more. It is also used internally by
+          <code><a href="/api-docs/llm.rb/LLM/Tool.html">LLM::Tool</a></code> for parameter
+          definitions, so you already benefit from it when you declare tool
+          parameters.
+        </p>
+        <p>
+          The <code><a href="/api-docs/llm.rb/LLM/DeepSeek.html">LLM::DeepSeek</a></code>
+          provider includes runtime-level optimisations such as structured
+          output support (despite no official structured outputs API) and
+          SVG image generation. This example uses
+          <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code> with
+          DeepSeek:
+        </p>
+        <pre><code class="language-ruby">class Weather < LLM::Schema
+  property :city, String, "The city name"
+  property :temperature, Float, "Current temperature"
+  property :conditions, String, "Weather conditions"
+  required %i[city temperature conditions]
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, schema: Weather)
+res = agent.talk "Weather in Paris?"
+res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}</code></pre>
+      </section>
+
+      <section id="repl">
+        <h3>LLM::REPL</h3>
+        <p>
+          The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code>
+          method drops you into a curses-based TUI for talking to an
+          agent interactively. Set <code>path:</code> on the agent for automatic
+          persistence across REPL sessions. The <code>tools:</code> option attaches
+          extra tools for the duration of the session. It is like
+          <code>binding.pry</code> but for agents. For the full reference see the
+          <a href="/llm/deepdive/fundamentals/repl">REPL section</a> in the
+          deepdive.
+        </p>
+        <pre><code class="language-ruby">require "llm"
+require "llm/tools"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, name: "my-agent", path: "agent.json")
+agent.repl(tools: LLM::Tool.subclasses)</code></pre>
+
+        <h4>CLI</h4>
+        <p>
+          The <code>llm.rb</code> executable is available on your PATH after installation.
+          It starts a REPL session from any directory:
+        </p>
+        <pre><code class="language-bash">llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
+llm.rb -p openai           # use OpenAI explicitly
+llm.rb -t                  # temporary session, no persistence</code></pre>
+        <p>
+          The CLI auto-detects your provider from standard environment variables
+          (<code>DEEPSEEK_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, etc.).
+          Persistent sessions are stored under <code>~/.llm.rb/</code> and restored
+          automatically on your next visit.
+        </p>
+      </section>
+
       <section id="mcp">
         <h3>LLM::MCP</h3>
         <p>
@@ -235,10 +301,10 @@ agent.talk "Explain Ruby fibers."</code></pre>
 llm   = LLM.deepseek(key: ENV["KEY"])
 mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
 agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
-agent.talk "Run the tool"
-</code></pre>
+agent.talk "Run the tool"</code></pre>
       </section>
-            <section id="a2a">
+
+      <section id="a2a">
         <h3>LLM::A2A</h3>
         <p>
           The Agent 2 Agent (A2A) protocol has first-class support
@@ -252,9 +318,9 @@ agent.talk "Run the tool"
 llm   = LLM.deepseek(key: ENV["KEY"])
 a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
 agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
-agent.talk "Run the skill"
-</code></pre>
+agent.talk "Run the skill"</code></pre>
       </section>
+
       <section id="skills">
         <h3>LLM::Skill</h3>
         <p>
@@ -263,7 +329,7 @@ agent.talk "Run the skill"
           as its system prompt and the skill's own tool set. The subagent runs
           one turn and returns the result, then is discarded. Each call
           is fresh and stateless. For a deeper explanation see the
-          <a href="/llm/deepdive/#skills">deepdive</a>.
+          <a href="/llm/deepdive/fundamentals/skills">deepdive</a>.
         </p>
         <p><strong>SKILL.md</strong></p>
         <pre><code class="language-markdown">---
@@ -281,6 +347,7 @@ llm   = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, skills: ["./skills/summary"])
 agent.talk "Summarize the last week of work"</code></pre>
       </section>
+
       <section id="rag">
         <h3>RAG</h3>
         <p>
@@ -302,12 +369,15 @@ llm  = LLM.openai(key: ENV["KEY"])
 body = "llm.rb is Ruby's capable AI runtime."
 embedding = llm.embed([body]).embeddings.first
 
+# Document is your ActiveRecord or Sequel model
+# with a vector column (e.g. sqlite-vec or pgvector)
 Document.create!(
   title: "llm.rb",
   body:,
   embedding:,
 )</code></pre>
       </section>
+
       <section id="concurrency">
         <h3>Concurrency</h3>
         <p>
@@ -320,37 +390,36 @@ Document.create!(
           and <code>:fiber</code> strategies while true parallelism can be achieved
           with the <code>:fork</code> and <code>:ractor</code> strategies. The
           <code>:sequential</code> strategy runs tools one at a time and is the default.
-          The
-          <code>:fork</code> strategy also provides a separate process that offers
+          The <code>:fork</code> strategy also provides a separate process that offers
           isolation from its parent.
         </p>
         <p>
           You can learn more about the llm.rb concurrency model in the
-          <a href="/llm/deepdive/#concurrency">deepdive</a>.
+          <a href="/llm/deepdive/fundamentals/concurrency">deepdive</a>.
         </p>
-                <pre><code class="language-ruby">require "llm"
+        <pre><code class="language-ruby">require "llm"
 
 llm   = LLM.deepseek(key: ENV["KEY"])
 tools = [FetchNews, FetchStocks, FetchFeeds]
 agent = LLM::Agent.new(llm, tools:, concurrency: :fork)
-agent.talk "Run the tools in parallel"
-</code></pre>
+agent.talk "Run the tools in parallel"</code></pre>
       </section>
+
       <section id="orm">
         <h3>ORM</h3>
         <p>
-          Because both <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code>, and <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>
-          can be serialized to JSON and stored in a simple string both ActiveRecord
+          Because both <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code> and
+          <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>
+          can be serialized to JSON and stored in a simple string, both ActiveRecord
           and Sequel support can be implemented within a single column on a single row.
+        </p>
         <p>
-        <p>
-          The runtime
-          includes first-class support for both ActiveRecord <i>and</i> Sequel, and
+          The runtime includes first-class support for both ActiveRecord <i>and</i> Sequel, and
           for both Rack-based applications <i>and</i> Rails-based applications. On
           databases where it is supported, such as PostgreSQL, the column can be
           optimized by using the <code>jsonb</code> type.
         </p>
-                        <pre><code class="language-ruby">require "active_record"
+        <pre><code class="language-ruby">require "active_record"
 require "llm"
 require "llm/active_record"
 
@@ -377,20 +446,18 @@ class Agent < ApplicationRecord
 end
 
 agent = Agent.create!
-agent.talk "perform research"
-</code></pre>
+agent.talk "perform research"</code></pre>
       </section>
-
 
       <section>
         <h2>Learn more</h2>
         <p>
-          The Quick Start guide is intended to be a quick overview of
-          the runtime, it lacks depth, and omits certain features. The
-          <a href="/llm/deepdive/">deepdive</a> provides a thorough,
-          deep overview of the runtime that is recommended as the
-          next stop for learning more about
-          <a href="https://github.com/r-uby-dev/llm#readme">llm.rb<img class="outbound-icon" src="/images/github-outbound.svg" alt=""></a>.
+          If you like what you've read so far, check out the
+          <a href="/llm/deepdive/">deepdive</a> to learn more.
+          Unfortunately it wasn't possible to cover every feature without the
+          README becoming a small book.
+          The <a href="https://r.uby.dev">r.uby.dev</a> homepage also includes
+          more learning material and resources.
         </p>
       </section>
 
@@ -453,13 +520,13 @@ agent.talk "perform research"
 
           <p>The same is true for structured outputs. DeepSeek does not support them in the same way as OpenAI or Google, but the llm.rb runtime makes it appear as though it does through the <code>json_object</code> response type.</p>
 
-          <p>If you are on a budget, DeepSeek is hard to beat.</p>
+          <p>If you're on a budget, DeepSeek is hard to beat.</p>
         </details>
 
         <details class="faq-item">
           <summary>Can I download llm.rb via a decentralized network?</summary>
 
-          <p>You can.</p>
+          <p>Yes.</p>
           <p>We are on the <a href="https://radicle.network">radicle.network</a>.</p>
           <p>Every commit that lands on GitHub also lands on Radicle.</p>
           <p>Our repository ID is <code>z2PtfQ6dYwyYaW2aGrztG1sMyDmCE</code>.</p>
@@ -495,6 +562,13 @@ agent.talk "perform research"
             </tr>
           </tbody>
         </table>
+      </section>
+
+      <section>
+        <h2>License</h2>
+        <p>
+          This software is released under the terms of the MIT license.
+        </p>
       </section>
 
       <footer>
