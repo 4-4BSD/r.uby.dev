@@ -361,7 +361,8 @@ agent.talk "Summarize the last week of work"</code></pre>
         <p>
           llm.rb also includes support for OpenAI's vector store API. It
           provides a vector database as a HTTP service but we won't cover
-          that here.
+          that here. For a deeper explanation see the
+          <a href="/llm/deepdive/fundamentals/embeddings">deepdive</a>.
         </p>
         <pre><code class="language-ruby">require "llm"
 
@@ -514,11 +515,11 @@ agent.talk "perform research"</code></pre>
         <details class="faq-item">
           <summary>I have a limited budget. What should I do?</summary>
 
-          <p>There are a few options. The first option is to host your own model and use the Ollama or llama.cpp providers. This can be difficult though because a capable model requires hardware that can match it. If you have the ability to self-host, this would be my first option.</p>
+          <p>There are a few options. The first option is to host your own model, and use the ollama or llamacpp providers. This can be difficult though because a capable model requires hardware that can match it. If you have the ability to self-host, this would be my first option.</p>
 
-          <p>The second option is DeepSeek. The <code>deepseek-v4-flash</code> model costs pennies to use. And llm.rb has been optimized for DeepSeek. For example, DeepSeek does not have image generation capabilities but on the llm.rb runtime it does, at least for vector graphics.</p>
+          <p>The second option is DeepSeek.<br>The <code>deepseek-v4-flash</code> model costs pennies to use.<br>And llm.rb has been optimized for deepseek. For example, DeepSeek does not have image generation capabilities but on the llm.rb runtime it does (vector graphics only, though).</p>
 
-          <p>The same is true for structured outputs. DeepSeek does not support them in the same way as OpenAI or Google, but the llm.rb runtime makes it appear as though it does through the <code>json_object</code> response type.</p>
+          <p>The same is true for structured outputs. DeepSeek does not support them in the same way as OpenAI or Google, but the llm.rb runtime makes it appear as though it does, through the <code>json_object</code> response type.</p>
 
           <p>If you're on a budget, DeepSeek is hard to beat.</p>
         </details>
@@ -567,7 +568,8 @@ agent.talk "perform research"</code></pre>
       <section>
         <h2>License</h2>
         <p>
-          This software is released under the terms of the MIT license.
+          This software is released under the terms of the MIT license. <br>
+          See <a href="https://github.com/r-uby-dev/llm/blob/main/LICENSE">LICENSE</a> for details.
         </p>
       </section>
 
