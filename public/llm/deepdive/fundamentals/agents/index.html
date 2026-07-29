@@ -211,13 +211,14 @@ and talk to from anywhere.</p>
 <p>A subclass declares its defaults with
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method"><code>LLM::Agent.set</code></a>.
 Each key is a
-class-level accessor: <code>model</code>, <code>tools</code>, <code>instructions</code>, <code>stream</code>,
-<code>tracer</code>, <code>concurrency</code>, <code>schema</code>, <code>confirm</code>. When you create a
-new instance, any keyword arguments override the class-level
-defaults.</p>
+class-level accessor: <code>name</code>, <code>description</code>, <code>model</code>, <code>tools</code>,
+<code>instructions</code>, <code>stream</code>, <code>tracer</code>, <code>concurrency</code>, <code>schema</code>,
+<code>confirm</code>, <code>path</code>.
+Keyword arguments in the constructor override these defaults.</p>
 
 <pre><code class="language-ruby">class Agent &lt; LLM::Agent
   set model: "deepseek-v4-pro",
+      description: "system administration agent",
       tools: [Shell]
 end
 
@@ -267,7 +268,9 @@ configuration is determined at runtime.</p>
 <h4 id="agents-object-based-how-it-works">How it works</h4>
 
 <p>A direct instance takes the same attributes as keyword arguments
-to <code>LLM::Agent.new</code>. The first argument is always the provider.
+to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#initialize-instance_method"><code>LLM::Agent.new</code></a>.
+The first argument is always the provider.
 Everything else is optional. The agent runs the tool loop
 and manages state under the hood through a
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>.</p>

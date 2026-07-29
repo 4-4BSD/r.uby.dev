@@ -169,22 +169,29 @@ requests made by that agent.</p>
 <p>When you want to observe runtime events, subclass
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a>
 and implement the hooks you need.
-The built-in tracers include <code>LLM::Tracer::Logger</code> (writes to
-stdout or a file) and <code>LLM::Tracer::Telemetry</code> (exports spans
-via OTLP for OpenTelemetry).</p>
+The built-in tracers include <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (writes
+structured JSON to stdout or a file), <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
+(writes human-readable single-line logs to stderr), and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> (exports spans via OTLP for
+OpenTelemetry).</p>
 
 <h4 id="tracer-introduction-why-would-i-use-it">Why would I use it?</h4>
 
 <p>Tracers give you visibility into what the runtime is doing. Debug
 a misbehaving agent by tracing every request it makes. Monitor
 request latency and token usage across providers. Export spans to
-OpenTelemetry for integration with existing observability pipelines.</p>
+OpenTelemetry for integration with existing observability pipelines.
+Use <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a> during development for compact,
+human-readable output, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> for structured JSON,
+and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> for production observability.</p>
 
 <h4 id="tracer-introduction-notes">Notes</h4>
 
 <p>The tracer is extensible. You can implement custom hooks for any
 runtime event. The scope can be an individual agent or every
-request a provider makes.</p>
+request a provider makes. Three built-in tracers are available:
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>PrettyLogger</code></a> (human-readable), <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>Logger</code></a> (structured JSON), and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>Telemetry</code></a> (OpenTelemetry).</p>
 
 <h3 id="tracer-provider">Provider</h3>
 
@@ -215,15 +222,15 @@ All agents sharing the same provider share the same tracer.</p>
 
 <h4 id="tracer-provider-notes">Notes</h4>
 
-<p>The tracer can also write to a file: <code>LLM::Tracer::Logger.new(llm,
-path: "deepseek.log")</code>.</p>
+<p>The tracer can also write to a file:
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html#initialize-instance_method"><code>LLM::Tracer::Logger.new(llm, path: "deepseek.log")</code></a>.</p>
 
 <h3 id="tracer-agent">Agent</h3>
 
 <h4 id="tracer-agent-overview">Overview</h4>
 
 <p>An agent-local tracer only covers requests made by that agent.
-Attach it via <code>LLM::Agent.new(llm, tracer: ...)</code> and it follows
+Attach it via <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#initialize-instance_method"><code>LLM::Agent.new(llm, tracer: ...)</code></a> and it follows
 that agent wherever it goes. Different agents can have different
 tracers.</p>
 
@@ -246,8 +253,56 @@ OpenTelemetry.</p>
 
 <h4 id="tracer-agent-notes">Notes</h4>
 
-<p>The tracer can also write to a file: <code>LLM::Tracer::Logger.new(llm,
-path: "deepseek-agent.log")</code>.</p>
+<p>The tracer can also write to a file:
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html#initialize-instance_method"><code>LLM::Tracer::Logger.new(llm, path: "deepseek-agent.log")</code></a>.</p>
+
+<h3 id="tracer-prettylogger">PrettyLogger</h3>
+
+<h4 id="tracer-prettylogger-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
+writes human-readable single-line logs to stderr. Unlike
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (which emits structured JSON), the pretty
+logger is designed for interactive development sessions where you
+want to see request and tool-call activity at a glance.</p>
+
+<h4 id="tracer-prettylogger-how-it-works">How it works</h4>
+
+<p>Each request and tool call produces a single line on stderr with
+the model, duration, and a summary of the activity. The logger
+accepts an <code>io:</code> option to redirect output.</p>
+
+<h5 id="tracer-prettylogger-how-it-works-provider-wide">Provider-wide</h5>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
+</code></pre>
+
+<h5 id="tracer-prettylogger-how-it-works-agent-local">Agent-local</h5>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tracer: LLM::Tracer::PrettyLogger.new(llm))
+</code></pre>
+
+<h5 id="tracer-prettylogger-how-it-works-custom-output">Custom output</h5>
+
+<pre><code class="language-ruby">tracer = LLM::Tracer::PrettyLogger.new(llm, io: $stdout)
+tracer = LLM::Tracer::PrettyLogger.new(llm, io: File.open("trace.log", "a"))
+</code></pre>
+
+<h4 id="tracer-prettylogger-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The pretty logger is the best choice for development. The output is
+compact enough to follow in real time while still showing the model
+name, duration, and tool calls. Switch to <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> when
+you need structured JSON for programmatic analysis, or to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> when you need OpenTelemetry exports.</p>
+
+<h4 id="tracer-prettylogger-notes">Notes</h4>
+
+<p>The pretty logger writes to <code>$stderr</code> by default. Set <code>io:</code> to
+redirect output. All three built-in tracers share the same interface,
+so switching between them requires changing only the class name.</p>
 
       <nav class="deepdive-nav" aria-label="Topic navigation">
 
