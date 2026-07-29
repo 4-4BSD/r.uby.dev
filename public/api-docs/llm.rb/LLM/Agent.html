@@ -1431,11 +1431,6 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-323
-324
-325
-326
-327
 328
 329
 330
@@ -1450,10 +1445,15 @@ not only those listed here.</p>
 339
 340
 341
-342</pre>
+342
+343
+344
+345
+346
+347</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 323</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 328</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='ivar'>@llm</span> <span class='op'>=</span> <span class='id identifier rubyid_llm'>llm</span>
@@ -1473,7 +1473,7 @@ not only those listed here.</p>
     <span class='kw'>end</span>
   <span class='kw'>end</span>
   <span class='ivar'>@ctx</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Context.html" title="LLM::Context (class)">Context</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Context.html#initialize-instance_method" title="LLM::Context#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='label'>guard:</span> <span class='kw'>true</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='rparen'>)</span>
-  <span class='ivar'>@path</span> <span class='op'>?</span> <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_restore'>restore</span><span class='lparen'>(</span><span class='label'>path:</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span>
+  <span class='ivar'>@path</span> <span class='kw'>and</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='ivar'>@path</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_restore'>restore</span><span class='lparen'>(</span><span class='label'>path:</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1525,12 +1525,12 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-63
-64
-65</pre>
+68
+69
+70</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 63</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 68</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_llm'>llm</span>
   <span class='ivar'>@llm</span>
@@ -1619,27 +1619,27 @@ optional but recommended.</p>
       <pre class="lines">
 
 
-112
-113
-114
-115
-116
 117
 118
 119
 120
 121
 122
-123</pre>
+123
+124
+125
+126
+127
+128</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 112</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 117</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='const'>UNDEFINED</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'>UNDEFINED</span><span class='rparen'>)</span>
     <span class='kw'>if</span> <span class='ivar'>@name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
-      <span class='id identifier rubyid_name'>name</span>  <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>::</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
-      <span class='ivar'>@name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='const'>CASE_PATTERN</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+      <span class='id identifier rubyid_name'>name</span>  <span class='op'>=</span> <span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>::</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
+      <span class='ivar'>@name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='const'>CASE_PATTERN</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
     <span class='kw'>else</span>
       <span class='ivar'>@name</span>
     <span class='kw'>end</span>
@@ -1723,16 +1723,16 @@ It is optional but recommended.</p>
       <pre class="lines">
 
 
-134
-135
-136
-137
-138
 139
-140</pre>
+140
+141
+142
+143
+144
+145</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 134</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 139</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span><span class='lparen'>(</span><span class='id identifier rubyid_desc'>desc</span> <span class='op'>=</span> <span class='const'>UNDEFINED</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_desc'>desc</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'>UNDEFINED</span><span class='rparen'>)</span>
@@ -1809,13 +1809,13 @@ It is optional but recommended.</p>
       <pre class="lines">
 
 
-148
-149
-150
-151</pre>
+153
+154
+155
+156</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 148</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 153</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_model'>model</span><span class='lparen'>(</span><span class='id identifier rubyid_model'>model</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@model</span> <span class='kw'>if</span> <span class='id identifier rubyid_model'>model</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_block'>block</span>
@@ -1887,17 +1887,17 @@ It is optional but recommended.</p>
       <pre class="lines">
 
 
-159
-160
-161
-162
-163
 164
 165
-166</pre>
+166
+167
+168
+169
+170
+171</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 159</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 164</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_tools'>tools</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_tools'>tools</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@tools</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_tools'>tools</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_block'>block</span>
@@ -1973,17 +1973,17 @@ It is optional but recommended.</p>
       <pre class="lines">
 
 
-174
-175
-176
-177
-178
 179
 180
-181</pre>
+181
+182
+183
+184
+185
+186</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 174</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 179</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_skills'>skills</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_skills'>skills</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@skills</span> <span class='kw'>if</span> <span class='id identifier rubyid_skills'>skills</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_block'>block</span>
@@ -2061,13 +2061,13 @@ It is optional but recommended.</p>
       <pre class="lines">
 
 
-189
-190
-191
-192</pre>
+194
+195
+196
+197</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 194</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_schema'>schema</span><span class='lparen'>(</span><span class='id identifier rubyid_schema'>schema</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@schema</span> <span class='kw'>if</span> <span class='id identifier rubyid_schema'>schema</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_block'>block</span>
@@ -2141,13 +2141,13 @@ It is optional but recommended.</p>
       <pre class="lines">
 
 
-200
-201
-202
-203</pre>
+205
+206
+207
+208</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 200</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 205</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_instructions'>instructions</span><span class='lparen'>(</span><span class='id identifier rubyid_instructions'>instructions</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@instructions</span> <span class='kw'>if</span> <span class='id identifier rubyid_instructions'>instructions</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -2229,13 +2229,13 @@ cases and are not needed for normal queued stream tool loops.</li>
       <pre class="lines">
 
 
-220
-221
-222
-223</pre>
+225
+226
+227
+228</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 220</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 225</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_concurrency'>concurrency</span><span class='lparen'>(</span><span class='id identifier rubyid_concurrency'>concurrency</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@concurrency</span> <span class='kw'>if</span> <span class='id identifier rubyid_concurrency'>concurrency</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
@@ -2328,13 +2328,13 @@ resolved provider.</p>
       <pre class="lines">
 
 
-240
-241
-242
-243</pre>
+245
+246
+247
+248</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 240</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 245</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span><span class='lparen'>(</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@tracer</span> <span class='kw'>if</span> <span class='id identifier rubyid_tracer'>tracer</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_block'>block</span>
@@ -2427,13 +2427,13 @@ each agent.</p>
       <pre class="lines">
 
 
-260
-261
-262
-263</pre>
+265
+266
+267
+268</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 260</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 265</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stream'>stream</span><span class='lparen'>(</span><span class='id identifier rubyid_stream'>stream</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@stream</span> <span class='kw'>if</span> <span class='id identifier rubyid_stream'>stream</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_block'>block</span>
@@ -2534,17 +2534,17 @@ instance. This allows dynamic tool confirmation lists.</p>
       <pre class="lines">
 
 
-286
-287
-288
-289
-290
 291
 292
-293</pre>
+293
+294
+295
+296
+297
+298</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 286</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 291</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_confirm'>confirm</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_tool_names'>tool_names</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='ivar'>@confirm</span> <span class='kw'>if</span> <span class='id identifier rubyid_tool_names'>tool_names</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_block'>block</span>
@@ -2619,16 +2619,16 @@ can be restored from, and written to.</p>
       <pre class="lines">
 
 
-301
-302
-303
-304
-305
 306
-307</pre>
+307
+308
+309
+310
+311
+312</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 301</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 306</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='const'>UNDEFINED</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_equal?'>equal?</span><span class='lparen'>(</span><span class='const'>UNDEFINED</span><span class='rparen'>)</span>
@@ -2806,18 +2806,18 @@ caught early.</p>
       <pre class="lines">
 
 
-92
-93
-94
-95
-96
 97
 98
 99
-100</pre>
+100
+101
+102
+103
+104
+105</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 92</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 97</span>
 
 <span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_properties'>properties</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_properties'>properties</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span>
@@ -2917,12 +2917,12 @@ caught early.</p>
       <pre class="lines">
 
 
-625
-626
-627</pre>
+630
+631
+632</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 625</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 630</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_tool_confirmation'>on_tool_confirmation</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='id identifier rubyid_strategy'>strategy</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_cancel'>cancel</span>
@@ -2970,12 +2970,12 @@ caught early.</p>
       <pre class="lines">
 
 
-347
-348
-349</pre>
+352
+353
+354</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 347</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 352</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
   <span class='ivar'>@name</span>
@@ -3024,12 +3024,12 @@ restored from, and written to after each turn.</p>
       <pre class="lines">
 
 
-355
-356
-357</pre>
+360
+361
+362</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 355</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 360</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_path'>path</span>
   <span class='ivar'>@path</span>
@@ -3077,12 +3077,12 @@ restored from, and written to after each turn.</p>
       <pre class="lines">
 
 
-362
-363
-364</pre>
+367
+368
+369</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 362</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 367</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_description'>description</span>
   <span class='ivar'>@description</span>
@@ -3207,14 +3207,14 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-382
-383
-384
-385
-386</pre>
+387
+388
+389
+390
+391</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 382</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 387</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_talk'>talk</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_run_loop'>run_loop</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='symbol'>:talk</span><span class='rparen'>)</span>
@@ -3257,14 +3257,14 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-390
-391
-392
-393
-394</pre>
+395
+396
+397
+398
+399</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 390</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 395</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ask'>ask</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_run_loop'>run_loop</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='symbol'>:ask</span><span class='rparen'>)</span>
@@ -3313,12 +3313,12 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-398
-399
-400</pre>
+403
+404
+405</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 398</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 403</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_messages'>messages</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_messages'>messages</span>
@@ -3365,12 +3365,12 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-404
-405
-406</pre>
+409
+410
+411</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 404</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 409</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_pending_functions'>pending_functions</span>
   <span class='ivar'>@tracer</span> <span class='op'>?</span> <span class='ivar'>@llm</span><span class='period'>.</span><span class='id identifier rubyid_with_tracer'>with_tracer</span><span class='lparen'>(</span><span class='ivar'>@tracer</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions'>pending_functions</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_pending_functions'>pending_functions</span>
@@ -3424,12 +3424,12 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-411
-412
-413</pre>
+416
+417
+418</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 411</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 416</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_returns'>returns</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_returns'>returns</span>
@@ -3483,12 +3483,12 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-418
-419
-420</pre>
+423
+424
+425</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 418</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 423</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='ivar'>@tracer</span> <span class='op'>?</span> <span class='ivar'>@llm</span><span class='period'>.</span><span class='id identifier rubyid_with_tracer'>with_tracer</span><span class='lparen'>(</span><span class='ivar'>@tracer</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span> <span class='rbrace'>}</span> <span class='op'>:</span> <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_wait'>wait</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
@@ -3535,12 +3535,12 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-424
-425
-426</pre>
+429
+430
+431</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 424</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 429</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_usage'>usage</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
@@ -3592,12 +3592,12 @@ Set to <code>nil</code> to disable advisory tool-limit returns.</p>
       <pre class="lines">
 
 
-431
-432
-433</pre>
+436
+437
+438</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 431</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 436</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span>
@@ -3675,12 +3675,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-440
-441
-442</pre>
+445
+446
+447</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 440</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 445</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_prompt'>prompt</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_b'>b</span><span class='rparen'>)</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_prompt'>prompt</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_b'>b</span><span class='rparen'>)</span>
@@ -3751,12 +3751,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-450
-451
-452</pre>
+455
+456
+457</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 450</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 455</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_image_url'>image_url</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='rparen'>)</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_image_url'>image_url</span><span class='lparen'>(</span><span class='id identifier rubyid_url'>url</span><span class='rparen'>)</span>
@@ -3827,12 +3827,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-459
-460
-461</pre>
+464
+465
+466</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 459</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 464</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_local_file'>local_file</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_local_file'>local_file</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
@@ -3903,12 +3903,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-468
-469
-470</pre>
+473
+474
+475</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 468</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 473</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_remote_file'>remote_file</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_remote_file'>remote_file</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
@@ -3960,12 +3960,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-475
-476
-477</pre>
+480
+481
+482</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 475</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 480</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tracer'>tracer</span>
   <span class='ivar'>@tracer</span> <span class='op'>||</span> <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span>
@@ -4018,13 +4018,13 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-483
-484
-485
-486</pre>
+488
+489
+490
+491</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 483</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 488</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tracer='>tracer=</span><span class='lparen'>(</span><span class='id identifier rubyid_other'>other</span><span class='rparen'>)</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_other'>other</span>
@@ -4077,12 +4077,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-491
-492
-493</pre>
+496
+497
+498</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 491</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 496</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_stream'>stream</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_stream'>stream</span>
@@ -4130,12 +4130,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-498
-499
-500</pre>
+503
+504
+505</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 498</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 503</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_model'>model</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_model'>model</span>
@@ -4182,12 +4182,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-504
-505
-506</pre>
+509
+510
+511</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 504</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 509</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_mode'>mode</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span>
@@ -4235,12 +4235,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-511
-512
-513</pre>
+516
+517
+518</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 511</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 516</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_concurrency'>concurrency</span>
   <span class='ivar'>@concurrency</span>
@@ -4294,12 +4294,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-518
-519
-520</pre>
+523
+524
+525</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 518</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 523</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_cost'>cost</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_cost'>cost</span>
@@ -4353,12 +4353,12 @@ it receives the prompt object. Otherwise it runs in prompt context.</p>
       <pre class="lines">
 
 
-525
-526
-527</pre>
+530
+531
+532</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 525</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 530</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_context_window'>context_window</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_context_window'>context_window</span>
@@ -4497,11 +4497,6 @@ repl session. Default is false.</p>
       <pre class="lines">
 
 
-553
-554
-555
-556
-557
 558
 559
 560
@@ -4512,10 +4507,15 @@ repl session. Default is false.</p>
 565
 566
 567
-568</pre>
+568
+569
+570
+571
+572
+573</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 553</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 558</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='label'>name:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>path:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>skills:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>tracer:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>trace:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
   <span class='kw'>if</span> <span class='id identifier rubyid_trace'>trace</span> <span class='op'>!=</span> <span class='kw'>nil</span>
@@ -4582,12 +4582,12 @@ repl session. Default is false.</p>
       <pre class="lines">
 
 
-573
-574
-575</pre>
+578
+579
+580</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 573</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 578</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_params'>params</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_params'>params</span>
@@ -4641,12 +4641,12 @@ repl session. Default is false.</p>
       <pre class="lines">
 
 
-580
-581
-582</pre>
+585
+586
+587</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 580</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 585</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_h'>to_h</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span>
@@ -4693,12 +4693,12 @@ repl session. Default is false.</p>
       <pre class="lines">
 
 
-586
-587
-588</pre>
+591
+592
+593</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 586</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 591</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_to_h'>to_h</span><span class='comma'>,</span> <span class='op'>...</span><span class='rparen'>)</span>
@@ -4745,13 +4745,13 @@ repl session. Default is false.</p>
       <pre class="lines">
 
 
-592
-593
-594
-595</pre>
+597
+598
+599
+600</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 592</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 597</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>#&lt;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils.html" title="LLM::Utils (module)">Utils</a></span></span><span class='period'>.</span><span class='id identifier rubyid_object_id'><span class='object_link'><a href="Utils.html#object_id-instance_method" title="LLM::Utils#object_id (method)">object_id</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> \
@@ -4790,12 +4790,12 @@ repl session. Default is false.</p>
       <pre class="lines">
 
 
-600
-601
-602</pre>
+605
+606
+607</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 600</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 605</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_serialize'>serialize</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_kw'>kw</span><span class='rparen'>)</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_serialize'>serialize</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_kw'>kw</span><span class='rparen'>)</span>
@@ -4846,13 +4846,13 @@ repl session. Default is false.</p>
       <pre class="lines">
 
 
-608
-609
-610
-611</pre>
+613
+614
+615
+616</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 608</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/agent.rb', line 613</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_deserialize'>deserialize</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_kw'>kw</span><span class='rparen'>)</span>
   <span class='ivar'>@ctx</span><span class='period'>.</span><span class='id identifier rubyid_deserialize'>deserialize</span><span class='lparen'>(</span><span class='op'>**</span><span class='id identifier rubyid_kw'>kw</span><span class='rparen'>)</span>
@@ -4868,7 +4868,7 @@ repl session. Default is false.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 28 09:55:25 2026 by
+  Generated on Wed Jul 29 11:26:10 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

@@ -82,6 +82,28 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
+<p><em>No unreleased changes yet. Check back after the next release.</em></p>
+
+<h2 id="v13-1-0">v13.1.0</h2>
+
+<p>Changes since <code>v13.0.0</code>.</p>
+
+<p>This release adds <code>LLM::Agent</code> class DSL attributes (<code>path</code>, <code>description</code>),
+extends skills with file-path loading and the <code>tools: all</code> directive, adds new
+built-in tools (<code>LLM::Tool::Ruby</code>, <code>LLM::Tool::EditFile</code>), introduces the
+<code>LLM::Tracer::PrettyLogger</code> for human-readable tracing, renames <code>Transcript</code>
+to <code>Buffer</code> across the REPL, ships a <code>bin/llm.rb</code> CLI entry point, and fixes
+several agent and tool bugs around persistence, interruption, and naming.</p>
+
+<h3 id="core">Core</h3>
+
+<ul>
+<li><strong>add post install message with deepdive link</strong> <br>
+The gemspec now includes a <code>post_install_message</code> that points users to
+the deepdive guide at <code>https://r.uby.dev/llm/deepdive</code> after installation,
+making it easier for new users to discover the project documentation.</li>
+</ul>
+
 <h3 id="agent">Agent</h3>
 
 <ul>
@@ -186,9 +208,38 @@ making it harder to resume a session. Tool-call and tool-return
 messages are skipped to avoid visual noise.</p></li>
 </ul>
 
+<h3 id="cli">CLI</h3>
+
+<ul>
+<li><strong>add <code>bin/llm.rb</code> for launching the REPL from the command line</strong> <br>
+A new executable script (<code>bin/llm.rb</code>) provides a convenient way to start
+an interactive REPL session directly from the terminal. It auto-detects
+the provider from environment variables like <code>OPENAI_API_KEY</code>, supports
+a <code>-p PROVIDER</code> flag for explicit provider selection, a <code>-t</code> flag for
+temporary (non-persistent) sessions, and <code>-h</code> for help. Sessions are
+automatically saved to <code>~/.llm.rb/</code> by default.</li>
+</ul>
+
 <h3 id="fix">Fix</h3>
 
 <ul>
+<li><p><strong>agent: fix <code>path</code> restore on first run</strong> <br>
+Fix a bug where <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+called <code>@ctx.restore(path:)</code> even when the path&#39;s file did not exist.
+The fix checks <code>File.readable?(@path)</code> before attempting to restore,
+so the agent starts with a blank conversation on first use instead of
+failing with a file-not-found error.</p></li>
+<li><p><strong>tools: re-raise <code>LLM::Interrupt</code> to abort the turn</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html"><code>LLM::Tool::Git</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html"><code>LLM::Tool::Mkdir</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html"><code>LLM::Tool::Rg</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html"><code>LLM::Tool::Ruby</code></a>,
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html"><code>LLM::Tool::Shell</code></a>
+now re-raise <code>LLM::Interrupt</code> after killing their running command. The
+previous behavior rescued the interrupt and killed the child process but
+let the turn continue, which meant a cancelled tool call did not abort
+the conversation turn. Re-raising ensures the entire turn is interrupted.</p></li>
 <li><p><strong>tools: rescue <code>LLM::Interrupt</code> in shell-based tools</strong> <br>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html"><code>LLM::Tool::Shell</code></a>,
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html"><code>LLM::Tool::Git</code></a>,
@@ -3348,7 +3399,7 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jul 28 09:55:23 2026 by
+  Generated on Wed Jul 29 11:26:05 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

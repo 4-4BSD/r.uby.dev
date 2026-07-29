@@ -293,7 +293,8 @@ for one or more patterns.</p>
 29
 30
 31
-32</pre>
+32
+33</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/tools/rg.rb', line 25</span>
@@ -305,6 +306,7 @@ for one or more patterns.</p>
   <span class='lbrace'>{</span><span class='label'>ok:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_success?'>success?</span><span class='comma'>,</span> <span class='label'>stdout:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_stdout'>stdout</span><span class='comma'>,</span> <span class='label'>stderr:</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_stderr'>stderr</span><span class='rbrace'>}</span>
 <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../LLM.html#Interrupt-constant" title="LLM::Interrupt (constant)">Interrupt</a></span></span>
   <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_kill!'>kill!</span> <span class='kw'>if</span> <span class='id identifier rubyid_command'>command</span><span class='op'>&amp;.</span><span class='id identifier rubyid_running?'>running?</span>
+  <span class='id identifier rubyid_raise'>raise</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -316,7 +318,7 @@ for one or more patterns.</p>
 </div>
 
       <div id="footer">
-  Generated on Tue Jul 28 09:55:26 2026 by
+  Generated on Wed Jul 29 11:26:13 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>

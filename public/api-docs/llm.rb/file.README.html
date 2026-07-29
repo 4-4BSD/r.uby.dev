@@ -130,7 +130,28 @@ state, and much more.</p>
 <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello world</span><span class='tstring_end'>&quot;</span></span>
 </code></pre>
 
-<h4 id="persistence">Persistence</h4>
+<h5 id="set">set</h5>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method"><code>LLM::Agent.set</code></a>
+is a class-level DSL that accepts a Hash of properties. Each key resolves to a
+corresponding class accessor: <code>name</code>, <code>description</code>, <code>model</code>, <code>tools</code>,
+<code>instructions</code>, <code>schema</code>, <code>stream</code>, <code>tracer</code>, <code>concurrency</code>, <code>confirm</code>,
+<code>path</code>, and <code>skills</code>. All options are optional; zero or more can be set.
+An error is raised for unknown keys so that typos are caught early.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>SystemAdmin</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span>
+  <span class='id identifier rubyid_set'>set</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sysadmin</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='label'>description:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>system administration agent</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='label'>model:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>deepseek-v4-pro</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='label'>tools:</span> <span class='lbracket'>[</span><span class='const'>Shell</span><span class='rbracket'>]</span>
+<span class='kw'>end</span>
+
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'>SystemAdmin</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Run &#39;date&#39;</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<h5 id="persistence">Persistence</h5>
 
 <p>Set <code>path:</code> on an agent for automatic filesystem persistence;
 the agent restores conversation history from the file on startup
@@ -230,6 +251,14 @@ and more. It is also used internally by
 definitions, so you already benefit from it when you declare tool
 parameters.</p>
 
+<p>The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/DeepSeek.html"><code>LLM::DeepSeek</code></a>
+provider includes runtime-level optimisations such as structured
+output support (despite no official structured outputs API) and
+SVG image generation. This example uses
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Schema.html"><code>LLM::Schema</code></a> with
+DeepSeek:</p>
+
 <pre class="code ruby"><code class="ruby"><span class='kw'>class</span> <span class='const'>Weather</span> <span class='op'>&lt;</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Schema.html" title="LLM::Schema (class)">Schema</a></span></span>
   <span class='id identifier rubyid_property'>property</span> <span class='symbol'>:city</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The city name</span><span class='tstring_end'>&quot;</span></span>
   <span class='id identifier rubyid_property'>property</span> <span class='symbol'>:temperature</span><span class='comma'>,</span> <span class='const'>Float</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Current temperature</span><span class='tstring_end'>&quot;</span></span>
@@ -237,7 +266,7 @@ parameters.</p>
   <span class='id identifier rubyid_required'>required</span> <span class='qsymbols_beg'>%i[</span><span class='tstring_content'>city</span><span class='words_sep'> </span><span class='tstring_content'>temperature</span><span class='words_sep'> </span><span class='tstring_content'>conditions</span><span class='tstring_end'>]</span></span>
 <span class='kw'>end</span>
 
-<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_openai'><span class='object_link'><a href="LLM.html#openai-class_method" title="LLM.openai (method)">openai</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>schema:</span> <span class='const'>Weather</span><span class='rparen'>)</span>
 <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_talk'>talk</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Weather in Paris?</span><span class='tstring_end'>&quot;</span></span>
 <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_content!'>content!</span>  <span class='comment'># =&gt; {city: &quot;Paris&quot;, temperature: 15.0, conditions: &quot;Cloudy&quot;}
@@ -247,8 +276,8 @@ parameters.</p>
 
 <p>The <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a>
 method drops you into a curses-based TUI for talking to an
-agent interactively. The <code>path:</code> option saves and restores
-runtime state across sessions. The <code>tools:</code> option attaches
+agent interactively. Set <code>path:</code> on the agent for automatic
+persistence across REPL sessions. The <code>tools:</code> option attaches
 extra tools for the duration of the session. It is like
 <code>binding.pry</code> but for agents. For the full reference see the
 <a href="https://r.uby.dev/llm/deepdive/fundamentals/repl">REPL section</a> in the
@@ -258,9 +287,24 @@ deepdive.</p>
 <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm/tools</span><span class='tstring_end'>&quot;</span></span>
 
 <span class='id identifier rubyid_llm'>llm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_deepseek'><span class='object_link'><a href="LLM.html#deepseek-class_method" title="LLM.deepseek (method)">deepseek</a></span></span><span class='lparen'>(</span><span class='label'>key:</span> <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>KEY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
-<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my-agent</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
-<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>agent.json</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>tools:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_subclasses'>subclasses</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Agent.html" title="LLM::Agent (class)">Agent</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LLM/Agent.html#initialize-instance_method" title="LLM::Agent#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_llm'>llm</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my-agent</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>path:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>agent.json</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_agent'>agent</span><span class='period'>.</span><span class='id identifier rubyid_repl'>repl</span><span class='lparen'>(</span><span class='label'>tools:</span> <span class='const'><span class='object_link'><a href="LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="LLM/Tool.html" title="LLM::Tool (class)">Tool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_subclasses'>subclasses</span><span class='rparen'>)</span>
 </code></pre>
+
+<h5 id="cli">CLI</h5>
+
+<p>The <code>llm.rb</code> executable is available on your PATH after installation.
+It starts a REPL session from any directory:</p>
+
+<pre class="code bash"><code class="bash">llm.rb                     # auto-detect from $DEEPSEEK_API_KEY
+llm.rb -p openai           # use OpenAI explicitly
+llm.rb -t                  # temporary session, no persistence
+</code></pre>
+
+<p>The CLI auto-detects your provider from standard environment variables
+(<code>DEEPSEEK_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, etc.).
+Persistent sessions are stored under <code>~/.llm.rb/</code> and restored
+automatically on your next visit.</p>
 
 <h4 id="llm-mcp">LLM::MCP</h4>
 
@@ -370,7 +414,7 @@ The <code>:fork</code> strategy also provides a separate process that offers
 isolation from its parent.</p>
 
 <p>You can learn more about the llm.rb concurrency model in the
-<a href="https://r.uby.dev/llm/deepdive/fundamentals/concurrency/">deepdive.md</a>.</p>
+<a href="https://r.uby.dev/llm/deepdive/fundamentals/concurrency">deepdive.md</a>.</p>
 
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>llm</span><span class='tstring_end'>&quot;</span></span>
 
@@ -526,7 +570,7 @@ See <a href="./LICENSE">LICENSE</a> for details.</p>
 </div></div>
 
       <div id="footer">
-  Generated on Tue Jul 28 09:55:23 2026 by
+  Generated on Wed Jul 29 11:26:05 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.44 (ruby-4.0.3).
 </div>
