@@ -6,17 +6,17 @@
     <title>Agents · llm.rb deep dive</title>
     <link rel="canonical" href="https://r.uby.dev/llm/deepdive/fundamentals/agents/">
     <link rel="icon" href="/favicon.ico" sizes="any">
-    <meta name="description" content=" is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to , so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
+    <meta name="description" content="`LLM::Agent` is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to `LLM::Context`, so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
     <meta name="robots" content="index,follow">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="r.uby.dev">
     <meta property="og:title" content="Agents · llm.rb deep dive">
-    <meta property="og:description" content=" is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to , so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
+    <meta property="og:description" content="`LLM::Agent` is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to `LLM::Context`, so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
     <meta property="og:url" content="https://r.uby.dev/llm/deepdive/fundamentals/agents/">
     <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Agents · llm.rb deep dive">
-    <meta name="twitter:description" content=" is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to , so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
+    <meta name="twitter:description" content="`LLM::Agent` is the recommended entry point for most use-cases. It provides a class-level DSL for defining reusable, preconfigured assistants with defaults for model, tools, schema, and instructions. Under the hood it delegates to `LLM::Context`, so it has the same runtime surface: message history, streaming, serialization, compaction, and concurrency.">
     <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <link rel="stylesheet" href="/css/main.css">

@@ -1139,22 +1139,43 @@ message passing. The <code>:fork</code> strategy delivers it via xchan.</p>
 
 <p>llm.rb supports six concurrency strategies for tool execution:
 <code>:sequential</code>, <code>:thread</code>, <code>:fiber</code>, <code>:async</code>, <code>:fork</code>, and
-<code>:ractor</code>. Each implements the same interface (<code>spawn</code>, <code>wait</code>,
-<code>alive?</code>, <code>interrupt!</code>), so the caller never has to care which
+<code>:ractor</code>. Each implements the same interface
+(<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#spawn"><code>LLM::Function::Task#spawn</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#wait"><code>LLM::Function::Task#wait</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#alive?"><code>LLM::Function::Task#alive?</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#interrupt!"><code>LLM::Function::Task#interrupt!</code></a>),
+so the caller never has to care which
 strategy is behind a given task.</p>
 
 <h4 id="concurrency-introduction-how-it-works">How it works</h4>
 
 <p>Each strategy creates a task object that wraps a function call.
-<code>spawn</code> starts execution, <code>wait</code> collects the result, <code>alive?</code>
-checks whether the task is still running, and <code>interrupt!</code> signals
-the task to stop.</p>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#spawn"><code>LLM::Function::Task#spawn</code></a>
+starts execution,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#wait"><code>LLM::Function::Task#wait</code></a>
+collects the result,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#alive?"><code>LLM::Function::Task#alive?</code></a>
+checks whether the task is still running, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Task.html#interrupt!"><code>LLM::Function::Task#interrupt!</code></a>
+signals the task to stop.</p>
 
 <p>Interruption is reliable across all six.
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
 reaches the tool regardless of whether it runs on a thread, fiber, process,
-or ractor. The tool can rescue, clean up, and either re-raise to
-cancel the turn or return a value to continue.</p>
+or ractor.</p>
+
+<p>A tool can rescue
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+and return a structured error to cancel the tool call, or it can
+re-raise to cancel the turn entirely. When you re-raise
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Interrupt.html"><code>LLM::Interrupt</code></a>
+or leave it unrescued the exception is raised on the caller’s thread
+and that effectively terminates the turn.</p>
+
+<p>The main benefit of rescuing yourself is to let the tool clean up
+and free lingering resources, but you usually want to re-raise so
+the cancel request ends the turn. Otherwise the tool call is
+intercepted but the turn continues.</p>
 
 <pre><code class="language-ruby">agent = LLM::Agent.new(llm, concurrency: :fork, tools: [...])
 

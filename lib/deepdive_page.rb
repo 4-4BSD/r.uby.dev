@@ -124,8 +124,6 @@ class DeepdivePage
   DEEPDIVE_MD = File.expand_path("../../llm.rb/resources/deepdive.md", __dir__)
 
   # Parse deepdive.md as the single source of truth for structure.
-  # Returns: { intro: "...", groups: [{ title: "Fundamentals", slug: "fundamentals",
-  #             topics: [{ slug: "agents", title: "Agents" }, ...] }, ...] }
   def parse_deepdive_md
     @parse_deepdive_md ||= begin
       source = File.read(DEEPDIVE_MD)
@@ -137,7 +135,6 @@ class DeepdivePage
       source.each_line do |line|
         if (match = line.match(/^## (.+)$/))
           title = match[1]
-          # Welcome is part of the intro, not a group
           if title == "Welcome"
             intro_lines << line
             next
@@ -154,10 +151,7 @@ class DeepdivePage
         end
       end
 
-      {
-        intro: intro_lines.join,
-        groups: groups
-      }
+      {intro: intro_lines.join, groups: groups}
     end
   end
 
@@ -184,11 +178,7 @@ class DeepdivePage
           }
         end
 
-        {
-          title: group_title,
-          slug: group[:slug],
-          topics: topics
-        }
+        {title: group_title, slug: group[:slug], topics: topics}
       end
     end
   end
@@ -216,7 +206,8 @@ class DeepdivePage
     markdown = File.read(source)
     text = markdown[/^#### Overview\n\n(.+?)(?=\n\n#### |\n\n### |\z)/m, 1].to_s
     paragraph = text.split(/\n{2,}/).first.to_s
-    paragraph.gsub(/\[([^\]]+)\]\([^)]+\)/, "\1").gsub(/\s+/, " ").strip
+    paragraph.gsub(/\[([^\]]+)\]\([^)]+\)/, "\\1").gsub(/\s+/, " ").strip
+      .gsub(/[\x00-\x08\x0b\x0c\x0e-\x1f]/, "")
   end
 
   def render_topic_article(source)
