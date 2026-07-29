@@ -76,6 +76,10 @@
                 <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
               </li>
 
+              <li>
+                <a href="/llm/deepdive/fundamentals/embeddings/">Embeddings</a>
+              </li>
+
           </ul>
         </details>
 
@@ -363,21 +367,9 @@ in
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm"><code>LLM::Agent#confirm</code></a>
 to block execution until you override
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation"><code>LLM::Agent#on_tool_confirmation</code></a>.
-Confirmation also accepts a Symbol for
-lazy resolution. A Symbol lets the confirmed set change
-per-instance based on runtime conditions.</p>
-
-<p>For dynamic confirmation lists, pass a Symbol that resolves to an
-instance method:</p>
-
-<pre><code class="language-ruby">class AdaptiveAgent &lt; LLM::Agent
-  set confirm: :tools_that_need_confirmation
-
-  def tools_that_need_confirmation
-    some_condition ? %w[delete destroy] : %w[delete]
-  end
-end
-</code></pre>
+Confirmation also accepts a Symbol that resolves to an instance
+method, letting the confirmed set change per-instance based on
+runtime conditions.</p>
 
 <h3 id="tools-confirmation">Confirmation</h3>
 
@@ -1501,6 +1493,166 @@ end
 
 <hr />
 
+<h2 id="embeddings">Embeddings</h2>
+
+<h3 id="embeddings-introduction">Introduction</h3>
+
+<h4 id="embeddings-introduction-overview">Overview</h4>
+
+<p>Embeddings convert text into numerical vectors that capture semantic
+meaning. Similar texts produce vectors that are close together in the
+vector space, enabling semantic search, clustering, and classification.
+Most providers offer embedding models through an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
+method.</p>
+
+<p>llm.rb also includes support for OpenAI’s vector store API, which
+provides a managed vector database as an HTTP service.</p>
+
+<h4 id="embeddings-introduction-how-it-works">How it works</h4>
+
+<p>When you want to generate an embedding vector for a piece of text,
+call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
+on any provider that supports it. The method accepts an input string
+or array of strings and returns a response with the resulting
+embeddings:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+body = "llm.rb is Ruby's capable AI runtime."
+embedding = llm.embed([body]).embeddings.first
+</code></pre>
+
+<p>The returned embeddings can be stored in a vector database and used
+for similarity search at query time.</p>
+
+<h4 id="embeddings-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Embeddings are the foundation for Retrieval-Augmented Generation (RAG).
+Store embeddings for your documents, then retrieve the most relevant
+chunks at query time and feed them into the model as context. This
+pattern is one of the most common AI workflows.</p>
+
+<h4 id="embeddings-introduction-notes">Notes</h4>
+
+<p>Not all providers support embeddings. The following providers have
+an <code>embed</code> method:</p>
+
+<ul>
+  <li>OpenAI (<code>text-embedding-3-small</code>)</li>
+  <li>DeepInfra (<code>BAAI/bge-m3</code>)</li>
+  <li>Ollama (<code>qwen3:latest</code>)</li>
+  <li>Google (<code>gemini-embedding-2</code>)</li>
+  <li>Mistral (<code>mistral-embed</code>)</li>
+</ul>
+
+<h3 id="embeddings-vector-stores-openai">Vector stores (OpenAI)</h3>
+
+<h4 id="embeddings-vector-stores-openai-overview">Overview</h4>
+
+<p>OpenAI’s vector store API provides a managed vector database as an
+HTTP service. You upload files, add them to a vector store, and
+search across them. The runtime handles chunking, embedding, and
+indexing on OpenAI’s side.</p>
+
+<h4 id="embeddings-vector-stores-openai-how-it-works">How it works</h4>
+
+<p>When you want to create a vector store, upload files, and search
+across them, you can call methods on
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/OpenAI/VectorStores.html"><code>LLM::OpenAI::VectorStores</code></a>.
+Upload files first, then create the store with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/OpenAI/VectorStores.html#create_and_poll-instance_method"><code>LLM::OpenAI::VectorStores#create_and_poll</code></a>
+to
+wait until indexing completes:</p>
+
+<pre><code class="language-ruby">llm = LLM.openai(key: ENV["KEY"])
+
+# Upload files first
+files = %w[report.pdf manual.pdf].map { |f| llm.files.create(file: f) }
+
+# Create a vector store with the files and wait for indexing
+store = llm.vector_stores.create_and_poll(
+  name: "documents",
+  file_ids: files.map(&amp;:id)
+)
+
+# Search across the store
+results = llm.vector_stores.search(
+  vector: store,
+  query: "What is the deadline?",
+  max_results: 5
+)
+results.each do |chunk|
+  text = chunk.content.map { |c| c.text }.join
+  puts "[score=#{chunk.score}] #{text[0..120]}..."
+end
+</code></pre>
+
+<h4 id="embeddings-vector-stores-openai-why-would-i-use-it">Why would I use it?</h4>
+
+<p>OpenAI’s vector store API removes the operational overhead of running
+your own vector database. There is no infrastructure to manage, no
+indexing pipeline to maintain, and no embedding model to configure.
+The trade-off is vendor lock-in and per-request pricing.</p>
+
+<h4 id="embeddings-vector-stores-openai-notes">Notes</h4>
+
+<p>Vector stores require the <code>openai</code> provider. Other providers such as
+DeepInfra, Google, and Mistral expose an embedding method but no
+vector store API. For a self-hosted vector database, pair
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
+with sqlite-vec or pgvector.</p>
+
+<h3 id="embeddings-local-vector-search">Local vector search</h3>
+
+<h4 id="embeddings-local-vector-search-overview">Overview</h4>
+
+<p>For a fully self-hosted RAG pipeline, combine
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
+with a local vector database such as
+<a href="https://github.com/asg017/sqlite-vec">sqlite-vec</a> or
+<a href="https://github.com/pgvector/pgvector">pgvector</a>. This approach keeps
+your data on your own infrastructure.</p>
+
+<h4 id="embeddings-local-vector-search-how-it-works">How it works</h4>
+
+<p>When you want to store embeddings in a local database and search
+them later, generate vectors with any provider, store the embedding
+alongside the content, and query with a similarity search:</p>
+
+<pre><code class="language-ruby">require "llm"
+
+llm = LLM.deepseek(key: ENV["KEY"])
+
+# Store: embed text and save it with a vector column
+body = "llm.rb is Ruby's capable AI runtime."
+embedding = llm.embed([body]).embeddings.first
+Document.create!(title: "llm.rb", body:, embedding:)
+
+# Query: embed the question and find similar documents
+query = "What is llm.rb?"
+query_embedding = llm.embed([query]).embeddings.first
+results = Document.order(Arel.sql("embedding &lt;=&gt; ?", query_embedding)).limit(5)
+</code></pre>
+
+<h4 id="embeddings-local-vector-search-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Local vector search gives you full control over your data, no
+per-query costs beyond your embedding provider, and the ability
+to use any LLM provider for the generation step. It pairs well
+with local providers like Ollama for a fully self-hosted stack.</p>
+
+<h4 id="embeddings-local-vector-search-notes">Notes</h4>
+
+<p>The exact query syntax depends on your vector database. sqlite-vec
+uses <code>vec_distance_L2</code> for Euclidean distance, while pgvector uses
+the <code>&lt;=&gt;</code> operator for cosine distance. Check your database
+documentation for the correct similarity function.</p>
+
+<hr />
+
 <h2 id="context">Context</h2>
 
 <h3 id="context-introduction">Introduction</h3>
@@ -1981,8 +2133,16 @@ requests made by that agent.</p>
 
 <p>When you want to observe runtime events, subclass
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a>
-and implement the hooks you need.
-The built-in tracers include <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (writes
+and implement the hooks you need, or use one of the built-in
+tracers. Attach a tracer to a provider or an agent:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
+agent = LLM::Agent.new(llm)
+agent.talk "Hello"
+</code></pre>
+
+<p>The built-in tracers include <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (writes
 structured JSON to stdout or a file), <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
 (writes human-readable single-line logs to stderr), and
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> (exports spans via OTLP for
@@ -1994,9 +2154,11 @@ OpenTelemetry).</p>
 a misbehaving agent by tracing every request it makes. Monitor
 request latency and token usage across providers. Export spans to
 OpenTelemetry for integration with existing observability pipelines.
-Use <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a> during development for compact,
-human-readable output, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> for structured JSON,
-and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> for production observability.</p>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
+is the best choice during development for compact, human-readable
+output. <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> provides structured JSON, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> exports spans to OpenTelemetry for
+production observability.</p>
 
 <h4 id="tracer-introduction-notes">Notes</h4>
 

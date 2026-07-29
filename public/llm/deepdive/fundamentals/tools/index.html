@@ -76,6 +76,10 @@
                 <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
               </li>
 
+              <li>
+                <a href="/llm/deepdive/fundamentals/embeddings/">Embeddings</a>
+              </li>
+
           </ul>
         </details>
 
@@ -222,21 +226,9 @@ in
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm"><code>LLM::Agent#confirm</code></a>
 to block execution until you override
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation"><code>LLM::Agent#on_tool_confirmation</code></a>.
-Confirmation also accepts a Symbol for
-lazy resolution. A Symbol lets the confirmed set change
-per-instance based on runtime conditions.</p>
-
-<p>For dynamic confirmation lists, pass a Symbol that resolves to an
-instance method:</p>
-
-<pre><code class="language-ruby">class AdaptiveAgent &lt; LLM::Agent
-  set confirm: :tools_that_need_confirmation
-
-  def tools_that_need_confirmation
-    some_condition ? %w[delete destroy] : %w[delete]
-  end
-end
-</code></pre>
+Confirmation also accepts a Symbol that resolves to an instance
+method, letting the confirmed set change per-instance based on
+runtime conditions.</p>
 
 <h3 id="tools-confirmation">Confirmation</h3>
 

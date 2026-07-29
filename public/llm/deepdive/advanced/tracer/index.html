@@ -76,6 +76,10 @@
                 <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
               </li>
 
+              <li>
+                <a href="/llm/deepdive/fundamentals/embeddings/">Embeddings</a>
+              </li>
+
           </ul>
         </details>
 
@@ -168,8 +172,16 @@ requests made by that agent.</p>
 
 <p>When you want to observe runtime events, subclass
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a>
-and implement the hooks you need.
-The built-in tracers include <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (writes
+and implement the hooks you need, or use one of the built-in
+tracers. Attach a tracer to a provider or an agent:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
+agent = LLM::Agent.new(llm)
+agent.talk "Hello"
+</code></pre>
+
+<p>The built-in tracers include <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (writes
 structured JSON to stdout or a file), <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
 (writes human-readable single-line logs to stderr), and
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> (exports spans via OTLP for
@@ -181,9 +193,11 @@ OpenTelemetry).</p>
 a misbehaving agent by tracing every request it makes. Monitor
 request latency and token usage across providers. Export spans to
 OpenTelemetry for integration with existing observability pipelines.
-Use <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a> during development for compact,
-human-readable output, <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> for structured JSON,
-and <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> for production observability.</p>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
+is the best choice during development for compact, human-readable
+output. <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> provides structured JSON, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> exports spans to OpenTelemetry for
+production observability.</p>
 
 <h4 id="tracer-introduction-notes">Notes</h4>
 
