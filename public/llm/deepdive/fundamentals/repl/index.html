@@ -181,16 +181,49 @@ space, <code>/exit</code> to leave.</p>
 paste mode. In paste mode, pressing Enter inserts a newline instead
 of submitting.</p>
 
-<p>The input area supports several keyboard shortcuts.
-Start a session with:</p>
+<p>Start a session with:</p>
 
 <pre><code class="language-ruby">require "llm"
 require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
+agent = LLM::Agent.new(llm, name: "my-agent", path: "session.json")
+agent.repl(tools: LLM::Tool.subclasses)
 </code></pre>
+
+<h4 id="repl-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The REPL gives you an interactive environment to test agents, debug
+tool calls, and inspect conversation state without writing a
+separate UI. Drop in after running an agent to confirm it did what
+you expected. Inspect what went wrong when it did not. Keep talking
+to the same agent while its state is still intact. It is
+<code>binding.pry</code> but for agents.</p>
+
+<h4 id="repl-introduction-notes">Notes</h4>
+
+<p>The REPL requires the <code>curses</code> and <code>kramdown</code> gems. By default the
+tracer is disabled during the session. Set <code>tracer: true</code> to keep
+it active.</p>
+
+<p>Commands use the same vocabulary as tools: declare a name,
+description, and parameters with <code>parameter</code> and <code>required</code>.
+Subclassing an existing command inherits its name, description,
+and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>.</p>
+
+<pre><code class="language-ruby">class Greeter &lt; LLM::Command
+  name "greet"
+  description "Greets the given name"
+  parameter :name, String, "The person's name"
+  required %i[name]
+
+  def call(name:)
+    write "Welcome #{name}!\n"
+  end
+end
+</code></pre>
+
+<p>The input area supports several keyboard shortcuts:</p>
 
 <table>
   <thead>
@@ -234,38 +267,6 @@ agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
     </tr>
   </tbody>
 </table>
-
-<h4 id="repl-introduction-why-would-i-use-it">Why would I use it?</h4>
-
-<p>The REPL gives you an interactive environment to test agents, debug
-tool calls, and inspect conversation state without writing a
-separate UI. Drop in after running an agent to confirm it did what
-you expected. Inspect what went wrong when it did not. Keep talking
-to the same agent while its state is still intact. It is
-<code>binding.pry</code> but for agents.</p>
-
-<h4 id="repl-introduction-notes">Notes</h4>
-
-<p>The REPL requires the <code>curses</code> and <code>kramdown</code> gems. By default the
-tracer is disabled during the session. Set <code>tracer: true</code> to keep
-it active.</p>
-
-<p>Commands use the same vocabulary as tools: declare a name,
-description, and parameters with <code>parameter</code> and <code>required</code>.
-Subclassing an existing command inherits its name, description,
-and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>.</p>
-
-<pre><code class="language-ruby">class Greeter &lt; LLM::Command
-  name "greet"
-  description "Greets the given name"
-  parameter :name, String, "The person's name"
-  required %i[name]
-
-  def call(name:)
-    write "Welcome #{name}!\n"
-  end
-end
-</code></pre>
 
       <nav class="deepdive-nav" aria-label="Topic navigation">
 

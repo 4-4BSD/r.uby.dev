@@ -392,13 +392,15 @@ or auto-approve certain tools.</p>
 
 <h4 id="tools-confirmation-how-it-works">How it works</h4>
 
-<p>When you want to gate destructive tools behind explicit approval,
-list their names in
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm"><code>LLM::Agent#confirm</code></a>.
-Override
+<p>When you want to override the default approval flow for a gated
+tool, override
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#on_tool_confirmation"><code>LLM::Agent#on_tool_confirmation</code></a>
-on the subclass to define your
-own approval flow. The default handler cancels the call.</p>
+on the subclass. The method receives the pending function and the
+execution strategy. Call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#task"><code>LLM::Function#task</code></a>
+to execute the tool or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
+to block it. The default handler cancels the call.</p>
 
 <pre><code class="language-ruby">class AdminAgent &lt; LLM::Agent
   set confirm: %w[delete destroy shutdown]
@@ -418,10 +420,9 @@ prompt, a web socket, a background job queue.</p>
 
 <h4 id="tools-confirmation-notes">Notes</h4>
 
-<p>Confirmation also accepts a Symbol for lazy resolution:
-<code>set confirm: :tools_that_need_confirmation</code> with a method that
-returns the list of tool names. This lets the confirmed set change
-per-instance based on runtime conditions.</p>
+<p>Confirmation names can be a static array of tool names or a Symbol
+that resolves to an instance method. The Symbol form lets the
+confirmed set change per-instance based on runtime conditions.</p>
 
 <h3 id="tools-errors">Errors</h3>
 
@@ -818,16 +819,49 @@ space, <code>/exit</code> to leave.</p>
 paste mode. In paste mode, pressing Enter inserts a newline instead
 of submitting.</p>
 
-<p>The input area supports several keyboard shortcuts.
-Start a session with:</p>
+<p>Start a session with:</p>
 
 <pre><code class="language-ruby">require "llm"
 require "llm/tools"
 
 llm = LLM.deepseek(key: ENV["KEY"])
-agent = LLM::Agent.new(llm, name: "my-agent")
-agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
+agent = LLM::Agent.new(llm, name: "my-agent", path: "session.json")
+agent.repl(tools: LLM::Tool.subclasses)
 </code></pre>
+
+<h4 id="repl-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The REPL gives you an interactive environment to test agents, debug
+tool calls, and inspect conversation state without writing a
+separate UI. Drop in after running an agent to confirm it did what
+you expected. Inspect what went wrong when it did not. Keep talking
+to the same agent while its state is still intact. It is
+<code>binding.pry</code> but for agents.</p>
+
+<h4 id="repl-introduction-notes">Notes</h4>
+
+<p>The REPL requires the <code>curses</code> and <code>kramdown</code> gems. By default the
+tracer is disabled during the session. Set <code>tracer: true</code> to keep
+it active.</p>
+
+<p>Commands use the same vocabulary as tools: declare a name,
+description, and parameters with <code>parameter</code> and <code>required</code>.
+Subclassing an existing command inherits its name, description,
+and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>.</p>
+
+<pre><code class="language-ruby">class Greeter &lt; LLM::Command
+  name "greet"
+  description "Greets the given name"
+  parameter :name, String, "The person's name"
+  required %i[name]
+
+  def call(name:)
+    write "Welcome #{name}!\n"
+  end
+end
+</code></pre>
+
+<p>The input area supports several keyboard shortcuts:</p>
 
 <table>
   <thead>
@@ -871,38 +905,6 @@ agent.repl(path: "session.json", tools: LLM::Tool.subclasses)
     </tr>
   </tbody>
 </table>
-
-<h4 id="repl-introduction-why-would-i-use-it">Why would I use it?</h4>
-
-<p>The REPL gives you an interactive environment to test agents, debug
-tool calls, and inspect conversation state without writing a
-separate UI. Drop in after running an agent to confirm it did what
-you expected. Inspect what went wrong when it did not. Keep talking
-to the same agent while its state is still intact. It is
-<code>binding.pry</code> but for agents.</p>
-
-<h4 id="repl-introduction-notes">Notes</h4>
-
-<p>The REPL requires the <code>curses</code> and <code>kramdown</code> gems. By default the
-tracer is disabled during the session. Set <code>tracer: true</code> to keep
-it active.</p>
-
-<p>Commands use the same vocabulary as tools: declare a name,
-description, and parameters with <code>parameter</code> and <code>required</code>.
-Subclassing an existing command inherits its name, description,
-and parameters. This is how <code>/quit</code> is an alias of <code>/exit</code>.</p>
-
-<pre><code class="language-ruby">class Greeter &lt; LLM::Command
-  name "greet"
-  description "Greets the given name"
-  parameter :name, String, "The person's name"
-  required %i[name]
-
-  def call(name:)
-    write "Welcome #{name}!\n"
-  end
-end
-</code></pre>
 
 <hr />
 
@@ -1129,18 +1131,27 @@ temporary, like a timeout or a user pause.</p>
 re-raise to abort the turn or return a value to continue the loop.
 The model receives the result and decides what to do next.</p>
 
-<pre><code class="language-ruby">def call
-  # do work
-rescue LLM::Interrupt
-  cleanup
-  raise
-end
+<p>Re-raise to abort the turn entirely:</p>
 
-def call
-  # do work
-rescue LLM::Interrupt
-  cleanup
-  {ok: false, reason: "interrupted"}
+<pre><code class="language-ruby">class MyTool &lt; LLM::Tool
+  def call
+    # do work
+  rescue LLM::Interrupt
+    cleanup
+    raise
+  end
+end
+</code></pre>
+
+<p>Return a value to continue the loop:</p>
+
+<pre><code class="language-ruby">class MyTool &lt; LLM::Tool
+  def call
+    # do work
+  rescue LLM::Interrupt
+    cleanup
+    {ok: false, reason: "interrupted"}
+  end
 end
 </code></pre>
 
@@ -1625,7 +1636,8 @@ over a network. Four storage options are available:</p>
 for transparent auto-save after every turn (recommended for
 most file-based use-cases)</li>
   <li><strong>Filesystem</strong>: save and restore from a JSON file on disk</li>
-  <li><strong>ActiveRecord</strong>: persist state in a database column using <code>acts_as_agent</code></li>
+  <li><strong>ActiveRecord</strong>: persist state in a database column using
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method"><code>acts_as_agent</code></a></li>
   <li><strong>Sequel</strong>: persist state in a database column using <code>plugin :agent</code></li>
 </ul>
 
@@ -1776,21 +1788,30 @@ restore work with file paths or in-memory strings. You can also
 serialize to a JSON string for database storage or network
 transmission:</p>
 
+<h5 id="database-filesystem-how-it-works-save-to-a-file">Save to a file</h5>
+
 <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.talk "remember my name is robert"
+agent.save(path: "agent.json")
+</code></pre>
 
-# Save to file
-agent1 = LLM::Agent.new(llm)
-agent1.talk "remember my name is robert"
-agent1.save(path: "agent.json")
+<h5 id="database-filesystem-how-it-works-restore-from-a-file">Restore from a file</h5>
 
-# Restore from file
-agent2 = LLM::Agent.new(llm, stream: $stdout)
-agent2.restore(path: "agent.json")
-agent2.talk "what's my name?"
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.restore(path: "agent.json")
+agent.talk "what's my name?"
+</code></pre>
 
-# Or serialize to a JSON string
-json = agent1.save
-agent3.restore(string: json)
+<h5 id="database-filesystem-how-it-works-serialize-to-a-json-string">Serialize to a JSON string</h5>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.talk "remember my name is robert"
+json = agent.save
+agent2 = LLM::Agent.new(llm)
+agent2.restore(string: json)
 </code></pre>
 
 <h4 id="database-filesystem-why-would-i-use-it">Why would I use it?</h4>

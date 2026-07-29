@@ -374,18 +374,27 @@ temporary, like a timeout or a user pause.</p>
 re-raise to abort the turn or return a value to continue the loop.
 The model receives the result and decides what to do next.</p>
 
-<pre><code class="language-ruby">def call
-  # do work
-rescue LLM::Interrupt
-  cleanup
-  raise
-end
+<p>Re-raise to abort the turn entirely:</p>
 
-def call
-  # do work
-rescue LLM::Interrupt
-  cleanup
-  {ok: false, reason: "interrupted"}
+<pre><code class="language-ruby">class MyTool &lt; LLM::Tool
+  def call
+    # do work
+  rescue LLM::Interrupt
+    cleanup
+    raise
+  end
+end
+</code></pre>
+
+<p>Return a value to continue the loop:</p>
+
+<pre><code class="language-ruby">class MyTool &lt; LLM::Tool
+  def call
+    # do work
+  rescue LLM::Interrupt
+    cleanup
+    {ok: false, reason: "interrupted"}
+  end
 end
 </code></pre>
 

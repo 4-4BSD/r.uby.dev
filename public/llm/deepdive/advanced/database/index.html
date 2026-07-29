@@ -166,7 +166,8 @@ over a network. Four storage options are available:</p>
 for transparent auto-save after every turn (recommended for
 most file-based use-cases)</li>
   <li><strong>Filesystem</strong>: save and restore from a JSON file on disk</li>
-  <li><strong>ActiveRecord</strong>: persist state in a database column using <code>acts_as_agent</code></li>
+  <li><strong>ActiveRecord</strong>: persist state in a database column using
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method"><code>acts_as_agent</code></a></li>
   <li><strong>Sequel</strong>: persist state in a database column using <code>plugin :agent</code></li>
 </ul>
 
@@ -317,21 +318,30 @@ restore work with file paths or in-memory strings. You can also
 serialize to a JSON string for database storage or network
 transmission:</p>
 
+<h5 id="database-filesystem-how-it-works-save-to-a-file">Save to a file</h5>
+
 <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.talk "remember my name is robert"
+agent.save(path: "agent.json")
+</code></pre>
 
-# Save to file
-agent1 = LLM::Agent.new(llm)
-agent1.talk "remember my name is robert"
-agent1.save(path: "agent.json")
+<h5 id="database-filesystem-how-it-works-restore-from-a-file">Restore from a file</h5>
 
-# Restore from file
-agent2 = LLM::Agent.new(llm, stream: $stdout)
-agent2.restore(path: "agent.json")
-agent2.talk "what's my name?"
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, stream: $stdout)
+agent.restore(path: "agent.json")
+agent.talk "what's my name?"
+</code></pre>
 
-# Or serialize to a JSON string
-json = agent1.save
-agent3.restore(string: json)
+<h5 id="database-filesystem-how-it-works-serialize-to-a-json-string">Serialize to a JSON string</h5>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm)
+agent.talk "remember my name is robert"
+json = agent.save
+agent2 = LLM::Agent.new(llm)
+agent2.restore(string: json)
 </code></pre>
 
 <h4 id="database-filesystem-why-would-i-use-it">Why would I use it?</h4>
