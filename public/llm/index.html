@@ -130,7 +130,7 @@ llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, stream: $stdout)
 agent.talk "Hello world"</code></pre>
 
-            <h4>set</h4>
+            <h5>set</h5>
             <p>
               <code><a href="/api-docs/llm.rb/LLM/Agent.html#set-class_method">LLM::Agent.set</a></code>
               is a class-level DSL that accepts a Hash of properties. Each key resolves to a
@@ -150,7 +150,7 @@ llm = LLM.deepseek(key: ENV["KEY"])
 agent = SystemAdmin.new(llm)
 agent.talk "Run 'date'"</code></pre>
 
-            <h4>Persistence</h4>
+            <h5>Persistence</h5>
             <p>
               Set <code>path:</code> on an agent for automatic filesystem persistence;
               the agent restores conversation history from the file on startup
@@ -204,6 +204,28 @@ ctx.talk "Hello world"</code></pre>
 
   def call(path:)
     {contents: File.read(path)}
+  end
+end</code></pre>
+
+            <h5>set</h5>
+            <p>
+              <code><a href="/api-docs/llm.rb/LLM/Tool.html#set-class_method">LLM::Tool.set</a></code>
+              is an alternative way to define tool properties using a Hash. It works
+              the same way as
+              <code><a href="/api-docs/llm.rb/LLM/Agent.html#set-class_method">LLM::Agent.set</a></code>
+              and accepts the same keys that the individual methods do: <code>name</code>,
+              <code>description</code>, <code>parameters</code>, <code>required</code>, and <code>defaults</code>:
+            </p>
+            <pre><code class="language-ruby">class MathTool < LLM::Tool
+  set name: "math",
+      description: "Performs arithmetic",
+      parameters: [
+        [:x, Integer, "first number" , {required: true}],
+        [:y, Integer, "second number", {default: 0}]
+      ]
+
+  def call(x:, y: 0)
+    {result: x + y}
   end
 end</code></pre>
           </div>
@@ -288,7 +310,7 @@ llm = LLM.deepseek(key: ENV["KEY"])
 agent = LLM::Agent.new(llm, name: "my-agent", path: "agent.json")
 agent.repl(tools: LLM::Tool.subclasses)</code></pre>
 
-        <h4>CLI</h4>
+        <h5>CLI</h5>
         <p>
           The <code>llm.rb</code> executable is available on your PATH after installation.
           It starts a REPL session from any directory:
@@ -319,6 +341,20 @@ llm   = LLM.deepseek(key: ENV["KEY"])
 mcp   = LLM::MCP.stdio(argv: ["ruby", "server.rb"])
 agent = LLM::Agent.new(llm, stream: $stdout, tools: mcp.tools)
 agent.talk "Run the tool"</code></pre>
+
+        <h5>Persistent connections</h5>
+        <p>
+          Set <code>persistent: true</code> on HTTP transports to reuse connections
+          across requests. This uses
+          <a href="https://github.com/drbrain/net-http-persistent"><code>Net::HTTP::Persistent</code></a>
+          under the hood and avoids opening a new TCP connection for every
+          request:
+        </p>
+        <pre><code class="language-ruby">mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" => "Bearer #{ENV.fetch('GITHUB_PAT')}"},
+  persistent: true
+)</code></pre>
       </section>
 
       <section id="a2a">
@@ -336,6 +372,17 @@ llm   = LLM.deepseek(key: ENV["KEY"])
 a2a   = LLM::A2A.rest(url: "https://remote-agent.example.com")
 agent = LLM::Agent.new(llm, stream: $stdout, tools: a2a.skills)
 agent.talk "Run the skill"</code></pre>
+
+        <h5>Persistent connections</h5>
+        <p>
+          Set <code>persistent: true</code> on HTTP transports to reuse connections
+          across requests. This uses
+          <a href="https://github.com/drbrain/net-http-persistent"><code>Net::HTTP::Persistent</code></a>
+          under the hood and avoids opening a new TCP connection for every
+          request:
+        </p>
+        <pre><code class="language-ruby">a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
+a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)</code></pre>
       </section>
 
       <section id="skills">
@@ -348,7 +395,7 @@ agent.talk "Run the skill"</code></pre>
           is fresh and stateless. For a deeper explanation see the
           <a href="/llm/deepdive/fundamentals/skills">deepdive</a>.
         </p>
-        <p><strong>SKILL.md</strong></p>
+        <h5>SKILL.md</h5>
         <pre><code class="language-markdown">---
 name: summary
 description: Reads recent git history and writes a summary
@@ -357,7 +404,7 @@ tools: all
 
 Collect the recent git log, analyze each commit,
 and write a summary to summary.txt.</code></pre>
-        <p><strong>agent.rb</strong></p>
+        <h5>agent.rb</h5>
         <pre><code class="language-ruby">require "llm"
 
 llm   = LLM.deepseek(key: ENV["KEY"])
@@ -465,6 +512,42 @@ end
 
 agent = Agent.create!
 agent.talk "perform research"</code></pre>
+      </section>
+
+      <section id="images">
+        <h3>Images</h3>
+        <p>
+          A handful of providers can generate images from a text prompt.
+          OpenAI, Google, xAI, and DeepInfra all support it. The API is
+          the same across providers:
+        </p>
+        <pre><code class="language-ruby">require "llm"
+
+llm = LLM.openai(key: ENV["KEY"])
+res = llm.images.create(prompt: "a dog on a rocket to the moon")
+IO.copy_stream res.images[0], "rocket.png"</code></pre>
+
+        <h5>DeepSeek</h5>
+        <p>
+          DeepSeek does not have a dedicated image model, but the runtime
+          generates SVG vector graphics through its text model. Each
+          generation produces a valid SVG document that can be converted
+          to PNG with tools like <code>rsvg-convert</code>. Pass an existing agent
+          to maintain a session across generations:
+        </p>
+        <pre><code class="language-ruby">require "llm"
+llm = LLM.deepseek(key: ENV["KEY"])
+
+##
+# First generation
+res = llm.images.create(prompt: "a rocket on the moon")
+IO.copy_stream res.images[0], "rocket.svg"
+
+##
+# Refine with follow-up prompts (shares context)
+res = llm.images.create(prompt: "add a dog next to the rocket",
+                        agent: res.agent)
+IO.copy_stream res.images[0], "rocket-with-dog.svg"</code></pre>
       </section>
 
       <section>
