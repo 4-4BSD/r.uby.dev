@@ -245,9 +245,22 @@ by a different team and exposed as a service.</p>
 
 <p>For HTTP,
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
-carries little benefit. Use the
-<code>net_http_persistent</code> transport to avoid tearing down connections
-repeatedly.</p>
+carries little benefit.</p>
+
+<h4 id="mcp-http-persistent-connections">Persistent connections</h4>
+
+<p>Set <code>persistent: true</code> to reuse HTTP connections across requests
+to the same MCP server. This uses
+<a href="https://github.com/drbrain/net-http-persistent"><code>Net::HTTP::Persistent</code></a>
+under the hood and avoids the overhead of opening a new TCP
+connection for every request.</p>
+
+<pre><code class="language-ruby">mcp = LLM::MCP.http(
+  url: "https://api.githubcopilot.com/mcp/",
+  headers: {"Authorization" =&gt; "Bearer #{ENV.fetch('GITHUB_PAT')}"},
+  persistent: true
+)
+</code></pre>
 
 
       <nav class="deepdive-nav" aria-label="Topic navigation">

@@ -230,6 +230,11 @@ Confirmation also accepts a Symbol that resolves to an instance
 method, letting the confirmed set change per-instance based on
 runtime conditions.</p>
 
+<p>Tool properties can be defined with individual method calls (as shown
+in the How it works section) or with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method"><code>LLM::Tool.set</code></a>
+(see the Set subsection). Both approaches work the same way.</p>
+
 <h3 id="tools-confirmation">Confirmation</h3>
 
 <h4 id="tools-confirmation-overview">Overview</h4>
@@ -298,8 +303,14 @@ message: "boom"}</code> to the model. You can also rescue inside
 and return your own error shape that gives the model more context.</p>
 
 <pre><code class="language-ruby">class Shell &lt; LLM::Tool
-  name "shell"
-  description "execute a shell command"
+  set name: "shell",
+      description: "run a shell command",
+      parameters: {
+        ["name", String, "the command name"],
+        ["arguments", Array[String], "one or more arguments"]
+      },
+      required: %i[name],
+      defaults: {arguments: []}
 
   def call(name:, arguments: [])
     out = `#{name} #{arguments.join(" ")}`
@@ -323,6 +334,53 @@ to correct the command name and try again.</p>
 must complete with a tool response. If you do not return a value and
 you do not raise, the runtime has nothing to send back and the
 conversation is stuck.</p>
+
+<h3 id="tools-set">Set</h3>
+
+<h4 id="tools-set-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method"><code>LLM::Tool.set</code></a>
+is an alternative way to define tool properties using a Hash. It
+works the same way as individual method calls and accepts the same
+keys: <code>name</code>, <code>description</code>, <code>parameters</code>, <code>required</code>, and
+<code>defaults</code>.</p>
+
+<h4 id="tools-set-how-it-works">How it works</h4>
+
+<p>When you want to define tool properties at once, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method"><code>LLM::Tool.set</code></a>
+with a Hash. The keys match the individual method names. The
+<code>parameters</code> key accepts the same Array of tuples that the
+individual <code>parameter</code> method does.</p>
+
+<pre><code class="language-ruby">class Shell &lt; LLM::Tool
+  set name: "shell",
+      description: "execute a shell command",
+      parameters: [
+        [:name, String, "the command's name"],
+        [:arguments, Array[String], "One or more arguments"]
+      ],
+      required: %i[name],
+      defaults: {arguments: []}
+
+  def call(name:, arguments: [])
+    out = `#{name.shellescape} #{arguments.map(&amp;:shellescape).join(" ")}`
+    {ok: $?.success?, out:}
+  end
+end
+</code></pre>
+
+<h4 id="tools-set-why-would-i-use-it">Why would I use it?</h4>
+
+<p><code>set</code> is useful when you want to keep related properties together.
+Instead of spreading <code>name</code>, <code>description</code>, <code>parameters</code>, and
+<code>required</code> across multiple lines, you can group them in a single
+Hash that reads like a configuration block.</p>
+
+<h4 id="tools-set-notes">Notes</h4>
+
+<p>Unknown keys raise <code>KeyError</code>, so typos are caught at class load
+time rather than at runtime.</p>
 
       <nav class="deepdive-nav" aria-label="Topic navigation">
 

@@ -196,6 +196,18 @@ the network.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
 method lists which transports a remote agent supports.</p>
 
+<h4 id="a2a-introduction-persistent-connections">Persistent connections</h4>
+
+<p>Set <code>persistent: true</code> to reuse HTTP connections across requests
+to the same A2A agent. This uses
+<a href="https://github.com/drbrain/net-http-persistent"><code>Net::HTTP::Persistent</code></a>
+under the hood and avoids the overhead of opening a new TCP
+connection for every request.</p>
+
+<pre><code class="language-ruby">a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
+a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)
+</code></pre>
+
 <h3 id="a2a-json-rpc">JSON-RPC</h3>
 
 <h4 id="a2a-json-rpc-overview">Overview</h4>
