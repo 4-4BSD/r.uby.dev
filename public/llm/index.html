@@ -562,6 +562,43 @@ IO.copy_stream res.images[0], "rocket-with-dog.svg"</code></pre>
         </p>
       </section>
 
+      <section>
+        <h2>Developers</h2>
+        <p>
+          The llm.rb project is quite large and maintained primarily by one
+          person. It would be near impossible for me to maintain both the codebase
+          and its documentation, especially the
+          <a href="/llm/deepdive/">deepdive</a>,
+          so I have written agents that maintain the documentation assets and that
+          allows me to put more focus on the code.
+        </p>
+        <p>
+          The following agents are available for those tasks, and all of them
+          use the most cost effective option: DeepSeek. Feel free to use them
+          in your own fork.
+        </p>
+        <pre><code class="language-sh">##
+# Maintains the deepdive and API docs
+rake agents:scribe:yardoc
+rake agents:scribe:coverage
+rake agents:scribe:regressions
+rake agents:scribe:style
+
+##
+# Maintains the release
+rake agents:dexter:changelog
+rake agents:dexter:release
+
+##
+# Maintains mruby-llm backports
+rake agents:mruby:research
+rake agents:mruby:implement
+
+##
+# Refresh the data/ registry
+rake models.dev:download</code></pre>
+      </section>
+
       <section class="faq-section">
         <h2>FAQ</h2>
 
