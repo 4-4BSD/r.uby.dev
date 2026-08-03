@@ -297,7 +297,7 @@ also emit lifecycle callbacks like <span class='object_link'><a href="#on_transf
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#on_transform-instance_method" title="#on_transform (instance method)">#<strong>on_transform</strong>(ctx, transformer)  &#x21d2; nil </a>
+      <a href="#on_transform-instance_method" title="#on_transform (instance method)">#<strong>on_transform</strong>(transformer)  &#x21d2; nil </a>
     
 
     
@@ -320,7 +320,7 @@ also emit lifecycle callbacks like <span class='object_link'><a href="#on_transf
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#on_transform_finish-instance_method" title="#on_transform_finish (instance method)">#<strong>on_transform_finish</strong>(ctx, transformer)  &#x21d2; nil </a>
+      <a href="#on_transform_finish-instance_method" title="#on_transform_finish (instance method)">#<strong>on_transform_finish</strong>(transformer)  &#x21d2; nil </a>
     
 
     
@@ -753,6 +753,8 @@ then falls back to the global function registry.</p>
       <pre class="lines">
 
 
+193
+194
 195
 196
 197
@@ -762,12 +764,10 @@ then falls back to the global function registry.</p>
 201
 202
 203
-204
-205
-206</pre>
+204</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 195</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 193</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid___find__'>__find__</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_tools'>tools</span> <span class='op'>=</span> <span class='id identifier rubyid_extra'>extra</span><span class='lbracket'>[</span><span class='symbol'>:tools</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='op'>&amp;.</span><span class='id identifier rubyid_params'>params</span><span class='op'>&amp;.</span><span class='id identifier rubyid_dig'>dig</span><span class='lparen'>(</span><span class='symbol'>:tools</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
@@ -1366,7 +1366,7 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
       <div class="method_details ">
   <h3 class="signature " id="on_transform-instance_method">
   
-    #<strong>on_transform</strong>(ctx, transformer)  &#x21d2; <tt>nil</tt> 
+    #<strong>on_transform</strong>(transformer)  &#x21d2; <tt>nil</tt> 
   
 
   
@@ -1385,21 +1385,10 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
   
     <li>
       
-        <span class='name'>ctx</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Context.html" title="LLM::Context (class)">LLM::Context</a></span></tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
         <span class='name'>transformer</span>
       
       
-        <span class='type'>(<tt>#call</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Transformer.html" title="LLM::Transformer (class)">LLM::Transformer</a></span></tt>)</span>
       
       
       
@@ -1427,14 +1416,14 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
       <pre class="lines">
 
 
+156
 157
-158
-159</pre>
+158</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 157</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 156</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_on_transform'>on_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_on_transform'>on_transform</span><span class='lparen'>(</span><span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1445,7 +1434,7 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
       <div class="method_details ">
   <h3 class="signature " id="on_transform_finish-instance_method">
   
-    #<strong>on_transform_finish</strong>(ctx, transformer)  &#x21d2; <tt>nil</tt> 
+    #<strong>on_transform_finish</strong>(transformer)  &#x21d2; <tt>nil</tt> 
   
 
   
@@ -1464,21 +1453,10 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
   
     <li>
       
-        <span class='name'>ctx</span>
-      
-      
-        <span class='type'>(<tt><span class='object_link'><a href="Context.html" title="LLM::Context (class)">LLM::Context</a></span></tt>)</span>
-      
-      
-      
-    </li>
-  
-    <li>
-      
         <span class='name'>transformer</span>
       
       
-        <span class='type'>(<tt>#call</tt>)</span>
+        <span class='type'>(<tt><span class='object_link'><a href="Transformer.html" title="LLM::Transformer (class)">LLM::Transformer</a></span></tt>)</span>
       
       
       
@@ -1506,14 +1484,14 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
       <pre class="lines">
 
 
-166
-167
-168</pre>
+164
+165
+166</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 166</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 164</span>
 
-<span class='kw'>def</span> <span class='id identifier rubyid_on_transform_finish'>on_transform_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='comma'>,</span> <span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
+<span class='kw'>def</span> <span class='id identifier rubyid_on_transform_finish'>on_transform_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_transformer'>transformer</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -1574,12 +1552,12 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
       <pre class="lines">
 
 
-174
-175
-176</pre>
+172
+173
+174</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 174</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 172</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction'>on_compaction</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1642,12 +1620,12 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
       <pre class="lines">
 
 
-182
-183
-184</pre>
+180
+181
+182</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 182</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/stream.rb', line 180</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_on_compaction_finish'>on_compaction_finish</span><span class='lparen'>(</span><span class='id identifier rubyid_compactor'>compactor</span><span class='rparen'>)</span>
   <span class='kw'>nil</span>
@@ -1662,9 +1640,9 @@ This callback runs when <span class='object_link'><a href="#wait-instance_method
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 29 11:26:11 2026 by
+  Generated on Mon Aug  3 01:01:15 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.44 (ruby-4.0.3).
+  0.9.44 (ruby-4.0.6).
 </div>
 
     </div>

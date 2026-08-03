@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Built-in tools · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/fundamentals/builtin_tools/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="llm.rb ships with twelve ready-made tools that cover the operations a coding or system agent needs most: filesystem work, search, and shell commands. Each tool is a subclass of `LLM::Tool` with a name, description, and typed parameters, exactly like a tool you would write yourself. Load the whole catalog with `require "llm/tools"`.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="Built-in tools · llm.rb deep dive">
+    <meta property="og:description" content="llm.rb ships with twelve ready-made tools that cover the operations a coding or system agent needs most: filesystem work, search, and shell commands. Each tool is a subclass of `LLM::Tool` with a name, description, and typed parameters, exactly like a tool you would write yourself. Load the whole catalog with `require "llm/tools"`.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/fundamentals/builtin_tools/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Built-in tools · llm.rb deep dive">
+    <meta name="twitter:description" content="llm.rb ships with twelve ready-made tools that cover the operations a coding or system agent needs most: filesystem work, search, and shell commands. Each tool is a subclass of `LLM::Tool` with a name, description, and typed parameters, exactly like a tool you would write yourself. Load the whole catalog with `require "llm/tools"`.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/builtin_tools/" class="is-active">Built-in tools</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/embeddings/">Embeddings</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transformer/">Transformer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Everything else</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/everything-else/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/fundamentals/tools/">← Tools</a>
+
+
+          <a class="deepdive-next" href="/llm/deepdive/fundamentals/skills/">Skills →</a>
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="built-in-tools">Built-in tools</h2>
+
+<h3 id="built-in-tools-introduction">Introduction</h3>
+
+<h4 id="built-in-tools-introduction-overview">Overview</h4>
+
+<p>llm.rb ships with twelve ready-made tools that cover the operations
+a coding or system agent needs most: filesystem work, search, and
+shell commands. Each tool is a subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html"><code>LLM::Tool</code></a>
+with a name, description, and typed parameters, exactly like a tool
+you would write yourself. Load the whole catalog with
+<code>require "llm/tools"</code>.</p>
+
+<h4 id="built-in-tools-introduction-how-it-works">How it works</h4>
+
+<p>When you want to attach every built-in tool to an agent, require
+the catalog and pass the full set of subclasses as the <code>tools:</code>
+option. The runtime registers each tool’s schema and lets the model
+decide when to call it.</p>
+
+<pre><code class="language-ruby">require "llm"
+require "llm/tools"
+
+llm   = LLM.deepseek(key: ENV["KEY"])
+agent = LLM::Agent.new(llm, tools: LLM::Tool.subclasses)
+agent.talk "List the files in this repository"
+</code></pre>
+
+<h4 id="built-in-tools-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The built-in tools cover the operations a coding or system agent
+needs most, so you rarely need to write your own. They also handle
+edge cases correctly: subprocesses get timeouts, interrupts kill
+the child process, and failed calls return structured errors
+instead of crashing the conversation.</p>
+
+<h4 id="built-in-tools-introduction-notes">Notes</h4>
+
+<p>The tools that spawn subprocesses use the optional <code>test-cmd.rb</code>
+gem for process management and interrupt handling. The gem is
+required only when those tools load. Every tool returns a Hash with
+an <code>ok:</code> key that tells the model whether the call succeeded.</p>
+
+<h3 id="built-in-tools-filesystem">Filesystem</h3>
+
+<h4 id="built-in-tools-filesystem-overview">Overview</h4>
+
+<p>The filesystem tools let the model read, write, and edit files,
+list and create directories, and move around the working tree.
+The most distinctive is
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/EditFile.html"><code>LLM::Tool::EditFile</code></a>,
+which replaces an exact snippet and verifies the match count:</p>
+
+<pre><code class="language-ruby">LLM::Tool::EditFile.new.call(
+  path: "config.yml",
+  before: "port: 3000",
+  after:  "port: 4000"
+)
+# =&gt; {ok: true, replaced: 1}
+</code></pre>
+
+<h4 id="built-in-tools-filesystem-how-it-works">How it works</h4>
+
+<p>Each filesystem tool takes a path and returns a result Hash. The
+<code>read-file</code> tool reads a whole file by default and accepts <code>start:</code>
+and <code>stop:</code> to read a range of lines instead. The <code>edit-file</code> tool
+counts occurrences of <code>before</code> and raises unless the count matches
+<code>expected_count</code>, which defaults to 1.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Name</th>
+      <th>Parameters</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Pwd.html"><code>LLM::Tool::Pwd</code></a></td>
+      <td><code>pwd</code></td>
+      <td>none</td>
+      <td>Report the current working directory</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ls.html"><code>LLM::Tool::Ls</code></a></td>
+      <td><code>ls</code></td>
+      <td><code>path</code>, <code>glob</code></td>
+      <td>List files and directories, optionally matching a glob</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Chdir.html"><code>LLM::Tool::Chdir</code></a></td>
+      <td><code>chdir</code></td>
+      <td><code>path</code></td>
+      <td>Change the current working directory</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Mkdir.html"><code>LLM::Tool::Mkdir</code></a></td>
+      <td><code>mkdir</code></td>
+      <td><code>path</code></td>
+      <td>Create a tree of directories</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/ReadFile.html"><code>LLM::Tool::ReadFile</code></a></td>
+      <td><code>read-file</code></td>
+      <td><code>path</code>, <code>start</code>, <code>stop</code></td>
+      <td>Read a file, optionally a range of lines</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/WriteFile.html"><code>LLM::Tool::WriteFile</code></a></td>
+      <td><code>write-file</code></td>
+      <td><code>path</code>, <code>content</code></td>
+      <td>Write a string to a file</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/EditFile.html"><code>LLM::Tool::EditFile</code></a></td>
+      <td><code>edit-file</code></td>
+      <td><code>path</code>, <code>before</code>, <code>after</code>, <code>expected_count</code></td>
+      <td>Replace an exact snippet in a file</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="built-in-tools-filesystem-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Reading source files to answer questions, writing new files, and
+editing a snippet in place are the bread and butter of a coding
+agent. The filesystem tools give the model all of it without you
+writing a single tool.</p>
+
+<h4 id="built-in-tools-filesystem-notes">Notes</h4>
+
+<p>The <code>chdir</code> tool changes the working directory for the whole
+process, so subsequent file operations see the new directory. The
+<code>mkdir</code> tool creates parent directories, like <code>mkdir -p</code>. The <code>ls</code>
+tool raises when the path does not exist.</p>
+
+<h3 id="built-in-tools-search">Search</h3>
+
+<h4 id="built-in-tools-search-overview">Overview</h4>
+
+<p>The search tools find things without reading the whole tree: <code>rg</code>
+searches file contents, and <code>which</code> locates an executable on the
+PATH. When a method name or a term is needed, the model searches
+for it instead of guessing.</p>
+
+<pre><code class="language-ruby">LLM::Tool::Rg.new.call(patterns: ["def talk"], path: "lib")
+# =&gt; {ok: true, stdout: "lib/llm/context.rb:42:def talk", stderr: ""}
+</code></pre>
+
+<h4 id="built-in-tools-search-how-it-works">How it works</h4>
+
+<p>When you want to search for one or more patterns, call the
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html#call-instance_method"><code>LLM::Tool::Rg#call</code></a>
+method with an Array of patterns, an optional <code>path:</code>, and a
+<code>timeout:</code> in seconds. When you want to check whether a command is
+installed, call the
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Which.html#call-instance_method"><code>LLM::Tool::Which#call</code></a>
+method with a <code>name:</code>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Name</th>
+      <th>Parameters</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Rg.html"><code>LLM::Tool::Rg</code></a></td>
+      <td><code>rg</code></td>
+      <td><code>patterns</code>, <code>path</code>, <code>timeout</code></td>
+      <td>Recursively search for lines matching patterns</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Which.html"><code>LLM::Tool::Which</code></a></td>
+      <td><code>which</code></td>
+      <td><code>name</code></td>
+      <td>Locate an executable on the system PATH</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="built-in-tools-search-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Search is how the model finds something without scanning files one
+by one. Asked where a method is defined, the agent searches for it.
+Before running a command, it checks with <code>which</code> that the binary
+exists, and falls back to another approach when it does not.</p>
+
+<h4 id="built-in-tools-search-notes">Notes</h4>
+
+<p>The <code>rg</code> tool runs the ripgrep binary, so <code>rg</code> must be installed
+and on the PATH. It refuses to search from the filesystem root and
+rejects the pattern <code>.</code> to keep the model from dumping the entire
+tree in one call. The <code>which</code> tool is pure Ruby: it scans the PATH
+in order and returns the first directory that contains an
+executable with the given name. When no match is found it returns
+<code>{ok: false, path: nil}</code>.</p>
+
+<h3 id="built-in-tools-shell">Shell</h3>
+
+<h4 id="built-in-tools-shell-overview">Overview</h4>
+
+<p>The shell tools run real subprocesses: arbitrary commands through
+<code>shell</code>, Ruby code through <code>ruby</code>, and a fixed set of git actions
+through <code>git</code>. All three accept a <code>timeout:</code> and kill the child
+process when the model interrupts the turn.</p>
+
+<pre><code class="language-ruby">LLM::Tool::Shell.new.call(
+  name: "bundle",
+  arguments: ["exec", "rspec", "spec/llm"],
+  timeout: 30
+)
+</code></pre>
+
+<h4 id="built-in-tools-shell-how-it-works">How it works</h4>
+
+<p>When you want to run a command and capture its output, call the
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html#call-instance_method"><code>LLM::Tool::Shell#call</code></a>
+method with a <code>name:</code> and optional <code>arguments:</code>. The <code>git</code> tool
+accepts an <code>action:</code> from a fixed set, and the <code>ruby</code> tool runs its
+code in a fresh process.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Name</th>
+      <th>Parameters</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html"><code>LLM::Tool::Shell</code></a></td>
+      <td><code>shell</code></td>
+      <td><code>name</code>, <code>arguments</code>, <code>timeout</code></td>
+      <td>Run a shell command</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Git.html"><code>LLM::Tool::Git</code></a></td>
+      <td><code>git</code></td>
+      <td><code>action</code>, <code>arguments</code>, <code>timeout</code></td>
+      <td>Run a fixed set of git actions</td>
+    </tr>
+    <tr>
+      <td><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Ruby.html"><code>LLM::Tool::Ruby</code></a></td>
+      <td><code>ruby</code></td>
+      <td><code>code</code>, <code>timeout</code></td>
+      <td>Run a string of Ruby code</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="built-in-tools-shell-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Running tests, inspecting git history, and executing a snippet of
+Ruby are things a coding agent needs to do. The shell tools make
+those actions first-class, and the timeout keeps a hanging command
+from stalling the conversation.</p>
+
+<h4 id="built-in-tools-shell-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool/Shell.html"><code>LLM::Tool::Shell</code></a>
+can be dangerous given a low-quality model. Gate it behind
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#confirm"><code>LLM::Agent#confirm</code></a>
+or manage the tool loop manually through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>.
+On interrupt, the running child process is killed. The <code>ruby</code> tool
+uses the same Ruby that launched llm.rb. The <code>git</code> tool wraps the
+actions <code>log</code>, <code>diff</code>, <code>commit</code>, <code>checkout</code>, <code>branch</code>, and <code>show</code>.</p>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/fundamentals/tools/">← Tools</a>
+
+
+          <a href="/llm/deepdive/fundamentals/skills/">Skills →</a>
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

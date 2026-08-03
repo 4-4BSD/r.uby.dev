@@ -99,8 +99,8 @@
         <p>
           The runtime builds on top of three core concepts: providers, contexts, and agents,
           so once you learn the fundamentals, everything else falls into place naturally. And once
-          you learn llm.rb, you will also be able to use <a href="/mruby-llm">mruby-llm</a> and
-          <a href="/wasm-llm">wasm-llm</a> because the API is pretty much identical.
+          you learn llm.rb, you will also be able to use
+          <a href="/mruby-llm">mruby-llm</a> because the API is pretty much identical.
         </p>
       </section>
 
@@ -195,6 +195,12 @@ ctx.talk "Hello world"</code></pre>
               an optional set of typed parameters. <br> The model can choose to
               call them on your behalf, and they're one of the most powerful features
               for extending the feature set or abilities of a model.
+            </p>
+            <p>
+              The runtime also ships with a catalog of built-in tools for
+              filesystem, search, and shell operations. See the
+              <a href="/llm/deepdive/fundamentals/builtin_tools">deepdive</a>
+              for details.
             </p>
             <pre><code class="language-ruby">class ReadFile < LLM::Tool
   name "read-file"

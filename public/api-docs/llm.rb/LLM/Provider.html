@@ -172,6 +172,29 @@ Most users interact with providers through <span class='object_link'><a href="Ag
         <li class="public ">
   <span class="summary_signature">
     
+      <a href="#build_messages-instance_method" title="#build_messages (instance method)">#<strong>build_messages</strong>(prompt, params, role, key: :messages)  &#x21d2; Array&lt;LLM::Message&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Builds the outgoing message array for a turn.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
       <a href="#inspect-instance_method" title="#inspect (instance method)">#<strong>inspect</strong>  &#x21d2; String </a>
     
 
@@ -1190,15 +1213,164 @@ Requires the net-http-persistent gem.</p>
       <pre class="lines">
 
 
-361
-362
-363</pre>
+397
+398
+399</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 361</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 397</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_adapt_function'>adapt_function</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="build_messages-instance_method">
+  
+    #<strong>build_messages</strong>(prompt, params, role, key: :messages)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Message.html" title="LLM::Message (class)">LLM::Message</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Builds the outgoing message array for a turn. Normalizes the
+prompt into one or more <span class='object_link'><a href="Message.html" title="LLM::Message (class)">Message</a></span> objects and prepends
+the existing history.</p>
+
+<p>The method is idempotent. If the prompt is already an
+<span class='object_link'><a href="Message.html" title="LLM::Message (class)">Message</a></span> or an array of <span class='object_link'><a href="Message.html" title="LLM::Message (class)">Message</a></span>s (ie it was built
+by a previous call and possibly transformed), it is returned
+as-is without rebuilding.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>prompt</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Array</tt>, <tt><span class='object_link'><a href="Message.html" title="LLM::Message (class)">LLM::Message</a></span></tt>, <tt><span class='object_link'><a href="Prompt.html" title="LLM::Prompt (class)">LLM::Prompt</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>params</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Turn params. The history is taken from <code>params[:messages]</code>.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>role</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The role to assign to a raw prompt</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>:messages</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>The params key that holds the history (<code>:messages</code> for chat
+completions, <code>:input</code> for the responses API).</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Message.html" title="LLM::Message (class)">LLM::Message</a></span>&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_messages'>build_messages</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='id identifier rubyid_role'>role</span><span class='comma'>,</span> <span class='label'>key:</span> <span class='symbol'>:messages</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_prompt'>prompt</span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Message.html" title="LLM::Message (class)">Message</a></span></span>
+    <span class='lbracket'>[</span><span class='id identifier rubyid_prompt'>prompt</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='const'>Array</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_prompt'>prompt</span><span class='period'>.</span><span class='id identifier rubyid_all?'>all?</span> <span class='lbrace'>{</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Message.html" title="LLM::Message (class)">Message</a></span></span> <span class='op'>===</span> <span class='id identifier rubyid__1'>_1</span> <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_prompt'>prompt</span>
+    <span class='kw'>else</span>
+      <span class='lbracket'>[</span><span class='op'>*</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Message.html" title="LLM::Message (class)">Message</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Message.html#initialize-instance_method" title="LLM::Message#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_role'>role</span><span class='comma'>,</span> <span class='id identifier rubyid_prompt'>prompt</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Prompt.html" title="LLM::Prompt (class)">Prompt</a></span></span>
+    <span class='lbracket'>[</span><span class='op'>*</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_prompt'>prompt</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='lbracket'>[</span><span class='op'>*</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Message.html" title="LLM::Message (class)">Message</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Message.html#initialize-instance_method" title="LLM::Message#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_role'>role</span><span class='comma'>,</span> <span class='id identifier rubyid_prompt'>prompt</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -1250,12 +1422,12 @@ Requires the net-http-persistent gem.</p>
       <pre class="lines">
 
 
-47
-48
-49</pre>
+83
+84
+85</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 47</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 83</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_inspect'>inspect</span>
   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>#&lt;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utils.html" title="LLM::Utils (module)">Utils</a></span></span><span class='period'>.</span><span class='id identifier rubyid_object_id'><span class='object_link'><a href="Utils.html#object_id-instance_method" title="LLM::Utils#object_id (method)">object_id</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> @key=[REDACTED] @transport=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_transport'>transport</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> @tracer=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tracer'>tracer</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt;</span><span class='tstring_end'>&quot;</span></span>
@@ -1324,12 +1496,12 @@ Requires the net-http-persistent gem.</p>
       <pre class="lines">
 
 
-56
-57
-58</pre>
+92
+93
+94</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 56</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 92</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -1445,12 +1617,12 @@ Requires the net-http-persistent gem.</p>
       <pre class="lines">
 
 
-71
-72
-73</pre>
+107
+108
+109</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 71</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 107</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_embed'>embed</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='comma'>,</span> <span class='label'>model:</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -1519,12 +1691,12 @@ that do not support it.</p>
       <pre class="lines">
 
 
-81
-82
-83</pre>
+117
+118
+119</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 81</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 117</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_ocr'>ocr</span><span class='lparen'>(</span><span class='op'>...</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -1698,12 +1870,12 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-107
-108
-109</pre>
+143
+144
+145</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 107</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 143</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_complete'>complete</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -1789,13 +1961,13 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-116
-117
-118
-119</pre>
+152
+153
+154
+155</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 116</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 152</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_chat'>chat</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_role'>role</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:role</span><span class='rparen'>)</span>
@@ -1899,13 +2071,13 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-127
-128
-129
-130</pre>
+163
+164
+165
+166</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 127</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 163</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_respond'>respond</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_role'>role</span> <span class='op'>=</span> <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:role</span><span class='rparen'>)</span>
@@ -1979,12 +2151,12 @@ server-side, and produce faster responses.</p>
       <pre class="lines">
 
 
-139
-140
-141</pre>
+175
+176
+177</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 139</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 175</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_responses'>responses</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2049,12 +2221,12 @@ server-side, and produce faster responses.</p>
       <pre class="lines">
 
 
-146
-147
-148</pre>
+182
+183
+184</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 146</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 182</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_images'>images</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2119,12 +2291,12 @@ server-side, and produce faster responses.</p>
       <pre class="lines">
 
 
-153
-154
-155</pre>
+189
+190
+191</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 153</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 189</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_audio'>audio</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2189,12 +2361,12 @@ server-side, and produce faster responses.</p>
       <pre class="lines">
 
 
-160
-161
-162</pre>
+196
+197
+198</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 160</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 196</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_files'>files</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2259,12 +2431,12 @@ server-side, and produce faster responses.</p>
       <pre class="lines">
 
 
-167
-168
-169</pre>
+203
+204
+205</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 167</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 203</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_models'>models</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2329,12 +2501,12 @@ server-side, and produce faster responses.</p>
       <pre class="lines">
 
 
-174
-175
-176</pre>
+210
+211
+212</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 174</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 210</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_moderations'>moderations</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2399,12 +2571,12 @@ server-side, and produce faster responses.</p>
       <pre class="lines">
 
 
-181
-182
-183</pre>
+217
+218
+219</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 181</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 217</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_vector_stores'>vector_stores</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2471,12 +2643,12 @@ Usually &quot;assistant&quot; or &quot;model&quot;</p>
       <pre class="lines">
 
 
-189
-190
-191</pre>
+225
+226
+227</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 189</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 225</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_assistant_role'>assistant_role</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2541,12 +2713,12 @@ Usually &quot;assistant&quot; or &quot;model&quot;</p>
       <pre class="lines">
 
 
-196
-197
-198</pre>
+232
+233
+234</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 196</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 232</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_default_model'>default_model</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2594,12 +2766,12 @@ Usually &quot;assistant&quot; or &quot;model&quot;</p>
       <pre class="lines">
 
 
-203
-204
-205</pre>
+239
+240
+241</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 203</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 239</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_schema'>schema</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Schema.html" title="LLM::Schema (class)">Schema</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
@@ -2680,14 +2852,14 @@ Usually &quot;assistant&quot; or &quot;model&quot;</p>
       <pre class="lines">
 
 
-217
-218
-219
-220
-221</pre>
+253
+254
+255
+256
+257</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 217</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 253</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_with'>with</span><span class='lparen'>(</span><span class='label'>headers:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_lock'>lock</span> <span class='kw'>do</span>
@@ -2745,12 +2917,12 @@ method can be used if a tool is not found here.</p>
       <pre class="lines">
 
 
-229
-230
-231</pre>
+265
+266
+267</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 229</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 265</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_server_tools'>server_tools</span>
   <span class='lbrace'>{</span><span class='rbrace'>}</span>
@@ -2853,12 +3025,12 @@ like web search, and more.</p>
       <pre class="lines">
 
 
-246
-247
-248</pre>
+282
+283
+284</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 246</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 282</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_server_tool'>server_tool</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
   <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ServerTool.html" title="LLM::ServerTool (class)">ServerTool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='kw'>self</span><span class='rparen'>)</span>
@@ -2942,12 +3114,12 @@ like web search, and more.</p>
       <pre class="lines">
 
 
-256
-257
-258</pre>
+292
+293
+294</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 256</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 292</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_web_search'>web_search</span><span class='lparen'>(</span><span class='label'>query:</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_raise'>raise</span> <span class='const'>NotImplementedError</span>
@@ -2994,12 +3166,12 @@ like web search, and more.</p>
       <pre class="lines">
 
 
-262
-263
-264</pre>
+298
+299
+300</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 262</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 298</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_user_role'>user_role</span>
   <span class='symbol'>:user</span>
@@ -3046,12 +3218,12 @@ like web search, and more.</p>
       <pre class="lines">
 
 
-268
-269
-270</pre>
+304
+305
+306</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 268</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 304</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_system_role'>system_role</span>
   <span class='symbol'>:system</span>
@@ -3098,12 +3270,12 @@ like web search, and more.</p>
       <pre class="lines">
 
 
-274
-275
-276</pre>
+310
+311
+312</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 274</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 310</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_developer_role'>developer_role</span>
   <span class='symbol'>:developer</span>
@@ -3150,12 +3322,12 @@ like web search, and more.</p>
       <pre class="lines">
 
 
-280
-281
-282</pre>
+316
+317
+318</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 280</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 316</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tool_role'>tool_role</span>
   <span class='symbol'>:tool</span>
@@ -3207,12 +3379,12 @@ like web search, and more.</p>
       <pre class="lines">
 
 
-287
-288
-289</pre>
+323
+324
+325</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 287</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 323</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tracer'>tracer</span>
   <span class='id identifier rubyid_weakmap'>weakmap</span><span class='lbracket'>[</span><span class='kw'>self</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='ivar'>@tracer</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tracer/Null.html" title="LLM::Tracer::Null (class)">Null</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Tracer.html#initialize-instance_method" title="LLM::Tracer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -3277,12 +3449,12 @@ whenever no scoped override is active.</p>
       <pre class="lines">
 
 
-301
-302
-303</pre>
+337
+338
+339</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 301</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 337</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_tracer='>tracer=</span><span class='lparen'>(</span><span class='id identifier rubyid_tracer'>tracer</span><span class='rparen'>)</span>
   <span class='ivar'>@tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tracer.html" title="LLM::Tracer (class)">Tracer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Tracer/Null.html" title="LLM::Tracer::Null (class)">Null</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Tracer.html#initialize-instance_method" title="LLM::Tracer#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -3370,23 +3542,23 @@ replacing the provider&#39;s default tracer.</p>
       <pre class="lines">
 
 
-316
-317
-318
-319
-320
-321
-322
-323
-324
-325
-326
-327
-328
-329</pre>
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 316</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 352</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_with_tracer'>with_tracer</span><span class='lparen'>(</span><span class='id identifier rubyid_tracer'>tracer</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_had_override'>had_override</span> <span class='op'>=</span> <span class='id identifier rubyid_weakmap'>weakmap</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
@@ -3464,12 +3636,12 @@ replacing the provider&#39;s default tracer.</p>
       <pre class="lines">
 
 
-335
-336
-337</pre>
+371
+372
+373</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 335</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 371</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_interrupt!'>interrupt!</span><span class='lparen'>(</span><span class='id identifier rubyid_owner'>owner</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_transport'>transport</span><span class='period'>.</span><span class='id identifier rubyid_interrupt!'>interrupt!</span><span class='lparen'>(</span><span class='id identifier rubyid_owner'>owner</span><span class='rparen'>)</span>
@@ -3521,12 +3693,12 @@ replacing the provider&#39;s default tracer.</p>
       <pre class="lines">
 
 
-344
-345
-346</pre>
+380
+381
+382</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 344</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 380</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_request_owner'>request_owner</span>
   <span class='id identifier rubyid_transport'>transport</span><span class='period'>.</span><span class='id identifier rubyid_request_owner'>request_owner</span>
@@ -3578,12 +3750,12 @@ replacing the provider&#39;s default tracer.</p>
       <pre class="lines">
 
 
-351
-352
-353</pre>
+387
+388
+389</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 351</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/provider.rb', line 387</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_key?'>key?</span>
   <span class='ivar'>@key</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@key</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>0</span>
@@ -3598,9 +3770,9 @@ replacing the provider&#39;s default tracer.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 29 11:26:13 2026 by
+  Generated on Mon Aug  3 01:01:18 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.44 (ruby-4.0.3).
+  0.9.44 (ruby-4.0.6).
 </div>
 
     </div>

@@ -82,7 +82,179 @@ a <a href="https://r.uby.dev">r.uby.dev</a> project</p>
 
 <h2 id="whats-next">What&#39;s next</h2>
 
-<p><em>No unreleased changes yet. Check back after the next release.</em></p>
+<h3 id="breaking">Breaking</h3>
+
+<ul>
+<li><p><strong>replace the transformer setter with <code>LLM::Transformer</code></strong> <br>
+The previous <code>transformer=</code> setter and 3-argument
+<code>call(ctx, prompt, params)</code> interface on <code>LLM::Context</code> have been
+replaced by the new
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html"><code>LLM::Transformer</code></a>
+class interface. Configure a transformer class through <code>transformer:</code>
+and options through <code>transformer_options:</code> instead.</p></li>
+<li><p><strong>cli: scope session persistence per provider and directory</strong> <br>
+<code>bin/llm.rb</code> no longer shares a single session file between providers.
+Each provider now has a <code>~/.llm.rb/&lt;provider&gt;.json</code> file that maps the
+current working directory to a UUID-scoped session file under
+<code>~/.llm.rb/&lt;provider&gt;/&lt;uuid&gt;.json</code>, so sessions are scoped to both the
+provider and the directory they were started in.</p></li>
+<li><p><strong>cli: harden the executable against bad inputs</strong> <br>
+<code>bin/llm.rb</code> now prints an error message followed by the help menu and
+exits with status 1 when the <code>-p</code> switch is given without an argument or
+when an unknown option is passed. Previously unknown options produced a
+warning but the run continued. The session-file lookup also no longer
+rewrites <code>~/.llm.rb/&lt;provider&gt;.json</code> when it already exists.</p></li>
+</ul>
+
+<h3 id="core">Core</h3>
+
+<ul>
+<li><p><strong>add <code>LLM::Provider#build_messages</code> for assembling outgoing messages</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#build_messages-instance_method"><code>LLM::Provider#build_messages</code></a>
+normalizes a prompt into <code>LLM::Message</code> objects and prepends the existing
+history, replacing the per-provider <code>build_complete_messages</code>
+implementation. The method is idempotent: prompts that are already
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Message.html"><code>LLM::Message</code></a>
+instances or arrays of messages are returned as-is.</p></li>
+<li><p><strong>copy the <code>params</code> hash in <code>LLM::Context</code> and <code>LLM::Agent</code></strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a> now copy
+the <code>params</code> hash in their constructors before mutating it, leaving the
+caller&#39;s hash untouched. Previously the constructors deleted keys from
+the caller&#39;s hash in place.</p></li>
+<li><p><strong>gemspec: ship the deepdive sub-files in the gem</strong> <br>
+The gemspec now includes <code>resources/deepdive/*/*.md</code> in the gem
+package, so the full deepdive guide (fundamentals, advanced,
+protocols, and everything-else chapters) is available after
+installation.</p></li>
+</ul>
+
+<h3 id="transformer">Transformer</h3>
+
+<ul>
+<li><p><strong>add <code>LLM::Transformer</code> for rewriting messages before they reach the provider</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html"><code>LLM::Transformer</code></a>
+is a new superclass for message transformers. A transformer is bound to a
+context and rewrites a single message before it is sent to the provider,
+which makes it possible to redact personal information or rewrite any
+message before it goes out over the wire. Each subclass implements
+<code>call(message:, **opts)</code> and returns the message to send, either by
+mutating it in place or returning a new one.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Transformer/Null.html"><code>LLM::Transformer::Null</code></a>
+is a no-op transformer used as the default.</p></li>
+<li><p><strong>hook the transformer API into <code>LLM::Context</code></strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a> now
+accepts <code>transformer:</code> (a transformer class defaulting to
+<code>LLM::Transformer::Null</code>) and <code>transformer_options:</code> (a hash forwarded to
+the transformer&#39;s <code>call</code> method). The transformer runs on the most recent
+message in both chat and responses turns.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_transform-instance_method"><code>LLM::Stream#on_transform</code></a>
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Stream.html#on_transform_finish-instance_method"><code>LLM::Stream#on_transform_finish</code></a>
+now receive the transformer instance as their single argument.</p></li>
+</ul>
+
+<h3 id="tool">Tool</h3>
+
+<ul>
+<li><strong>add <code>LLM::Tool.set</code> for bulk-assigning tool properties</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tool.html#set-class_method"><code>LLM::Tool.set</code></a>
+accepts a hash of <code>name</code>, <code>description</code>, <code>parameters</code>, <code>required</code>, and
+<code>defaults</code> to configure a tool subclass in a single call. Parameters are
+defined as tuples of <code>[name, type, description, options]</code>, matching the
+same interface as the existing <code>parameter</code> DSL. Unknown keys raise
+<code>KeyError</code>.</li>
+</ul>
+
+<h3 id="change">Change</h3>
+
+<ul>
+<li><strong>openai: default to <code>gpt-5.6-luna</code></strong> <br>
+The default OpenAI chat model has changed from <code>gpt-5.4-mini</code> to
+<code>gpt-5.6-luna</code>. The new model is OpenAI&#39;s fastest and most affordable
+option, matching the kind of default llm.rb aims for.</li>
+</ul>
+
+<h3 id="repl">Repl</h3>
+
+<ul>
+<li><p><strong>center the buffer with 20% gutters</strong> <br>
+The curses-based REPL now centers
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Buffer.html"><code>LLM::Repl::Buffer</code></a>
+in a content area that is 60% of the terminal width, with an unused 20%
+gutter on each side. The drawing area is based on the available rows and
+columns instead of a fixed 80-column width, and <code>Buffer#wrap</code> now
+hard-breaks words that overflow the width onto the next row, fixing a
+bug where a word could be cut off between rows.</p></li>
+<li><p><strong>apply markdown to previous messages</strong> <br>
+The curses-based REPL now renders every message in the buffer with
+markdown styling, including messages that were already present when
+the session started or restored from disk. Previously only newly
+streamed responses were styled; older messages fell back to plain
+text.</p></li>
+<li><p><strong>add <code>LLM::Repl#sender</code> for the user label</strong> <br>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl.html#sender-instance_method"><code>LLM::Repl#sender</code></a>
+returns the label used for user messages in the curses-based REPL. It
+defaults to <code>&quot;You&quot;</code> (previously <code>&quot;user&quot;</code>), and the buffer layout now
+places each label on its own line followed by the message content and a
+blank line.</p></li>
+<li><p><strong>add <code>LLM::Repl::Color</code> for coloring the curses UI</strong> <br>
+Add
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Repl/Color.html"><code>LLM::Repl::Color</code></a>
+as a new module that returns Curses color bitmasks. <code>Color.enable</code>
+initializes 8 color pairs, and methods like <code>Color.blue</code> return the
+corresponding <code>Curses.color_pair(X)</code> bitmask, which can be bitwise
+OR&#39;ed with other attributes such as <code>Curses::A_BOLD</code>. User labels in
+the REPL are now rendered in blue instead of plain bold text.</p></li>
+<li><p><strong>split on words rather than characters</strong> <br>
+<code>LLM::Repl::Buffer#wrap</code> now breaks text on word boundaries instead of
+wrapping one character at a time. A word that does not fit on the
+current row moves to the next, and only a single word longer than the
+whole width is hard-broken, so text is never clipped by the window.</p></li>
+<li><p><strong>render kramdown typographic symbols and smart quotes</strong> <br>
+Fix a bug where certain character sequences such as <code>...</code> were not
+rendered at all in the curses-based REPL. Kramdown parses them into
+<code>:typographic_sym</code> and <code>:smart_quote</code> nodes, which previously fell
+through to the children clause and were dropped. The markdown renderer
+now maps them to their unicode equivalents: ellipsis, en and em
+dashes, guillemets, and single and double quotation marks.</p></li>
+<li><p><strong>apply colors to the markdown renderer</strong> <br>
+The curses-based REPL now renders markdown with the <code>LLM::Repl::Color</code>
+palette: headers and strong text in white, code spans and code blocks
+in green, and links in underlined green, on the black background.
+Previously markdown styling used bold, underline, and reverse video
+attributes only.</p></li>
+<li><p><strong>wrap the input line at word boundaries</strong> <br>
+The curses-based REPL input line now wraps words whole onto the next
+row at the terminal width instead of cutting them in half. A word that
+does not fit on the current row moves to the next row, and only a
+single word longer than the whole width is hard-broken, so typed text
+is never clipped by the window.</p></li>
+<li><p><strong>distinguish the connecting and thinking status bar phases</strong> <br>
+The curses-based REPL status bar now shows <code>Connecting • Esc to
+cancel</code> while the model is establishing a connection, then switches
+to <code>Thinking • Esc to cancel</code> once a tool call or text fragment
+arrives on the stream. Active tool calls appear in the status bar
+with a lambda indicator.</p></li>
+<li><p><strong>add emoji to the status bar phases</strong> <br>
+The curses-based REPL status bar now uses emoji to identify each
+phase at a glance: a globe (<code>🌐</code>) while the model is connecting, and
+a brain (<code>🧠</code>) while it is thinking. The text after the emoji still
+reads <code>Connecting • Esc to cancel</code> and <code>Thinking • Esc to cancel</code>
+respectively.</p></li>
+<li><p><strong>render the status bar with color and attributes</strong> <br>
+The curses-based REPL status bar now supports colored and attributed
+status text, so the lambda indicator for active tool calls is drawn
+in bold red.</p></li>
+</ul>
+
+<h3 id="registry">Registry</h3>
+
+<ul>
+<li><strong>refresh model metadata across providers</strong> <br>
+Update <code>data/*.json</code> files with current provider model listings and
+pricing.</li>
+</ul>
 
 <h2 id="v13-1-0">v13.1.0</h2>
 
@@ -3399,9 +3571,9 @@ format for API compatibility.</li>
 </div></div>
 
       <div id="footer">
-  Generated on Wed Jul 29 11:26:05 2026 by
+  Generated on Mon Aug  3 01:01:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.44 (ruby-4.0.3).
+  0.9.44 (ruby-4.0.6).
 </div>
 
     </div>

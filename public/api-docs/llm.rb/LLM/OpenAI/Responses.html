@@ -460,7 +460,12 @@ not only those listed here.</p>
 53
 54
 55
-56</pre>
+56
+57
+58
+59
+60
+61</pre>
     </td>
     <td>
       <pre class="code"><span class="info file"># File 'lib/llm/providers/openai/responses.rb', line 37</span>
@@ -475,8 +480,13 @@ not only those listed here.</p>
     <span class='id identifier rubyid_adapt_tools'>adapt_tools</span><span class='lparen'>(</span><span class='id identifier rubyid_tools'>tools</span><span class='rparen'>)</span>
   <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='symbol'>:merge!</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
   <span class='id identifier rubyid_req'>req</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Transport.html" title="LLM::Transport (class)">Transport</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Transport/Request.html" title="LLM::Transport::Request (class)">Request</a></span></span><span class='period'>.</span><span class='id identifier rubyid_post'><span class='object_link'><a href="../Transport/Request.html#post-class_method" title="LLM::Transport::Request.post (method)">post</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/responses</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_headers'>headers</span><span class='rparen'>)</span>
-  <span class='id identifier rubyid_messages'>messages</span> <span class='op'>=</span> <span class='id identifier rubyid_build_complete_messages'>build_complete_messages</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='id identifier rubyid_role'>role</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_messages'>messages</span> <span class='op'>=</span> <span class='ivar'>@provider</span><span class='period'>.</span><span class='id identifier rubyid_build_messages'>build_messages</span><span class='lparen'>(</span><span class='id identifier rubyid_prompt'>prompt</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='id identifier rubyid_role'>role</span><span class='comma'>,</span> <span class='label'>key:</span> <span class='symbol'>:input</span><span class='rparen'>)</span>
   <span class='ivar'>@provider</span><span class='period'>.</span><span class='id identifier rubyid_tracer'>tracer</span><span class='period'>.</span><span class='id identifier rubyid_set_request_metadata'>set_request_metadata</span><span class='lparen'>(</span><span class='label'>user_input:</span> <span class='id identifier rubyid_extract_user_input'>extract_user_input</span><span class='lparen'>(</span><span class='id identifier rubyid_messages'>messages</span><span class='comma'>,</span> <span class='label'>fallback:</span> <span class='id identifier rubyid_prompt'>prompt</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='comment'>##
+</span>  <span class='comment'># The input is derived from `prompt`/`messages` above; a
+</span>  <span class='comment'># stale `:input` passed in params (eg by LLM::Context) must
+</span>  <span class='comment'># not overwrite it in the request body.
+</span>  <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:input</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../LLM.html" title="LLM (module)">LLM</a></span></span><span class='period'>.</span><span class='id identifier rubyid_json'><span class='object_link'><a href="../../LLM.html#json-class_method" title="LLM.json (method)">json</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>input:</span> <span class='lbracket'>[</span><span class='id identifier rubyid_adapt'>adapt</span><span class='lparen'>(</span><span class='id identifier rubyid_messages'>messages</span><span class='comma'>,</span> <span class='label'>mode:</span> <span class='symbol'>:response</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_transport'>transport</span><span class='period'>.</span><span class='id identifier rubyid_set_body_stream'>set_body_stream</span><span class='lparen'>(</span><span class='id identifier rubyid_req'>req</span><span class='comma'>,</span> <span class='const'>StringIO</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_res'>res</span><span class='comma'>,</span> <span class='id identifier rubyid_span'>span</span><span class='comma'>,</span> <span class='id identifier rubyid_tracer'>tracer</span> <span class='op'>=</span> <span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='label'>request:</span> <span class='id identifier rubyid_req'>req</span><span class='comma'>,</span> <span class='label'>stream:</span><span class='comma'>,</span> <span class='label'>stream_parser:</span><span class='comma'>,</span> <span class='label'>operation:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>chat</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>model:</span> <span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:model</span><span class='rbracket'>]</span><span class='rparen'>)</span>
@@ -554,18 +564,18 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-64
-65
-66
-67
-68
 69
 70
 71
-72</pre>
+72
+73
+74
+75
+76
+77</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/openai/responses.rb', line 64</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/openai/responses.rb', line 69</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_params'>params</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_response_id'>response_id</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='op'>:</span> <span class='id identifier rubyid_response'>response</span>
@@ -649,17 +659,17 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-80
-81
-82
-83
-84
 85
 86
-87</pre>
+87
+88
+89
+90
+91
+92</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/openai/responses.rb', line 80</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/openai/responses.rb', line 85</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_response_id'>response_id</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='op'>:</span> <span class='id identifier rubyid_response'>response</span>
@@ -726,15 +736,15 @@ not only those listed here.</p>
       <pre class="lines">
 
 
-92
-93
-94
-95
-96
-97</pre>
+97
+98
+99
+100
+101
+102</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/llm/providers/openai/responses.rb', line 92</span>
+      <pre class="code"><span class="info file"># File 'lib/llm/providers/openai/responses.rb', line 97</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_adapt_function'>adapt_function</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='rparen'>)</span>
   <span class='lbrace'>{</span>
@@ -752,9 +762,9 @@ not only those listed here.</p>
 </div>
 
       <div id="footer">
-  Generated on Wed Jul 29 11:26:25 2026 by
+  Generated on Mon Aug  3 01:01:32 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
-  0.9.44 (ruby-4.0.3).
+  0.9.44 (ruby-4.0.6).
 </div>
 
     </div>
