@@ -112,6 +112,10 @@
               </li>
 
               <li>
+                <a href="/llm/deepdive/advanced/guard/">Guard</a>
+              </li>
+
+              <li>
                 <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
               </li>
 
@@ -149,6 +153,14 @@
                 <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
               </li>
 
+              <li>
+                <a href="/llm/deepdive/everything-else/object/">LLM::Object</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/cost/">LLM::Cost</a>
+              </li>
+
           </ul>
         </details>
 
@@ -174,11 +186,12 @@ serialization, compaction, and concurrency.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#talk"><code>LLM::Agent#talk</code></a>,
 the model responds, and if it requests tools the agent
 executes them automatically and feeds the results back. It enables
-a loop guard by default that detects repeated tool-call patterns
-and blocks stuck execution. The default tool attempt budget is 25.
-After that, the agent sends advisory errors back through the model
-and keeps the loop in-band. Instructions are injected once unless
-a system message is already present.</p>
+<a href="https://r.uby.dev/llm/deepdive/advanced/guard">a loop guard by default</a>
+that detects repeated tool-call patterns
+and blocks stuck execution. The tool loop can also be bounded with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method"><code>LLM::Agent.tool_budget</code></a>
+(see the Tool budget section). Instructions are injected once
+unless a system message is already present.</p>
 
 <h4 id="agents-introduction-why-would-i-use-it">Why would I use it?</h4>
 
@@ -217,8 +230,8 @@ and talk to from anywhere.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method"><code>LLM::Agent.set</code></a>.
 Each key is a
 class-level accessor: <code>name</code>, <code>description</code>, <code>model</code>, <code>tools</code>,
-<code>instructions</code>, <code>stream</code>, <code>tracer</code>, <code>concurrency</code>, <code>schema</code>,
-<code>confirm</code>, <code>path</code>.
+<code>skills</code>, <code>instructions</code>, <code>stream</code>, <code>tracer</code>, <code>concurrency</code>,
+<code>schema</code>, <code>confirm</code>, <code>path</code>, <code>tool_budget</code>.
 Keyword arguments in the constructor override these defaults.</p>
 
 <pre><code class="language-ruby">class Agent &lt; LLM::Agent
@@ -301,6 +314,56 @@ can do. Under the hood,
 creates a
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>
 that manages the message history.</p>
+
+<h3 id="agents-tool-budget">Tool budget</h3>
+
+<h4 id="agents-tool-budget-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method"><code>LLM::Agent.tool_budget</code></a>
+caps the number of tool calls allowed in a single turn. Once the
+budget is spent, the agent sends an in-band advisory message back
+through the model instead of running more tools. By default no
+budget is set, so the feature is disabled.</p>
+
+<h4 id="agents-tool-budget-how-it-works">How it works</h4>
+
+<p>When you want to bound how many tools an agent can call in one
+turn, set the budget with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method"><code>LLM::Agent.set</code></a>.
+The budget can be a plain number or a block evaluated against the
+agent instance. Once the agent has made the budgeted number of tool
+calls, it stops and returns an in-band advisory message describing
+the spent budget. A model will usually change course afterwards:</p>
+
+<pre><code class="language-ruby">class Researcher &lt; LLM::Agent
+  set model: "deepseek-v4-pro",
+      tools: [FetchNews, FetchStocks],
+      tool_budget: 5
+end
+
+llm = LLM.deepseek(key: ENV["KEY"])
+agent = Researcher.new(llm)
+agent.talk "Research the market"
+</code></pre>
+
+<h4 id="agents-tool-budget-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A tool budget prevents runaway tool loops. A misbehaving model can
+otherwise keep calling tools, spending tokens on every round trip.
+Capping the budget turns that into a bounded conversation: after
+the cap, the model is told it has run out of tool calls and must
+respond from what it has.</p>
+
+<h4 id="agents-tool-budget-notes">Notes</h4>
+
+<p>The budget is disabled by default (<code>nil</code>). Set it on a subclass
+with the <code>tool_budget</code> DSL, through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#set-class_method"><code>LLM::Agent.set</code></a>
+with <code>tool_budget:</code>, or per-instance with the <code>tool_budget:</code> keyword
+argument to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#initialize-instance_method"><code>LLM::Agent.new</code></a>.
+This replaces the previous <code>tool_attempts</code> parameter, which is no
+longer used.</p>
 
 <hr />
 
@@ -1500,8 +1563,10 @@ agent-level configuration.</p>
 <h4 id="database-sequel-overview">Overview</h4>
 
 <p>Sequel models use <code>plugin :agent</code> to install the agent wrapper.
-The plugin accepts the same options as <code>acts_as_agent</code> and follows
-the same conventions for provider resolution and state persistence.
+The plugin accepts the same options as
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method"><code>acts_as_agent</code></a>
+and follows the same conventions for provider resolution and state
+persistence.
 On first call, a fresh agent is created and the conversation starts
 from scratch. On subsequent calls, the stored state is restored and
 the conversation continues automatically.</p>
@@ -1894,7 +1959,8 @@ call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
 on any provider that supports it. The method accepts an input string
 or array of strings and returns a response with the resulting
-embeddings:</p>
+embeddings, which can be stored in a vector database and used for
+similarity search at query time:</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -1902,9 +1968,6 @@ llm = LLM.openai(key: ENV["KEY"])
 body = "llm.rb is Ruby's capable AI runtime."
 embedding = llm.embed([body]).embeddings.first
 </code></pre>
-
-<p>The returned embeddings can be stored in a vector database and used
-for similarity search at query time.</p>
 
 <h4 id="embeddings-introduction-why-would-i-use-it">Why would I use it?</h4>
 
@@ -1987,7 +2050,7 @@ with sqlite-vec or pgvector.</p>
 
 <h4 id="embeddings-local-vector-search-overview">Overview</h4>
 
-<p>For a fully self-hosted RAG pipeline, combine
+<p>Local vector search combines
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
 with a local vector database such as
 <a href="https://github.com/asg017/sqlite-vec">sqlite-vec</a> or
@@ -2321,9 +2384,7 @@ contains an orphaned result.</p>
 <p>The <code>keep:</code> parameter accepts an integer count or a percentage
 string like <code>"80%"</code>. The default compactor is
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a>,
-which does nothing. A compactor can also be used standalone.
-The REPL provides a <code>/compact</code> command that accepts a count
-or percentage.</p>
+which does nothing. A compactor can also be used standalone:</p>
 
 <pre><code class="language-ruby">ctx = LLM::Context.new(
   llm,
@@ -2339,8 +2400,14 @@ agent = LLM::Agent.new(
 
 compactor = LLM::Compactor::Truncate.new(agent)
 compactor.call(keep: 200)
+</code></pre>
 
-# /compact        # keep last 128 messages
+<h5 id="compaction-introduction-how-it-works-the-compact-command">The <code>/compact</code> command</h5>
+
+<p>The REPL provides a <code>/compact</code> command that accepts a count or
+percentage:</p>
+
+<pre><code class="language-ruby"># /compact        # keep last 128 messages
 # /compact 50     # keep last 50 messages
 # /compact 75%    # keep approximately 75% of messages
 </code></pre>
@@ -2513,14 +2580,17 @@ code.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html"><code>LLM::Transformer</code></a>
 that implements
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html#call-instance_method"><code>LLM::Transformer#call</code></a>.
-The method receives the message to transform and returns a message.
+The method receives the message to transform and returns a
+message.
 You can mutate the message in place or return a new one; either way,
 the returned message is what gets sent.</p>
 
 <p>Configure the transformer on a context with the <code>transformer:</code> option,
 passing a class rather than an instance. The runtime instantiates it
 once per turn. Options passed through <code>transformer_options:</code> are
-forwarded to <code>call</code> as keyword arguments:</p>
+forwarded to <code>call</code> as keyword arguments. The transformer runs on
+the most recent message in both chat completions and Responses API
+turns, before the request reaches the provider:</p>
 
 <pre><code class="language-ruby">class RedactEmails &lt; LLM::Transformer
   def call(message:, **opts)
@@ -2536,10 +2606,6 @@ ctx = LLM::Context.new(
 )
 ctx.talk "Contact support@example.com for help"
 </code></pre>
-
-<p>The transformer runs on the most recent message in both chat
-completions and Responses API turns, before the request reaches the
-provider.</p>
 
 <h4 id="transformer-introduction-why-would-i-use-it">Why would I use it?</h4>
 
@@ -2563,6 +2629,371 @@ callbacks, which receive the transformer instance.</p>
 
 <hr />
 
+<h2 id="guard">Guard</h2>
+
+<h3 id="guard-introduction">Introduction</h3>
+
+<h4 id="guard-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html"><code>LLM::Guard</code></a>
+is the superclass for context-level supervisors. A guard is bound
+to a context and inspects each pending tool call before it runs.
+It can let the call through, cancel it, block it with an error, or
+answer for it with a synthesized result. Beyond loop detection,
+guards handle policy, validation, quotas, cost control, caching,
+and approval workflows.</p>
+
+<h4 id="guard-introduction-how-it-works">How it works</h4>
+
+<p>A guard is a subclass of
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html"><code>LLM::Guard</code></a>
+that implements
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard.html#call-instance_method"><code>LLM::Guard#call</code></a>.
+Before a batch of pending tools runs, the runtime asks the guard
+about each pending function. <code>call</code> receives the pending <code>function:</code>
+and returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html"><code>LLM::Function::Return</code></a>
+to close that single call, or <code>nil</code> to let it run. The guard inspects
+the current conversation through the <code>messages</code> helper and reads the
+pending call through the function’s own accessors.</p>
+
+<p>Configure a guard by passing a class through the <code>guard:</code> option;
+options given in <code>guard_options:</code> are forwarded to <code>call</code> as keyword
+arguments:</p>
+
+<pre><code class="language-ruby">class RateLimitGuard &lt; LLM::Guard
+  def call(function:, limit: 10, **opts)
+    if messages.count(&amp;:tool_return?) &gt;= limit
+      function.return(error: true, type: "guard_error",
+                      message: "too many tool calls")
+    end
+  end
+end
+
+agent = LLM::Agent.new(
+  llm,
+  guard: RateLimitGuard,
+  guard_options: {limit: 3}
+)
+agent.talk "Research the market", tools: [FetchNews, FetchStocks]
+</code></pre>
+
+<h4 id="guard-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>A guard is the one hook that sees every pending tool call and the
+full conversation at once. It can observe what the model is about
+to do, cancel a call that needs approval, block one that violates
+policy, answer a cheap question without running a tool, or stop
+work when a budget is spent. Because the guard runs before the
+tool, anything it intercepts never executes.</p>
+
+<h4 id="guard-introduction-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Null.html"><code>LLM::Guard::Null</code></a>
+is the default guard for
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html"><code>LLM::Context</code></a>;
+it never blocks tool work.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#guard"><code>LLM::Context#guard</code></a>
+returns the configured guard class. Because <code>call</code> returns an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html"><code>LLM::Function::Return</code></a>
+rather than a warning string, a guard can block an individual tool
+call while the rest of the batch still executes. Guards run when
+pending tool work is resolved from message history. Tool work a
+stream queues itself during a streaming turn is drained directly
+from the stream queue, so it bypasses the guard.</p>
+
+<p>The runtime builds a fresh guard instance for every function on
+every resolution, so a guard cannot carry state in instance
+variables between calls. Anything a guard needs to remember, like
+how many calls already ran, must come from the conversation
+(<code>messages</code>) or from class-level state.</p>
+
+<h3 id="guard-inspecting-pending-calls">Inspecting pending calls</h3>
+
+<h4 id="guard-inspecting-pending-calls-overview">Overview</h4>
+
+<p>The guard receives the pending
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function</code></a>
+and can read what the model is about to do before anything runs.
+The function exposes its <code>name</code>, <code>arguments</code>, and parameter schema,
+so a guard can base its decision on the actual call rather than on
+the whole conversation. The guard also holds the context, so the
+message history, token usage, and cost are visible too.</p>
+
+<h4 id="guard-inspecting-pending-calls-how-it-works">How it works</h4>
+
+<p>When you want to inspect a pending call before it runs, read the
+function’s accessors inside <code>call</code>.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#name"><code>LLM::Function#name</code></a>
+is the tool name, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#arguments"><code>LLM::Function#arguments</code></a>
+is an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>
+with the parsed arguments. The full parameter schema is available
+through
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#params"><code>LLM::Function#params</code></a>.
+Returning <code>nil</code> lets the call run, so an inspection-only guard is a
+pure observer:</p>
+
+<pre><code class="language-ruby">class AuditGuard &lt; LLM::Guard
+  def call(function:, **opts)
+    warn "pending: #{function.name}(#{function.arguments.inspect})"
+    nil  # let it run
+  end
+end
+</code></pre>
+
+<h4 id="guard-inspecting-pending-calls-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Inspecting the pending call is the basis for policy, validation,
+and audit. A guard can log every call into a telemetry stream, or
+reject a single call because its arguments violate a rule while
+letting every other call through. The same read underpins the
+richer decisions in the rest of this document.</p>
+
+<h4 id="guard-inspecting-pending-calls-notes">Notes</h4>
+
+<p>The guard sees the parsed arguments exactly as the model requested
+them. Reading them costs nothing and never executes the tool.
+Returning <code>nil</code> means the call proceeds normally.</p>
+
+<h3 id="guard-cancelling-a-call">Cancelling a call</h3>
+
+<h4 id="guard-cancelling-a-call-overview">Overview</h4>
+
+<p>Cancelling is distinct from blocking with an error.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
+produces a return the model reads as a declined call, not a failed
+one. The conversation stays honest: the model asked for something,
+and the runtime declined it with a reason.</p>
+
+<h4 id="guard-cancelling-a-call-how-it-works">How it works</h4>
+
+<p>When you want to cancel a single pending call, call the
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
+method with a <code>reason:</code> and return the result from <code>call</code>. The
+pending call never executes, and the rest of the batch still runs.
+A guard can cancel one call in a two-call batch and the other call
+still executes:</p>
+
+<pre><code class="language-ruby">class ApprovalGuard &lt; LLM::Guard
+  def call(function:, **opts)
+    if function.name == "delete-file"
+      function.cancel(reason: "delete requires human approval")
+    end
+  end
+end
+</code></pre>
+
+<h4 id="guard-cancelling-a-call-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Cancellation suits approval workflows and environment rules. A call
+that needs a human in the loop, a tool that is disabled for a
+particular user, or an operation that must not run in production
+can all be declined without pretending the tool failed. Because
+cancellation is per call, it declines only the offending tool and
+leaves the rest of the batch intact.</p>
+
+<h4 id="guard-cancelling-a-call-notes">Notes</h4>
+
+<p>The model receives
+<code>{cancelled: true, reason: "delete requires human approval"}</code> as
+that call’s result and can react, for example by asking for
+permission or skipping the operation. A cancelled call still counts
+as resolved, like any tool return, so the model keeps moving. The
+reason string is what the model sees, so write it as guidance
+(“ask the user first”) rather than a raw error dump.</p>
+
+<h3 id="guard-blocking-calls">Blocking calls</h3>
+
+<h4 id="guard-blocking-calls-overview">Overview</h4>
+
+<p>Blocking is how a guard enforces policy. A blocked call never runs,
+and the model receives an in-band error explaining why. Unlike a
+cancellation, an error tells the model the tool could not produce
+a result at all.</p>
+
+<h4 id="guard-blocking-calls-how-it-works">How it works</h4>
+
+<p>When you want to block a call, return an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html"><code>LLM::Function::Return</code></a>
+with <code>error: true</code>. The <code>type</code> and <code>message</code> are free-form, and the
+model sees them inside the return value. Returning <code>nil</code> lets the
+call through:</p>
+
+<pre><code class="language-ruby">class PolicyGuard &lt; LLM::Guard
+  def call(function:, **opts)
+    if function.name == "shell"
+      function.return(error: true, type: "policy_error",
+                      message: "shell is disabled")
+    end
+  end
+end
+</code></pre>
+
+<h4 id="guard-blocking-calls-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Blocking denies a dangerous tool, rejects an out-of-policy
+argument, or stops a quota violation before it happens. The model
+receives the return and can adapt, so the conversation stays valid.</p>
+
+<h4 id="guard-blocking-calls-notes">Notes</h4>
+
+<p>A blocked call never executes. The return it produces is sent back
+through the model like any tool result, so the model sees why the
+call was blocked and can change course.</p>
+
+<h3 id="guard-standing-in-for-a-tool">Standing in for a tool</h3>
+
+<h4 id="guard-standing-in-for-a-tool-overview">Overview</h4>
+
+<p>A guard’s return is injected into the conversation as if the tool
+had executed, so a guard can answer for a tool that never runs.
+From the model’s side, a synthesized result is indistinguishable
+from a real one.</p>
+
+<h4 id="guard-standing-in-for-a-tool-how-it-works">How it works</h4>
+
+<p>When you want to answer a pending call yourself, return a value
+through the
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function#return</code></a>
+helper. The value you pass becomes the tool’s result as-is, so it
+must look like a plausible answer:</p>
+
+<pre><code class="language-ruby">class CacheGuard &lt; LLM::Guard
+  CACHE = {"get-weather:tokyo" =&gt; {forecast: "sunny"}}
+
+  def call(function:, **opts)
+    key = "#{function.name}:#{function.arguments[:city]}"
+    function.return(CACHE[key]) if CACHE.key?(key)
+  end
+end
+</code></pre>
+
+<h4 id="guard-standing-in-for-a-tool-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Standing in for a tool is how you cache expensive calls, mock tools
+in tests, or degrade gracefully when a service is down. The same
+hook can return a fixed answer for tools that should not run in a
+given environment.</p>
+
+<h4 id="guard-standing-in-for-a-tool-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function#unavailable</code></a>
+marks a tool as not found, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function#budget_spent</code></a>
+reports that the tool budget is exhausted. Both are returns too,
+so they flow back to the model like any tool result. A guard that
+synthesizes a result runs instead of the tool, so side effects the
+tool would have performed, like a database write, are skipped.</p>
+
+<h3 id="guard-enforcing-budgets">Enforcing budgets</h3>
+
+<h4 id="guard-enforcing-budgets-overview">Overview</h4>
+
+<p>A guard can read the accumulated usage and cost of the conversation
+through the context. That makes it the natural place to enforce a
+hard ceiling: stop calling tools once a cost or token budget is
+spent, or once the context window is nearly full.</p>
+
+<h4 id="guard-enforcing-budgets-how-it-works">How it works</h4>
+
+<p>When you want to enforce a budget, compare
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage"><code>LLM::Context#usage</code></a>
+or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method"><code>LLM::Context#cost</code></a>
+against a limit inside <code>call</code>. Pass the limit through
+<code>guard_options:</code> so it can be tuned per context. Returning a
+cancellation or an error closes the call before it runs:</p>
+
+<pre><code class="language-ruby">class BudgetGuard &lt; LLM::Guard
+  def call(function:, limit: 0.05, **opts)
+    if ctx.cost.total &gt;= limit
+      function.cancel(reason: "cost ceiling reached, ask before continuing")
+    end
+  end
+end
+
+ctx = LLM::Context.new(
+  llm,
+  guard: BudgetGuard,
+  guard_options: {limit: 0.01}
+)
+</code></pre>
+
+<h4 id="guard-enforcing-budgets-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Budgets matter for long autonomous runs where the model decides how
+many tools to call. A cost ceiling keeps a runaway agent from
+spending money, and a quota derived from <code>messages</code> (as in the
+rate-limit example above) keeps a single user from exhausting
+shared resources. The same comparison works with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage"><code>LLM::Context#usage</code></a>
+against
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_window"><code>LLM::Context#context_window</code></a>
+to keep the conversation inside the model’s window.</p>
+
+<h4 id="guard-enforcing-budgets-notes">Notes</h4>
+
+<p>The cost reported by
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method"><code>LLM::Context#cost</code></a>
+reflects the conversation so far, so a limit is enforced per call:
+once the ceiling is crossed, the next pending call is declined. The
+guard is not a replacement for
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method"><code>LLM::Agent.tool_budget</code></a>,
+which caps the number of tool calls in a single turn. The two
+compose: the budget caps call count, and a guard enforces cost.</p>
+
+<h3 id="guard-loop-guard">Loop guard</h3>
+
+<h4 id="guard-loop-guard-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html"><code>LLM::Guard::Loop</code></a>
+is the built-in loop-detection guard. It reduces each assistant
+tool call to a <code>[tool name, arguments]</code> signature and checks whether
+the tail of the sequence is repeating.</p>
+
+<h4 id="guard-loop-guard-how-it-works">How it works</h4>
+
+<p>When you want to detect repeated tool-call patterns, enable
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html"><code>LLM::Guard::Loop</code></a>
+and tune the <code>threshold:</code> option, which is the number of repeated
+patterns required before the guard intervenes (default <code>3</code>). When
+the guard detects a repeat, it returns an in-band
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html"><code>LLM::Function::Return</code></a>
+with type <code>"guard_error"</code> and a message that tells the model it is
+stuck and should change approach:</p>
+
+<pre><code class="language-ruby">ctx = LLM::Context.new(
+  llm,
+  guard: LLM::Guard::Loop,
+  guard_options: {threshold: 2}
+)
+ctx.talk "Research the market", tools: [FetchNews, FetchStocks]
+</code></pre>
+
+<h4 id="guard-loop-guard-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Loop detection matters for long, autonomous agent runs. Without it,
+a model that repeats a tool call with the same arguments can
+bounce between calls forever. The guard turns that into a bounded
+conversation: after the threshold, the model receives a message
+telling it to stop and try a different strategy.</p>
+
+<h4 id="guard-loop-guard-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
+enables
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html"><code>LLM::Guard::Loop</code></a>
+by default, so agents get loop protection without configuration.
+A custom guard can be passed through the <code>guard:</code> option to replace
+the loop guard entirely. Guards and the agent’s tool budget
+complement each other: a guard blocks work that looks stuck, while
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#tool_budget-class_method"><code>LLM::Agent.tool_budget</code></a>
+caps the total number of tool calls in a single turn.</p>
+
+<hr />
+
 <h2 id="tracer">Tracer</h2>
 
 <h3 id="tracer-introduction">Introduction</h3>
@@ -2581,19 +3012,20 @@ requests made by that agent.</p>
 <p>When you want to observe runtime events, subclass
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer.html"><code>LLM::Tracer</code></a>
 and implement the hooks you need, or use one of the built-in
-tracers. Attach a tracer to a provider or an agent:</p>
+tracers. The built-in tracers include
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>
+(writes structured JSON to stdout or a file),
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
+(writes human-readable single-line logs to stderr), and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a>
+(exports spans via OTLP for OpenTelemetry). Attach a tracer to a
+provider or an agent:</p>
 
 <pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
 llm.tracer = LLM::Tracer::PrettyLogger.new(llm)
 agent = LLM::Agent.new(llm)
 agent.talk "Hello"
 </code></pre>
-
-<p>The built-in tracers include <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (writes
-structured JSON to stdout or a file), <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
-(writes human-readable single-line logs to stderr), and
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> (exports spans via OTLP for
-OpenTelemetry).</p>
 
 <h4 id="tracer-introduction-why-would-i-use-it">Why would I use it?</h4>
 
@@ -2603,17 +3035,23 @@ request latency and token usage across providers. Export spans to
 OpenTelemetry for integration with existing observability pipelines.
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
 is the best choice during development for compact, human-readable
-output. <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> provides structured JSON, and
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> exports spans to OpenTelemetry for
-production observability.</p>
+output.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>
+provides structured JSON, and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a>
+exports spans to OpenTelemetry for production observability.</p>
 
 <h4 id="tracer-introduction-notes">Notes</h4>
 
 <p>The tracer is extensible. You can implement custom hooks for any
 runtime event. The scope can be an individual agent or every
 request a provider makes. Three built-in tracers are available:
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>PrettyLogger</code></a> (human-readable), <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>Logger</code></a> (structured JSON), and
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>Telemetry</code></a> (OpenTelemetry).</p>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
+(human-readable),
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>
+(structured JSON), and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a>
+(OpenTelemetry).</p>
 
 <h3 id="tracer-provider">Provider</h3>
 
@@ -2644,17 +3082,18 @@ All agents sharing the same provider share the same tracer.</p>
 
 <h4 id="tracer-provider-notes">Notes</h4>
 
-<p>The tracer can also write to a file:
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html#initialize-instance_method"><code>LLM::Tracer::Logger.new(llm, path: "deepseek.log")</code></a>.</p>
+<p>The tracer can also write to a file with the <code>path:</code> option to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html#initialize-instance_method"><code>LLM::Tracer::Logger.new</code></a>.</p>
 
 <h3 id="tracer-agent">Agent</h3>
 
 <h4 id="tracer-agent-overview">Overview</h4>
 
 <p>An agent-local tracer only covers requests made by that agent.
-Attach it via <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#initialize-instance_method"><code>LLM::Agent.new(llm, tracer: ...)</code></a> and it follows
-that agent wherever it goes. Different agents can have different
-tracers.</p>
+Attach it via the <code>tracer:</code> keyword argument to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#initialize-instance_method"><code>LLM::Agent.new</code></a>
+and it follows that agent wherever it goes. Different agents can
+have different tracers.</p>
 
 <h4 id="tracer-agent-how-it-works">How it works</h4>
 
@@ -2675,8 +3114,8 @@ OpenTelemetry.</p>
 
 <h4 id="tracer-agent-notes">Notes</h4>
 
-<p>The tracer can also write to a file:
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html#initialize-instance_method"><code>LLM::Tracer::Logger.new(llm, path: "deepseek-agent.log")</code></a>.</p>
+<p>The tracer can also write to a file with the <code>path:</code> option to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html#initialize-instance_method"><code>LLM::Tracer::Logger.new</code></a>.</p>
 
 <h3 id="tracer-prettylogger">PrettyLogger</h3>
 
@@ -2684,9 +3123,10 @@ OpenTelemetry.</p>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/PrettyLogger.html"><code>LLM::Tracer::PrettyLogger</code></a>
 writes human-readable single-line logs to stderr. Unlike
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> (which emits structured JSON), the pretty
-logger is designed for interactive development sessions where you
-want to see request and tool-call activity at a glance.</p>
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>
+(which emits structured JSON), the pretty logger is designed for
+interactive development sessions where you want to see request and
+tool-call activity at a glance.</p>
 
 <h4 id="tracer-prettylogger-how-it-works">How it works</h4>
 
@@ -2716,9 +3156,11 @@ tracer = LLM::Tracer::PrettyLogger.new(llm, io: File.open("trace.log", "a"))
 
 <p>The pretty logger is the best choice for development. The output is
 compact enough to follow in real time while still showing the model
-name, duration, and tool calls. Switch to <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a> when
-you need structured JSON for programmatic analysis, or to
-<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a> when you need OpenTelemetry exports.</p>
+name, duration, and tool calls. Switch to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Logger.html"><code>LLM::Tracer::Logger</code></a>
+when you need structured JSON for programmatic analysis, or to
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Tracer/Telemetry.html"><code>LLM::Tracer::Telemetry</code></a>
+when you need OpenTelemetry exports.</p>
 
 <h4 id="tracer-prettylogger-notes">Notes</h4>
 
@@ -2820,7 +3262,7 @@ by a different team and exposed as a service.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/MCP.html#session"><code>LLM::MCP#session</code></a>
 carries little benefit.</p>
 
-<h4 id="mcp-http-persistent-connections">Persistent connections</h4>
+<h5 id="mcp-http-notes-persistent-connections">Persistent connections</h5>
 
 <p>Set <code>persistent: true</code> to reuse HTTP connections across requests
 to the same MCP server. This uses
@@ -2878,13 +3320,20 @@ the network.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/A2A/Card.html#interfaces"><code>LLM::A2A::Card#interfaces</code></a>
 method lists which transports a remote agent supports.</p>
 
-<h4 id="a2a-introduction-persistent-connections">Persistent connections</h4>
+<h5 id="a2a-introduction-notes-persistent-connections">Persistent connections</h5>
 
-<p>Set <code>persistent: true</code> to reuse HTTP connections across requests
-to the same A2A agent. This uses
+<p>A persistent connection reuses the same HTTP connection across
+requests to the same A2A agent. Both REST and JSON-RPC transports
+accept the <code>persistent: true</code> option. Persistent connections matter
+when an agent makes many requests to the same remote agent in a
+short window, since reusing the connection avoids the handshake and
+teardown overhead of a fresh TCP connection per request. The option
+defaults to <code>false</code>; for a single request or an infrequent pattern,
+the overhead is negligible. When you want to avoid reopening a TCP
+connection for every request, pass <code>persistent: true</code> to the
+transport constructor. This uses
 <a href="https://github.com/drbrain/net-http-persistent"><code>Net::HTTP::Persistent</code></a>
-under the hood and avoids the overhead of opening a new TCP
-connection for every request.</p>
+under the hood:</p>
 
 <pre><code class="language-ruby">a2a = LLM::A2A.rest(url: "https://agent.example.com", persistent: true)
 a2a = LLM::A2A.jsonrpc(url: "https://agent.example.com", persistent: true)
@@ -3084,9 +3533,8 @@ downstream pipeline.</p>
 
 <p>When you want to transcribe audio into text, call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription"><code>LLM::Audio#create_transcription</code></a>.
-The provider processes the audio and returns the
-transcribed text. The file
-can be a local path or a URL depending on provider support:</p>
+The provider processes the audio and returns the transcribed text.
+The file can be a local path or a URL depending on provider support:</p>
 
 <pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
 res = llm.audio.create_transcription(file: "helloworld.mp3")
@@ -3123,7 +3571,8 @@ pipeline.</p>
 <p>When you want to translate spoken audio into English, call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_translation"><code>LLM::Audio#create_translation</code></a>.
 The provider transcribes the spoken language and translates the
-result into English in a single operation. The returned text is the English translation:</p>
+result into English in a single operation. The returned text is the
+English translation:</p>
 
 <pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
 res = llm.audio.create_translation(file: "bomdia.mp3")
@@ -3190,6 +3639,212 @@ The response exposes pages through
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/OCR/Response.html#pages"><code>LLM::OCR::Response#pages</code></a>,
 where each page
 has a <code>markdown</code> field containing the extracted text.</p>
+
+<hr />
+
+<h2 id="llm-object">LLM::Object</h2>
+
+<h3 id="llm-object-introduction">Introduction</h3>
+
+<h4 id="llm-object-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>
+is the hash-like object that llm.rb uses everywhere structured data
+flows through the runtime. Response bodies, tool arguments, schema
+results, usage and cost data, and function parameters all come back
+as <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>
+instances. It is similar in spirit to OpenStruct,
+and it was introduced after OpenStruct became a bundled gem rather
+than a default gem in Ruby 3.5.</p>
+
+<h4 id="llm-object-introduction-how-it-works">How it works</h4>
+
+<p>When you want to read a value from an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>,
+use either method-style or bracket access. Keys are indifferent, so
+strings and symbols work interchangeably:</p>
+
+<pre><code class="language-ruby">obj = LLM::Object.from(city: "Paris", temperature: 15.0)
+
+obj.city          # =&gt; "Paris"
+obj["city"]       # =&gt; "Paris"
+obj[:city]        # =&gt; "Paris"
+obj[:temperature] # =&gt; 15.0
+</code></pre>
+
+<p>Nested hashes and arrays are converted recursively, so deep chains
+read naturally:</p>
+
+<pre><code class="language-ruby">obj = LLM::Object.from(person: {name: "John"})
+obj.person.name   # =&gt; "John"
+obj.person.class  # =&gt; LLM::Object
+</code></pre>
+
+<h4 id="llm-object-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Most of the time you do not construct
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>
+instances yourself. They come back from <code>talk</code>, <code>ask</code>, <code>embed</code>, and
+every other call that returns structured data. Knowing how they
+behave lets you read response fields, pass tool arguments, and
+inspect usage without reaching for <code>to_h</code> on every line.</p>
+
+<h4 id="llm-object-introduction-notes">Notes</h4>
+
+<p>An
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>
+is enumerable and supports the usual Hash operations: <code>keys</code>,
+<code>values</code>, <code>key?</code>, <code>fetch</code>, <code>dig</code>, <code>slice</code>, <code>merge</code>, <code>merge!</code>,
+<code>delete</code>, <code>size</code>, and <code>empty?</code>. Use <code>to_h</code> for a plain Hash and
+<code>to_hash</code> for one with symbol keys. A missing key returns <code>nil</code>
+rather than raising. Because it subclasses <code>BasicObject</code>, <code>to_json</code>
+is defined explicitly and serializes through the configured JSON
+adapter via
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM.html#json-class_method"><code>LLM.json.dump</code></a>.</p>
+
+<h3 id="llm-object-reading-and-writing">Reading and writing</h3>
+
+<h4 id="llm-object-reading-and-writing-overview">Overview</h4>
+
+<p>Beyond simple reads,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>
+supports assignment, mutation, and iteration, so you can treat it
+like a Hash in place.</p>
+
+<h4 id="llm-object-reading-and-writing-how-it-works">How it works</h4>
+
+<p>Assign values with method or bracket syntax, mutate in place, and
+iterate like a Hash:</p>
+
+<pre><code class="language-ruby">obj = LLM::Object.from({})
+
+obj.city = "Paris"       # method-style write
+obj["country"] = "France"
+
+obj.key?(:city)          # =&gt; true
+obj.keys                 # =&gt; ["city", "country"]
+obj.merge!(population: 2_100_000)
+
+obj.each { |key, value| puts "#{key}: #{value}" }
+obj.transform_values!(&amp;:upcase) if obj.any?
+</code></pre>
+
+<h4 id="llm-object-reading-and-writing-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Tool implementations receive their arguments as an
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>
+and often build a result Hash from them. Merging defaults, deleting
+optional keys, and transforming values in place keeps that code
+concise without converting back and forth between Hash and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>.</p>
+
+<h4 id="llm-object-reading-and-writing-notes">Notes</h4>
+
+<p><code>merge</code> returns a new
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Object.html"><code>LLM::Object</code></a>;
+<code>merge!</code> mutates in place.
+Assignment always stores the key as a string internally, which is
+why string and symbol lookups both work. Equality compares against
+anything that responds to <code>to_h</code>.</p>
+
+<hr />
+
+<h2 id="llm-cost">LLM::Cost</h2>
+
+<h3 id="llm-cost-introduction">Introduction</h3>
+
+<h4 id="llm-cost-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html"><code>LLM::Cost</code></a>
+represents the approximate cost of a conversation. It breaks the
+total down by token type, so you can see how much was spent on input,
+output, cached tokens, reasoning, audio, and images. Cost is computed
+from token usage and the pricing data shipped in the model registry.</p>
+
+<h4 id="llm-cost-introduction-how-it-works">How it works</h4>
+
+<p>When you want to know what a conversation cost so far, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method"><code>LLM::Context#cost</code></a>
+(or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#cost-instance_method"><code>LLM::Agent#cost</code></a>)
+and read the breakdown. The REPL shows this live in its status bar
+after every turn:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+
+cost = ctx.cost
+cost.input    # =&gt; 0.0000042
+cost.output   # =&gt; 0.0000084
+cost.total    # =&gt; 0.0000126
+cost.to_s     # =&gt; "0.0000126"
+</code></pre>
+
+<h4 id="llm-cost-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Cost tracking matters in production. Monitoring spend per
+conversation, per agent, or per provider tells you which workflows
+are expensive and when to switch models. Log a structured breakdown
+with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>,
+or read
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#total-instance_method"><code>LLM::Cost#total</code></a>
+for a single number.</p>
+
+<h4 id="llm-cost-introduction-notes">Notes</h4>
+
+<p>Cost is an approximation based on the pricing in the model registry.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#from-class_method"><code>LLM::Cost.from</code></a>
+returns an empty cost when the model or registry cannot be found, so
+a missing model never crashes your code.</p>
+
+<h3 id="llm-cost-reading-the-breakdown">Reading the breakdown</h3>
+
+<h4 id="llm-cost-reading-the-breakdown-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html"><code>LLM::Cost</code></a>
+exposes each cost component as a reader, plus
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#total-instance_method"><code>LLM::Cost#total</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>,
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_s-instance_method"><code>LLM::Cost#to_s</code></a>.</p>
+
+<h4 id="llm-cost-reading-the-breakdown-how-it-works">How it works</h4>
+
+<p>Each component is a Float, or <code>nil</code> when no tokens of that type were
+used. The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>
+method returns a Hash with only the non-nil components and the total:</p>
+
+<pre><code class="language-ruby">cost = ctx.cost
+
+cost.input
+cost.output
+cost.cache_read
+cost.cache_write
+cost.reasoning
+cost.input_audio
+cost.output_audio
+cost.input_image
+
+cost.to_h  # =&gt; {input: 4.2e-06, output: 8.4e-06, total: 1.26e-05}
+</code></pre>
+
+<h4 id="llm-cost-reading-the-breakdown-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The per-component breakdown shows where the money goes. High cache
+read costs suggest a conversation benefits from prompt caching.
+High reasoning costs point at a model that thinks a lot. Log
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>
+at the end of a session to keep a spend trail.</p>
+
+<h4 id="llm-cost-reading-the-breakdown-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_s-instance_method"><code>LLM::Cost#to_s</code></a>
+returns the total in a compact, human-friendly format
+(<code>"0.0000126"</code>). Components that were not used are <code>nil</code>, so sum
+them with <code>compact</code> if you aggregate across conversations.</p>
 
     </article>
   </div>

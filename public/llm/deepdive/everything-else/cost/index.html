@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LLM::Cost · llm.rb deep dive</title>
+    <link rel="canonical" href="https://r.uby.dev/llm/deepdive/everything-else/cost/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <meta name="description" content="`LLM::Cost` represents the approximate cost of a conversation. It breaks the total down by token type, so you can see how much was spent on input, output, cached tokens, reasoning, audio, and images. Cost is computed from token usage and the pricing data shipped in the model registry.">
+    <meta name="robots" content="index,follow">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="r.uby.dev">
+    <meta property="og:title" content="LLM::Cost · llm.rb deep dive">
+    <meta property="og:description" content="`LLM::Cost` represents the approximate cost of a conversation. It breaks the total down by token type, so you can see how much was spent on input, output, cached tokens, reasoning, audio, and images. Cost is computed from token usage and the pricing data shipped in the model registry.">
+    <meta property="og:url" content="https://r.uby.dev/llm/deepdive/everything-else/cost/">
+    <meta property="og:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="LLM::Cost · llm.rb deep dive">
+    <meta name="twitter:description" content="`LLM::Cost` represents the approximate cost of a conversation. It breaks the total down by token type, so you can see how much was spent on input, output, cached tokens, reasoning, audio, and images. Cost is computed from token usage and the pricing data shipped in the model registry.">
+    <meta name="twitter:image" content="https://r.uby.dev/images/llm-ruby.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <main class="deepdive deepdive-topic">
+  <input type="checkbox" id="deepdive-toggle" class="deepdive-toggle">
+  <label for="deepdive-toggle" class="deepdive-toggle-btn" aria-label="Toggle navigation">
+    <span class="deepdive-toggle-icon"></span>
+  </label>
+  <div class="deepdive-layout">
+    <aside class="deepdive-sidebar" aria-label="Topic navigation">
+      <div class="deepdive-sidebar-header">
+        <label for="deepdive-toggle" class="deepdive-sidebar-close" aria-label="Close menu">&times;</label>
+      </div>
+      <p class="deepdive-back"><a href="/llm/deepdive/">Deep dive</a></p>
+      <details class="deepdive-group-nav">
+        <summary class="deepdive-group-nav-title">Welcome</summary>
+        <ul class="deepdive-group-nav-list">
+          <li><a href="/llm/deepdive/">Introduction</a></li>
+        </ul>
+      </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Fundamentals</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/agents/">Agents</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/tools/">Tools</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/builtin_tools/">Built-in tools</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/skills/">Skills</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/schema/">Schema</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/stream/">Stream</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/database/">Database</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/concurrency/">Concurrency</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/repl/">REPL</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/fundamentals/embeddings/">Embeddings</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Advanced</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/advanced/context/">Context</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/compaction/">Compaction</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/cancellation/">Cancellation</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transports/">Transports</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/transformer/">Transformer</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/guard/">Guard</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" >
+          <summary class="deepdive-group-nav-title">Protocols</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/protocols/mcp/">MCP</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/protocols/a2a/">A2A</a>
+              </li>
+
+          </ul>
+        </details>
+
+        <details class="deepdive-group-nav" open>
+          <summary class="deepdive-group-nav-title">Everything else</summary>
+          <ul class="deepdive-group-nav-list">
+
+              <li>
+                <a href="/llm/deepdive/everything-else/images/">Images</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/audio/">Audio</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/object/">LLM::Object</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/cost/" class="is-active">LLM::Cost</a>
+              </li>
+
+          </ul>
+        </details>
+
+      <div class="deepdive-sidebar-nav">
+
+          <a class="deepdive-prev" href="/llm/deepdive/everything-else/object/">← LLM::Object</a>
+
+
+      </div>
+    </aside>
+    <article class="deepdive-content">
+
+<h2 id="llm-cost">LLM::Cost</h2>
+
+<h3 id="llm-cost-introduction">Introduction</h3>
+
+<h4 id="llm-cost-introduction-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html"><code>LLM::Cost</code></a>
+represents the approximate cost of a conversation. It breaks the
+total down by token type, so you can see how much was spent on input,
+output, cached tokens, reasoning, audio, and images. Cost is computed
+from token usage and the pricing data shipped in the model registry.</p>
+
+<h4 id="llm-cost-introduction-how-it-works">How it works</h4>
+
+<p>When you want to know what a conversation cost so far, call
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method"><code>LLM::Context#cost</code></a>
+(or
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html#cost-instance_method"><code>LLM::Agent#cost</code></a>)
+and read the breakdown. The REPL shows this live in its status bar
+after every turn:</p>
+
+<pre><code class="language-ruby">llm = LLM.deepseek(key: ENV["KEY"])
+ctx = LLM::Context.new(llm)
+ctx.talk "Hello"
+
+cost = ctx.cost
+cost.input    # =&gt; 0.0000042
+cost.output   # =&gt; 0.0000084
+cost.total    # =&gt; 0.0000126
+cost.to_s     # =&gt; "0.0000126"
+</code></pre>
+
+<h4 id="llm-cost-introduction-why-would-i-use-it">Why would I use it?</h4>
+
+<p>Cost tracking matters in production. Monitoring spend per
+conversation, per agent, or per provider tells you which workflows
+are expensive and when to switch models. Log a structured breakdown
+with
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>,
+or read
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#total-instance_method"><code>LLM::Cost#total</code></a>
+for a single number.</p>
+
+<h4 id="llm-cost-introduction-notes">Notes</h4>
+
+<p>Cost is an approximation based on the pricing in the model registry.
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#from-class_method"><code>LLM::Cost.from</code></a>
+returns an empty cost when the model or registry cannot be found, so
+a missing model never crashes your code.</p>
+
+<h3 id="llm-cost-reading-the-breakdown">Reading the breakdown</h3>
+
+<h4 id="llm-cost-reading-the-breakdown-overview">Overview</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html"><code>LLM::Cost</code></a>
+exposes each cost component as a reader, plus
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#total-instance_method"><code>LLM::Cost#total</code></a>,
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>,
+and
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_s-instance_method"><code>LLM::Cost#to_s</code></a>.</p>
+
+<h4 id="llm-cost-reading-the-breakdown-how-it-works">How it works</h4>
+
+<p>Each component is a Float, or <code>nil</code> when no tokens of that type were
+used. The
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>
+method returns a Hash with only the non-nil components and the total:</p>
+
+<pre><code class="language-ruby">cost = ctx.cost
+
+cost.input
+cost.output
+cost.cache_read
+cost.cache_write
+cost.reasoning
+cost.input_audio
+cost.output_audio
+cost.input_image
+
+cost.to_h  # =&gt; {input: 4.2e-06, output: 8.4e-06, total: 1.26e-05}
+</code></pre>
+
+<h4 id="llm-cost-reading-the-breakdown-why-would-i-use-it">Why would I use it?</h4>
+
+<p>The per-component breakdown shows where the money goes. High cache
+read costs suggest a conversation benefits from prompt caching.
+High reasoning costs point at a model that thinks a lot. Log
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_h-instance_method"><code>LLM::Cost#to_h</code></a>
+at the end of a session to keep a spend trail.</p>
+
+<h4 id="llm-cost-reading-the-breakdown-notes">Notes</h4>
+
+<p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Cost.html#to_s-instance_method"><code>LLM::Cost#to_s</code></a>
+returns the total in a compact, human-friendly format
+(<code>"0.0000126"</code>). Components that were not used are <code>nil</code>, so sum
+them with <code>compact</code> if you aggregate across conversations.</p>
+
+      <nav class="deepdive-nav" aria-label="Topic navigation">
+
+          <a href="/llm/deepdive/everything-else/object/">← LLM::Object</a>
+
+
+      </nav>
+    </article>
+  </div>
+  <footer>
+    <a href="/">r.uby.dev</a>
+    <span>&middot;</span>
+    <a href="/llm/">llm.rb</a>
+    <span>&middot;</span>
+    <span>0BSD licensed</span>
+  </footer>
+</main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+  </body>
+</html>

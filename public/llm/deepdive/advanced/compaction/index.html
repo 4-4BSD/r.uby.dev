@@ -112,6 +112,10 @@
               </li>
 
               <li>
+                <a href="/llm/deepdive/advanced/guard/">Guard</a>
+              </li>
+
+              <li>
                 <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
               </li>
 
@@ -147,6 +151,14 @@
 
               <li>
                 <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/object/">LLM::Object</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/cost/">LLM::Cost</a>
               </li>
 
           </ul>
@@ -190,9 +202,7 @@ contains an orphaned result.</p>
 <p>The <code>keep:</code> parameter accepts an integer count or a percentage
 string like <code>"80%"</code>. The default compactor is
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Compactor/Null.html"><code>LLM::Compactor::Null</code></a>,
-which does nothing. A compactor can also be used standalone.
-The REPL provides a <code>/compact</code> command that accepts a count
-or percentage.</p>
+which does nothing. A compactor can also be used standalone:</p>
 
 <pre><code class="language-ruby">ctx = LLM::Context.new(
   llm,
@@ -208,8 +218,14 @@ agent = LLM::Agent.new(
 
 compactor = LLM::Compactor::Truncate.new(agent)
 compactor.call(keep: 200)
+</code></pre>
 
-# /compact        # keep last 128 messages
+<h5 id="compaction-introduction-how-it-works-the-compact-command">The <code>/compact</code> command</h5>
+
+<p>The REPL provides a <code>/compact</code> command that accepts a count or
+percentage:</p>
+
+<pre><code class="language-ruby"># /compact        # keep last 128 messages
 # /compact 50     # keep last 50 messages
 # /compact 75%    # keep approximately 75% of messages
 </code></pre>

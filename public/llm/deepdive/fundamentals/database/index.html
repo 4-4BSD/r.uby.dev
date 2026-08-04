@@ -112,6 +112,10 @@
               </li>
 
               <li>
+                <a href="/llm/deepdive/advanced/guard/">Guard</a>
+              </li>
+
+              <li>
                 <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
               </li>
 
@@ -147,6 +151,14 @@
 
               <li>
                 <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/object/">LLM::Object</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/cost/">LLM::Cost</a>
               </li>
 
           </ul>
@@ -501,8 +513,10 @@ agent-level configuration.</p>
 <h4 id="database-sequel-overview">Overview</h4>
 
 <p>Sequel models use <code>plugin :agent</code> to install the agent wrapper.
-The plugin accepts the same options as <code>acts_as_agent</code> and follows
-the same conventions for provider resolution and state persistence.
+The plugin accepts the same options as
+<a href="https://r.uby.dev/api-docs/llm.rb/LLM/ActiveRecord.html#acts_as_agent-instance_method"><code>acts_as_agent</code></a>
+and follows the same conventions for provider resolution and state
+persistence.
 On first call, a fresh agent is created and the conversation starts
 from scratch. On subsequent calls, the stored state is restored and
 the conversation continues automatically.</p>

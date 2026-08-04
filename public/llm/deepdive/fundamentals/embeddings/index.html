@@ -112,6 +112,10 @@
               </li>
 
               <li>
+                <a href="/llm/deepdive/advanced/guard/">Guard</a>
+              </li>
+
+              <li>
                 <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
               </li>
 
@@ -147,6 +151,14 @@
 
               <li>
                 <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/object/">LLM::Object</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/cost/">LLM::Cost</a>
               </li>
 
           </ul>
@@ -186,7 +198,8 @@ call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
 on any provider that supports it. The method accepts an input string
 or array of strings and returns a response with the resulting
-embeddings:</p>
+embeddings, which can be stored in a vector database and used for
+similarity search at query time:</p>
 
 <pre><code class="language-ruby">require "llm"
 
@@ -194,9 +207,6 @@ llm = LLM.openai(key: ENV["KEY"])
 body = "llm.rb is Ruby's capable AI runtime."
 embedding = llm.embed([body]).embeddings.first
 </code></pre>
-
-<p>The returned embeddings can be stored in a vector database and used
-for similarity search at query time.</p>
 
 <h4 id="embeddings-introduction-why-would-i-use-it">Why would I use it?</h4>
 
@@ -279,7 +289,7 @@ with sqlite-vec or pgvector.</p>
 
 <h4 id="embeddings-local-vector-search-overview">Overview</h4>
 
-<p>For a fully self-hosted RAG pipeline, combine
+<p>Local vector search combines
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Provider.html#embed"><code>LLM::Provider#embed</code></a>
 with a local vector database such as
 <a href="https://github.com/asg017/sqlite-vec">sqlite-vec</a> or

@@ -112,6 +112,10 @@
               </li>
 
               <li>
+                <a href="/llm/deepdive/advanced/guard/">Guard</a>
+              </li>
+
+              <li>
                 <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
               </li>
 
@@ -149,6 +153,14 @@
                 <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
               </li>
 
+              <li>
+                <a href="/llm/deepdive/everything-else/object/">LLM::Object</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/cost/">LLM::Cost</a>
+              </li>
+
           </ul>
         </details>
 
@@ -157,7 +169,7 @@
           <a class="deepdive-prev" href="/llm/deepdive/advanced/transports/">← Transports</a>
 
 
-          <a class="deepdive-next" href="/llm/deepdive/advanced/tracer/">Tracer →</a>
+          <a class="deepdive-next" href="/llm/deepdive/advanced/guard/">Guard →</a>
 
       </div>
     </aside>
@@ -182,14 +194,17 @@ code.</p>
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html"><code>LLM::Transformer</code></a>
 that implements
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Transformer.html#call-instance_method"><code>LLM::Transformer#call</code></a>.
-The method receives the message to transform and returns a message.
+The method receives the message to transform and returns a
+message.
 You can mutate the message in place or return a new one; either way,
 the returned message is what gets sent.</p>
 
 <p>Configure the transformer on a context with the <code>transformer:</code> option,
 passing a class rather than an instance. The runtime instantiates it
 once per turn. Options passed through <code>transformer_options:</code> are
-forwarded to <code>call</code> as keyword arguments:</p>
+forwarded to <code>call</code> as keyword arguments. The transformer runs on
+the most recent message in both chat completions and Responses API
+turns, before the request reaches the provider:</p>
 
 <pre><code class="language-ruby">class RedactEmails &lt; LLM::Transformer
   def call(message:, **opts)
@@ -205,10 +220,6 @@ ctx = LLM::Context.new(
 )
 ctx.talk "Contact support@example.com for help"
 </code></pre>
-
-<p>The transformer runs on the most recent message in both chat
-completions and Responses API turns, before the request reaches the
-provider.</p>
 
 <h4 id="transformer-introduction-why-would-i-use-it">Why would I use it?</h4>
 
@@ -235,7 +246,7 @@ callbacks, which receive the transformer instance.</p>
           <a href="/llm/deepdive/advanced/transports/">← Transports</a>
 
 
-          <a href="/llm/deepdive/advanced/tracer/">Tracer →</a>
+          <a href="/llm/deepdive/advanced/guard/">Guard →</a>
 
       </nav>
     </article>

@@ -112,6 +112,10 @@
               </li>
 
               <li>
+                <a href="/llm/deepdive/advanced/guard/">Guard</a>
+              </li>
+
+              <li>
                 <a href="/llm/deepdive/advanced/tracer/">Tracer</a>
               </li>
 
@@ -147,6 +151,14 @@
 
               <li>
                 <a href="/llm/deepdive/everything-else/ocr/">OCR</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/object/">LLM::Object</a>
+              </li>
+
+              <li>
+                <a href="/llm/deepdive/everything-else/cost/">LLM::Cost</a>
               </li>
 
           </ul>
@@ -224,9 +236,8 @@ downstream pipeline.</p>
 
 <p>When you want to transcribe audio into text, call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_transcription"><code>LLM::Audio#create_transcription</code></a>.
-The provider processes the audio and returns the
-transcribed text. The file
-can be a local path or a URL depending on provider support:</p>
+The provider processes the audio and returns the transcribed text.
+The file can be a local path or a URL depending on provider support:</p>
 
 <pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
 res = llm.audio.create_transcription(file: "helloworld.mp3")
@@ -263,7 +274,8 @@ pipeline.</p>
 <p>When you want to translate spoken audio into English, call
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Audio.html#create_translation"><code>LLM::Audio#create_translation</code></a>.
 The provider transcribes the spoken language and translates the
-result into English in a single operation. The returned text is the English translation:</p>
+result into English in a single operation. The returned text is the
+English translation:</p>
 
 <pre><code class="language-ruby">llm = LLM.google(key: ENV["KEY"])
 res = llm.audio.create_translation(file: "bomdia.mp3")
