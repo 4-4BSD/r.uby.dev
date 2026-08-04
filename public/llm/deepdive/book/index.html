@@ -2708,9 +2708,9 @@ variables between calls. Anything a guard needs to remember, like
 how many calls already ran, must come from the conversation
 (<code>messages</code>) or from class-level state.</p>
 
-<h3 id="guard-inspecting-pending-calls">Inspecting pending calls</h3>
+<h3 id="guard-inspect">Inspect</h3>
 
-<h4 id="guard-inspecting-pending-calls-overview">Overview</h4>
+<h4 id="guard-inspect-overview">Overview</h4>
 
 <p>The guard receives the pending
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function</code></a>
@@ -2720,7 +2720,7 @@ so a guard can base its decision on the actual call rather than on
 the whole conversation. The guard also holds the context, so the
 message history, token usage, and cost are visible too.</p>
 
-<h4 id="guard-inspecting-pending-calls-how-it-works">How it works</h4>
+<h4 id="guard-inspect-how-it-works">How it works</h4>
 
 <p>When you want to inspect a pending call before it runs, read the
 function’s accessors inside <code>call</code>.
@@ -2743,7 +2743,7 @@ pure observer:</p>
 end
 </code></pre>
 
-<h4 id="guard-inspecting-pending-calls-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="guard-inspect-why-would-i-use-it">Why would I use it?</h4>
 
 <p>Inspecting the pending call is the basis for policy, validation,
 and audit. A guard can log every call into a telemetry stream, or
@@ -2751,15 +2751,15 @@ reject a single call because its arguments violate a rule while
 letting every other call through. The same read underpins the
 richer decisions in the rest of this document.</p>
 
-<h4 id="guard-inspecting-pending-calls-notes">Notes</h4>
+<h4 id="guard-inspect-notes">Notes</h4>
 
 <p>The guard sees the parsed arguments exactly as the model requested
 them. Reading them costs nothing and never executes the tool.
 Returning <code>nil</code> means the call proceeds normally.</p>
 
-<h3 id="guard-cancelling-a-call">Cancelling a call</h3>
+<h3 id="guard-cancel">Cancel</h3>
 
-<h4 id="guard-cancelling-a-call-overview">Overview</h4>
+<h4 id="guard-cancel-overview">Overview</h4>
 
 <p>Cancelling is distinct from blocking with an error.
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
@@ -2767,7 +2767,7 @@ produces a return the model reads as a declined call, not a failed
 one. The conversation stays honest: the model asked for something,
 and the runtime declined it with a reason.</p>
 
-<h4 id="guard-cancelling-a-call-how-it-works">How it works</h4>
+<h4 id="guard-cancel-how-it-works">How it works</h4>
 
 <p>When you want to cancel a single pending call, call the
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html#cancel"><code>LLM::Function#cancel</code></a>
@@ -2785,7 +2785,7 @@ still executes:</p>
 end
 </code></pre>
 
-<h4 id="guard-cancelling-a-call-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="guard-cancel-why-would-i-use-it">Why would I use it?</h4>
 
 <p>Cancellation suits approval workflows and environment rules. A call
 that needs a human in the loop, a tool that is disabled for a
@@ -2794,7 +2794,7 @@ can all be declined without pretending the tool failed. Because
 cancellation is per call, it declines only the offending tool and
 leaves the rest of the batch intact.</p>
 
-<h4 id="guard-cancelling-a-call-notes">Notes</h4>
+<h4 id="guard-cancel-notes">Notes</h4>
 
 <p>The model receives
 <code>{cancelled: true, reason: "delete requires human approval"}</code> as
@@ -2804,16 +2804,16 @@ as resolved, like any tool return, so the model keeps moving. The
 reason string is what the model sees, so write it as guidance
 (“ask the user first”) rather than a raw error dump.</p>
 
-<h3 id="guard-blocking-calls">Blocking calls</h3>
+<h3 id="guard-block">Block</h3>
 
-<h4 id="guard-blocking-calls-overview">Overview</h4>
+<h4 id="guard-block-overview">Overview</h4>
 
 <p>Blocking is how a guard enforces policy. A blocked call never runs,
 and the model receives an in-band error explaining why. Unlike a
 cancellation, an error tells the model the tool could not produce
 a result at all.</p>
 
-<h4 id="guard-blocking-calls-how-it-works">How it works</h4>
+<h4 id="guard-block-how-it-works">How it works</h4>
 
 <p>When you want to block a call, return an
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function/Return.html"><code>LLM::Function::Return</code></a>
@@ -2831,28 +2831,28 @@ call through:</p>
 end
 </code></pre>
 
-<h4 id="guard-blocking-calls-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="guard-block-why-would-i-use-it">Why would I use it?</h4>
 
 <p>Blocking denies a dangerous tool, rejects an out-of-policy
 argument, or stops a quota violation before it happens. The model
 receives the return and can adapt, so the conversation stays valid.</p>
 
-<h4 id="guard-blocking-calls-notes">Notes</h4>
+<h4 id="guard-block-notes">Notes</h4>
 
 <p>A blocked call never executes. The return it produces is sent back
 through the model like any tool result, so the model sees why the
 call was blocked and can change course.</p>
 
-<h3 id="guard-standing-in-for-a-tool">Standing in for a tool</h3>
+<h3 id="guard-answer">Answer</h3>
 
-<h4 id="guard-standing-in-for-a-tool-overview">Overview</h4>
+<h4 id="guard-answer-overview">Overview</h4>
 
 <p>A guard’s return is injected into the conversation as if the tool
 had executed, so a guard can answer for a tool that never runs.
 From the model’s side, a synthesized result is indistinguishable
 from a real one.</p>
 
-<h4 id="guard-standing-in-for-a-tool-how-it-works">How it works</h4>
+<h4 id="guard-answer-how-it-works">How it works</h4>
 
 <p>When you want to answer a pending call yourself, return a value
 through the
@@ -2870,14 +2870,14 @@ must look like a plausible answer:</p>
 end
 </code></pre>
 
-<h4 id="guard-standing-in-for-a-tool-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="guard-answer-why-would-i-use-it">Why would I use it?</h4>
 
 <p>Standing in for a tool is how you cache expensive calls, mock tools
 in tests, or degrade gracefully when a service is down. The same
 hook can return a fixed answer for tools that should not run in a
 given environment.</p>
 
-<h4 id="guard-standing-in-for-a-tool-notes">Notes</h4>
+<h4 id="guard-answer-notes">Notes</h4>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Function.html"><code>LLM::Function#unavailable</code></a>
 marks a tool as not found, and
@@ -2887,16 +2887,16 @@ so they flow back to the model like any tool result. A guard that
 synthesizes a result runs instead of the tool, so side effects the
 tool would have performed, like a database write, are skipped.</p>
 
-<h3 id="guard-enforcing-budgets">Enforcing budgets</h3>
+<h3 id="guard-budget">Budget</h3>
 
-<h4 id="guard-enforcing-budgets-overview">Overview</h4>
+<h4 id="guard-budget-overview">Overview</h4>
 
 <p>A guard can read the accumulated usage and cost of the conversation
 through the context. That makes it the natural place to enforce a
 hard ceiling: stop calling tools once a cost or token budget is
 spent, or once the context window is nearly full.</p>
 
-<h4 id="guard-enforcing-budgets-how-it-works">How it works</h4>
+<h4 id="guard-budget-how-it-works">How it works</h4>
 
 <p>When you want to enforce a budget, compare
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#usage"><code>LLM::Context#usage</code></a>
@@ -2921,7 +2921,7 @@ ctx = LLM::Context.new(
 )
 </code></pre>
 
-<h4 id="guard-enforcing-budgets-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="guard-budget-why-would-i-use-it">Why would I use it?</h4>
 
 <p>Budgets matter for long autonomous runs where the model decides how
 many tools to call. A cost ceiling keeps a runaway agent from
@@ -2933,7 +2933,7 @@ against
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#context_window"><code>LLM::Context#context_window</code></a>
 to keep the conversation inside the model’s window.</p>
 
-<h4 id="guard-enforcing-budgets-notes">Notes</h4>
+<h4 id="guard-budget-notes">Notes</h4>
 
 <p>The cost reported by
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Context.html#cost-instance_method"><code>LLM::Context#cost</code></a>
@@ -2944,16 +2944,16 @@ guard is not a replacement for
 which caps the number of tool calls in a single turn. The two
 compose: the budget caps call count, and a guard enforces cost.</p>
 
-<h3 id="guard-loop-guard">Loop guard</h3>
+<h3 id="guard-loop">Loop</h3>
 
-<h4 id="guard-loop-guard-overview">Overview</h4>
+<h4 id="guard-loop-overview">Overview</h4>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html"><code>LLM::Guard::Loop</code></a>
 is the built-in loop-detection guard. It reduces each assistant
 tool call to a <code>[tool name, arguments]</code> signature and checks whether
 the tail of the sequence is repeating.</p>
 
-<h4 id="guard-loop-guard-how-it-works">How it works</h4>
+<h4 id="guard-loop-how-it-works">How it works</h4>
 
 <p>When you want to detect repeated tool-call patterns, enable
 <a href="https://r.uby.dev/api-docs/llm.rb/LLM/Guard/Loop.html"><code>LLM::Guard::Loop</code></a>
@@ -2972,7 +2972,7 @@ stuck and should change approach:</p>
 ctx.talk "Research the market", tools: [FetchNews, FetchStocks]
 </code></pre>
 
-<h4 id="guard-loop-guard-why-would-i-use-it">Why would I use it?</h4>
+<h4 id="guard-loop-why-would-i-use-it">Why would I use it?</h4>
 
 <p>Loop detection matters for long, autonomous agent runs. Without it,
 a model that repeats a tool call with the same arguments can
@@ -2980,7 +2980,7 @@ bounce between calls forever. The guard turns that into a bounded
 conversation: after the threshold, the model receives a message
 telling it to stop and try a different strategy.</p>
 
-<h4 id="guard-loop-guard-notes">Notes</h4>
+<h4 id="guard-loop-notes">Notes</h4>
 
 <p><a href="https://r.uby.dev/api-docs/llm.rb/LLM/Agent.html"><code>LLM::Agent</code></a>
 enables
