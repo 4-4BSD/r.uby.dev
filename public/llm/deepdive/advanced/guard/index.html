@@ -208,7 +208,7 @@ options given in <code>guard_options:</code> are forwarded to <code>call</code> 
 arguments:</p>
 
 <pre><code class="language-ruby">class RateLimitGuard &lt; LLM::Guard
-  def call(function:, limit: 10, **opts)
+  def call(function:, limit: 10)
     if messages.count(&amp;:tool_return?) &gt;= limit
       function.return(error: true, type: "guard_error",
                       message: "too many tool calls")
@@ -282,7 +282,7 @@ Returning <code>nil</code> lets the call run, so an inspection-only guard is a
 pure observer:</p>
 
 <pre><code class="language-ruby">class AuditGuard &lt; LLM::Guard
-  def call(function:, **opts)
+  def call(function:)
     warn "pending: #{function.name}(#{function.arguments.inspect})"
     nil  # let it run
   end
@@ -323,7 +323,7 @@ A guard can cancel one call in a two-call batch and the other call
 still executes:</p>
 
 <pre><code class="language-ruby">class ApprovalGuard &lt; LLM::Guard
-  def call(function:, **opts)
+  def call(function:)
     if function.name == "delete-file"
       function.cancel(reason: "delete requires human approval")
     end
@@ -368,7 +368,7 @@ model sees them inside the return value. Returning <code>nil</code> lets the
 call through:</p>
 
 <pre><code class="language-ruby">class PolicyGuard &lt; LLM::Guard
-  def call(function:, **opts)
+  def call(function:)
     if function.name == "shell"
       function.return(error: true, type: "policy_error",
                       message: "shell is disabled")
@@ -409,7 +409,7 @@ must look like a plausible answer:</p>
 <pre><code class="language-ruby">class CacheGuard &lt; LLM::Guard
   CACHE = {"get-weather:tokyo" =&gt; {forecast: "sunny"}}
 
-  def call(function:, **opts)
+  def call(function:)
     key = "#{function.name}:#{function.arguments[:city]}"
     function.return(CACHE[key]) if CACHE.key?(key)
   end
@@ -453,7 +453,7 @@ against a limit inside <code>call</code>. Pass the limit through
 cancellation or an error closes the call before it runs:</p>
 
 <pre><code class="language-ruby">class BudgetGuard &lt; LLM::Guard
-  def call(function:, limit: 0.05, **opts)
+  def call(function:, limit: 0.05)
     if ctx.cost.total &gt;= limit
       function.cancel(reason: "cost ceiling reached, ask before continuing")
     end
