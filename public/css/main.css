@@ -113,6 +113,53 @@ section {
   padding: 28px 0;
 }
 
+/* Features */
+.features > p:has(> strong) {
+  margin-bottom: 0;
+}
+
+.features > p > strong {
+  display: block;
+  margin: 26px 0 10px;
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.features ul {
+  margin: 0 0 4px;
+  padding-left: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.features ul li {
+  margin: 0 0 14px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.features ul li::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.features ul li > strong {
+  color: var(--fg);
+  font-weight: 700;
+}
+
 /* Accessibility */
 .sr-only {
   position: absolute;

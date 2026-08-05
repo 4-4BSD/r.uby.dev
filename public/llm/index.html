@@ -75,8 +75,14 @@
         </p>
         <p>
           llm.rb is an advanced runtime for building capable AI applications
-          on CRuby. By default it has zero runtime dependencies although certain
-          functionality (such as ActiveRecord support) require
+          on CRuby. It has zero runtime dependencies by default, and a single
+          coherent API that spans 11+ providers. Streaming, tools, guards,
+          compaction, the REPL, and the database integrations all build on the
+          same three concepts: providers, contexts, and agents.
+        </p>
+        <p>
+          Once you learn the fundamentals, everything else falls into place
+          naturally. Some features, such as ActiveRecord support, require
           optional dependencies that are opt-in.
         </p>
         <p>
@@ -84,24 +90,99 @@
           the <a href="/llm/deepdive/">deepdive</a>.
         </p>
       </section>
-      <section>
+      <section class="features">
         <h2>Features</h2>
         <p>
-          The runtime supports OpenAI, OpenAI-compatible endpoints, Anthropic, Google
-          Gemini, Mistral, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock, Ollama, and llama.cpp.
-          It has first-class support for streaming, tool calls,  MCP
-          and A2A, embeddings, vector stores, OCR, context compaction,
-          and the RAG pattern.
-        <p>
-          There are multiple HTTP backends to choose from, tools can be run concurrently
-          or in parallel via threads, async tasks, fibers, ractors, and fork, and it is
-          also possible to make a tool call while the model is still streaming.
-        <p>
-          The runtime builds on top of three core concepts: providers, contexts, and agents,
-          so once you learn the fundamentals, everything else falls into place naturally. And once
-          you learn llm.rb, you will also be able to use
-          <a href="/mruby-llm">mruby-llm</a> because the API is pretty much identical.
+          One runtime, 11+ providers. The same API drives OpenAI, Anthropic,
+          Google Gemini, Mistral, DeepSeek, DeepInfra, xAI, Z.ai, AWS Bedrock,
+          Ollama, and llama.cpp, so switching models never means rewriting your
+          application. And once you learn llm.rb, you will also be able to use
+          <a href="/mruby-llm">mruby-llm</a>
+          because the API is pretty much identical.
         </p>
+        <p>
+          What the runtime adds on top:
+        </p>
+
+        <p><strong>Agent platform</strong></p>
+        <ul>
+          <li>
+            <strong>Agentic development</strong><br>
+            Designed for building agents: attach an agent to a terminal REPL,
+            persist it to disk or a database, and run its tools concurrently. The
+            whole agent lifecycle is first-class.
+          </li>
+          <li>
+            <strong>A terminal REPL</strong><br>
+            A curses-based TUI for talking to an agent interactively, with markdown
+            rendering and a live status line.
+          </li>
+          <li>
+            <strong>Persistence</strong><br>
+            Automatic filesystem persistence, plus first-class ActiveRecord and Sequel support.
+          </li>
+          <li>
+            <strong>Skills</strong><br>
+            Turn a markdown file into a callable tool: the runtime spawns a
+            subagent with the skill's instructions and tool set for a single
+            turn, then discards it. Fresh and stateless on every call.
+          </li>
+          <li>
+            <strong>Agent-to-agent</strong><br>
+            MCP and A2A as first-class protocols.
+          </li>
+        </ul>
+
+        <p><strong>Model interaction</strong></p>
+        <ul>
+          <li>
+            <strong>Streaming</strong><br>
+            First-class, with structured callbacks for content,
+            reasoning, tool calls, and tool returns. Tools can run while the model
+            is still streaming.
+          </li>
+          <li>
+            <strong>Concurrency</strong><br>
+            Six tool execution strategies (sequential, threads,
+            async, fibers, forks, ractors) plus three HTTP backends to choose from.
+          </li>
+          <li>
+            <strong>Interruption</strong><br>
+            Cancel an in-flight request or a running tool at any point, across
+            transports and concurrency strategies, with <code>{ctx, agent}.interrupt!</code>.
+          </li>
+          <li>
+            <strong>RAG, out of the box</strong><br>
+            Embeddings, vector stores, OCR, and the RAG pattern.
+          </li>
+        </ul>
+
+        <p><strong>Runtime supervision</strong></p>
+        <ul>
+          <li>
+            <strong>A unified plugin family</strong><br>
+            Compactors, transformers, and guards all
+            share one interface, covering context management, message rewriting,
+            and tool supervision (policy, quotas, cost control, loop detection).
+          </li>
+          <li>
+            <strong>Cost and usage tracking</strong><br>
+            Per-turn cost and token usage on every context.
+          </li>
+        </ul>
+
+        <p><strong>Provider optimizations</strong></p>
+        <ul>
+          <li>
+            <strong>DeepSeek-optimized</strong><br>
+            DeepSeek is the most cost-effective option for API users, and the
+            runtime closes its gaps:
+            <code><a href="/api-docs/llm.rb/LLM/Schema.html">LLM::Schema</a></code>
+            makes structured outputs work despite DeepSeek lacking an official API,
+            and <code>images.create</code>/<code>edit</code> produce SVG vector graphics like any other
+            image provider.
+          </li>
+        </ul>
       </section>
 
       <section id="install">
@@ -121,8 +202,9 @@
             <p>
               The <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> class is the default high-level interface,
               and it is recommended for most use-cases. It manages tool execution
-              automatically, guards against infinite loops, manages conversation
-              state, and much more.
+              automatically and
+              <a href="/llm/deepdive/advanced/guard">guards against infinite loops</a>,
+              manages conversation state, and much more.
             </p>
             <pre><code class="language-ruby">require "llm"
 
@@ -136,7 +218,8 @@ agent.talk "Hello world"</code></pre>
               is a class-level DSL that accepts a Hash of properties. Each key resolves to a
               corresponding class accessor: <code>name</code>, <code>description</code>, <code>model</code>, <code>tools</code>,
               <code>instructions</code>, <code>schema</code>, <code>stream</code>, <code>tracer</code>, <code>concurrency</code>, <code>confirm</code>,
-              <code>path</code>, and <code>skills</code>. All options are optional; zero or more can be set.
+              <code>path</code>, <code>skills</code>, and <code>tool_budget</code>. All options are optional; zero or
+              more can be set.
               An error is raised for unknown keys so that typos are caught early.
             </p>
             <pre><code class="language-ruby">class SystemAdmin < LLM::Agent
@@ -173,6 +256,40 @@ agent.talk "what's my name?"</code></pre>
           </div>
 
           <div class="example">
+            <h3>LLM::Guard</h3>
+            <p>
+              <code><a href="/api-docs/llm.rb/LLM/Guard.html">LLM::Guard</a></code>
+              is the hook that sees every tool call before it runs. A guard
+              can let a call through, cancel it, block it with an error, or
+              even answer for it. Because it runs before the tool, anything
+              it intercepts never executes. Policy, validation, quotas, and
+              cost ceilings all live here.
+            </p>
+            <p>
+              <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code>
+              enables
+              <code><a href="/api-docs/llm.rb/LLM/Guard/Loop.html">LLM::Guard::Loop</a></code>
+              by default, so agents get loop protection out of the box. To
+              write your own guard, subclass
+              <code><a href="/api-docs/llm.rb/LLM/Guard.html">LLM::Guard</a></code>
+              and implement
+              <code><a href="/api-docs/llm.rb/LLM/Guard.html#call-instance_method">LLM::Guard#call</a></code>.
+              The pending call arrives as <code>function:</code>. Return a value to close
+              the call, or <code>nil</code> to let it run:
+            </p>
+            <pre><code class="language-ruby">class PolicyGuard < LLM::Guard
+  def call(function:)
+    if function.name == "shell"
+      function.return(error: true, type: "policy_error",
+                      message: "shell is disabled")
+    end
+  end
+end
+
+agent = LLM::Agent.new(llm, guard: PolicyGuard)</code></pre>
+          </div>
+
+          <div class="example">
             <h3>LLM::Context</h3>
             <p>
               The <code><a href="/api-docs/llm.rb/LLM/Context.html">LLM::Context</a></code> class is at the heart of the runtime
@@ -180,6 +297,12 @@ agent.talk "what's my name?"</code></pre>
               It requires that the tool call loop be managed manually &ndash;
               sometimes that can be useful, but usually for advanced use-cases.
               If you're new to llm.rb, try <code><a href="/api-docs/llm.rb/LLM/Agent.html">LLM::Agent</a></code> first.
+            </p>
+            <p>
+              Every context tracks its own token usage and estimated cost. After any
+              turn, you can read the cost breakdown through
+              <code><a href="/api-docs/llm.rb/LLM/Context.html#cost-instance_method">LLM::Context#cost</a></code>,
+              and the REPL shows the running total in the status line.
             </p>
             <pre><code class="language-ruby">require "llm"
 
@@ -244,6 +367,9 @@ end</code></pre>
           Streams can be simple IO objects or subclasses of
           <code><a href="/api-docs/llm.rb/LLM/Stream.html">LLM::Stream</a></code> with structured callbacks for content,
           reasoning, tool calls, tool returns, and compaction.
+          Streams can also observe message transformers, which rewrite
+          outgoing messages before they reach the provider (see the
+          <a href="/llm/deepdive/advanced/transformer">deepdive</a>).
         </p>
         <pre><code class="language-ruby">class MyStream < LLM::Stream
   def on_content(content)
@@ -302,10 +428,17 @@ res.content!  # => {city: "Paris", temperature: 15.0, conditions: "Cloudy"}</cod
         <p>
           The <code><a href="/api-docs/llm.rb/LLM/Agent.html#repl-instance_method">LLM::Agent#repl</a></code>
           method drops you into a curses-based TUI for talking to an
-          agent interactively. Set <code>path:</code> on the agent for automatic
-          persistence across REPL sessions. The <code>tools:</code> option attaches
-          extra tools for the duration of the session. It is like
-          <code>binding.pry</code> but for agents. For the full reference see the
+          agent interactively. It renders markdown directly in the
+          terminal and shows a live status line with context usage,
+          running cost, and the current tool call. A second thread keeps
+          the UI responsive while the model works. Think of it as
+          <code>binding.pry</code> but for agents.
+        </p>
+        <p>
+          Set <code>path:</code> on the agent for automatic persistence across REPL
+          sessions. The <code>tools:</code> option attaches extra tools for the
+          duration of the session. Recall previous turns with <code>Ctrl+P</code> and
+          <code>Ctrl+N</code>. For the full reference, see the
           <a href="/llm/deepdive/fundamentals/repl">REPL section</a> in the
           deepdive.
         </p>
