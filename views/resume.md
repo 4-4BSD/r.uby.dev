@@ -30,7 +30,7 @@ I was one of the core contributors to the popular Ruby REPL known as Pry. I work
 
 **[mruby](https://github.com/mruby/mruby)**
 
-I have contributed [multiple commits](https://github.com/mruby/mruby/commits?author=bsdrobert) to mruby, the minimalist version of Ruby often used for embedded systems. I frequently use mruby for systems programming, and I also ported the AI runtime I authored at my previous company to mruby.
+I have contributed [multiple commits](https://github.com/mruby/mruby/commits?author=0x1eef) to mruby, the minimalist version of Ruby often used for embedded systems. I frequently use mruby for systems programming, and I also ported the AI runtime I authored at my previous company to mruby.
 
 **[HardenedBSD](https://github.com/hardenedbsd/hardenedbsd)**
 
