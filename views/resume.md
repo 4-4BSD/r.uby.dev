@@ -17,9 +17,10 @@ an open source AI runtime that became the foundation for the AI infrastructure a
 ### Recent
 
 For the past three years I worked on an AI runtime that can support advanced AI
-application development on CRuby. It's modestly popular with 92,000 downloads on
-RubyGems. It started as a simple idea and grew into a highly capable runtime with
-comprehensive documentation. Learn more at [r.uby.dev/llm](https://r.uby.dev/llm).
+application development on CRuby. It's modestly popular with more than 100,000
+downloads on RubyGems. It started as a simple idea and grew into a highly capable
+runtime with comprehensive documentation. You can learn more at [r.uby.dev/llm](https://r.uby.dev/llm)
+or view the source [on GitHub](https://github.com/r-uby-dev/llm#readme).
 
 ### History
 
